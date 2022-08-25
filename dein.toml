@@ -18,7 +18,7 @@ on_ft = 'toml'
 [[plugins]] # カラースキーマ
 repo = 'monsonjeremy/onedark.nvim'
 hook_add = '''
-lua <<EOF
+lua<<EOF
 require('onedark').setup({
   functionStyle = "italic",
   sidebars = {"qf", "vista_kind", "terminal", "packer"},
@@ -38,7 +38,7 @@ repo = 'tpope/vim-commentary'
 repo = 'nvim-treesitter/nvim-treesitter'
 hook_post_update = 'TSUpdate'
 hook_add ='''
-lua <<EOF
+lua<<EOF
 require'nvim-treesitter.configs'.setup {
   ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   highlight = {
@@ -105,9 +105,15 @@ repo = 'neovim/nvim-lspconfig'
 hook_add = '''
 set completeopt=menu,menuone,noselect
 
-lua << EOF
+lua<<EOF
 local nvim_lsp = require('lspconfig')
-local lsp_installer = require("nvim-lsp-installer")
+
+-- LSP Server Setup
+local mason = require("mason")
+local mason_lspconfig = require('mason-lspconfig')
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+local capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
 
 -- Use an on_attach function to only map the following keys
 -- after the language server attaches to the current buffer
@@ -141,40 +147,57 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', '<space>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
 end
 
-  -- Setup nvim-cmp.
-  local cmp = require'cmp'
-  local lspkind = require('lspkind')
+mason.setup()
+mason_lspconfig.setup_handlers({
+  function(server)
+    local opts = {
+      on_attach = on_attach,
+      capabilities = capabilities,
+    }
 
-  local source_mapping = {
-	  buffer = "[Buffer]",
-	  nvim_lsp = "[LSP]",
-	  nvim_lua = "[Lua]",
-	  cmp_tabnine = "[TN]",
-	  path = "[Path]",
-  }
+    nvim_lsp[server].setup(opts)
+  end
+})
 
-  cmp.setup({
-    snippet = {
-      expand = function(args)
-        vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-      end,
-    },
-    mapping = {
-      ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-      ['<C-f>'] = cmp.mapping.scroll_docs(4),
-      ['<C-Space>'] = cmp.mapping.complete(),
-      ['<C-e>'] = cmp.mapping.close(),
-      ['<CR>'] = cmp.mapping.confirm({ select = true }),
-    },
-    sources = cmp.config.sources({
-      { name = 'nvim_lsp' },
-      { name = 'vsnip' }, -- For vsnip users.
-      { name = 'buffer' },
-      { name = 'cmp_tabnine'},
-    }),
-    formatting = {
-		  format = function(entry, vim_item)
-			  vim_item.kind = lspkind.presets.default[vim_item.kind]
+
+-- Setup completion (hrsh7th/nvim-cmp)
+local cmp = require('cmp')
+local lspkind = require('lspkind')
+
+local source_mapping = {
+ buffer = "[Buffer]",
+ nvim_lsp = "[LSP]",
+ nvim_lua = "[Lua]",
+ cmp_tabnine = "[TN]",
+ path = "[Path]",
+}
+
+cmp.setup({
+  snippet = {
+    expand = function(args)
+      vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
+    end,
+  },
+  mapping = {
+    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
+    ['<C-f>'] = cmp.mapping.scroll_docs(4),
+    ['<C-Space>'] = cmp.mapping.complete(),
+    ['<C-e>'] = cmp.mapping.close(),
+    ['<CR>'] = cmp.mapping.confirm({ select = true }),
+  },
+  sources = cmp.config.sources({
+    { name = 'nvim_lsp' },
+    { name = 'vsnip' }, -- For vsnip users.
+    { name = 'buffer' },
+    { name = 'cmp_tabnine'},
+  }),
+  formatting = {
+    format = lspkind.cmp_format({
+      mode = 'symbol',
+      maxwidth = 50,
+
+    befre = function(entry, vim_item)
+	    vim_item.kind = lspkind.presets.default[vim_item.kind]
 			  local menu = source_mapping[entry.source.name]
 			  if entry.source.name == 'cmp_tabnine' then
 				  if entry.completion_item.data ~= nil and entry.completion_item.data.detail ~= nil then
@@ -185,30 +208,12 @@ end
 			  vim_item.menu = menu
 			  return vim_item
 		  end
-	  },
-  })
-
-  -- Setup lspconfig.
-  local capabilities = vim.lsp.protocol.make_client_capabilities()
-  local capabilities = require('cmp_nvim_lsp').update_capabilities(capabilities)
-
-  lsp_installer.on_server_ready(function(server)
-    local opts = {
-      on_attach = on_attach,
-      capabilities = capabilities,
-    }
-
-    -- (optional) Customize the options passed to the server
-    -- if server.name == "tsserver" then
-    --     opts.root_dir = function() ... end
-    -- end
-
-    -- This setup() function is exactly the same as lspconfig's setup function (:help lspconfig-quickstart)
-    server:setup(opts)
-    vim.cmd [[ do User LspAttachBuffers ]]
-  end)
+    })
+	},
+})
 EOF
 '''
+
 [[plugins]]
 repo = 'williamboman/nvim-lsp-installer.nvim'
 
@@ -294,7 +299,7 @@ build = '''
 [[plugins]]
 repo = 'kyazdani42/nvim-web-devicons'
 hook_add = '''
-lua <<EOF
+lua<<EOF
 require('nvim-web-devicons').setup ({
  -- your personnal icons can go here (to override)
  -- DevIcon will be appended to `name`
@@ -318,7 +323,7 @@ repo = 'nvim-lua/plenary.nvim'
 [[plugins]]
 repo = 'nvim-telescope/telescope.nvim'
 hook_add = '''
-lua << EOF
+lua<<EOF
 require('telescope').setup{}
 EOF
 " Find files using Telescope command-line sugar.
