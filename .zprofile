@@ -61,3 +61,9 @@ export LESS='-F -g -i -M -R -S -w -X -z-4'
 if (( $#commands[(i)lesspipe(|.sh)] )); then
   export LESSOPEN="| /usr/bin/env $commands[(i)lesspipe(|.sh)] %s 2>&-"
 fi
+
+# Created by `pipx` on 2021-11-26 12:12:45
+export PATH="$PATH:/Users/kai/.local/bin"
+
+# add pyenv setting on 2021-11-26
+eval "$(pyenv init --path)"

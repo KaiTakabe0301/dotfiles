@@ -14,13 +14,17 @@ fi
 # pyenvさんに~/.pyenvではなく、/usr/loca/var/pyenvを使うようにお願いする
 export PYENV_ROOT=/usr/local/var/pyenv
 
+# cargoのパスを設定
+[ -s "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
 # 自作関数のパスを設定
 export PATH="$HOME/.mycommand:$PATH"
 
 # pyenvさんに自動補完機能を提供してもらう
-if command -v pyenv 1>/dev/null 2>&1; then
-  eval "$(pyenv init -)"
-fi
+eval "$(pyenv init --path)"
+
+# pipenvのvenvをproject配下に作成するように変更
+export PIPENV_VENV_IN_PROJECT=true
 
 # load for rbenv
 eval "$(rbenv init -)"
@@ -30,6 +34,9 @@ eval "$(direnv hook zsh)"
 
 # starship
 eval "$(starship init zsh)"
+
+# settigs for homebrew
+alias brew="PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin brew"
 
 #setting for lsd
 alias ls='lsd'
@@ -43,6 +50,9 @@ alias grep='rg'
 
 # setting for fizzy find
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+export FZF_DEFAULT_COMMAND='fd --type f --follow --hidden --exclude .git'
+export FZF_CTRL_T_COMMAND='fd --type f'
+export FZF_ALT_C_COMMAND='fd --type d --follow --hidden --exclude .git'
 export FZF_COMPLETION_TRIGGER="," # default: '**'
 export FZF_DEFAULT_OPTS='--color=fg+:11 --height 70% --reverse --select-1 --exit-0 --multi'
 
@@ -65,7 +75,7 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#bbbbbb,bold,underline"
 autoload -Uz colors ; colors
 
 # エディタをvimに設定
-export EDITOR=vim
+export EDITOR=nvim visudo
 
 # Spaceshipでの[I]を表示しない
 SPACESHIP_VI_MODE_SHOW=false
@@ -299,6 +309,8 @@ alias dps='docker ps'
 alias dpsa='docker ps -a'
 alias dcps='docker-compose ps'
 alias dcpsa='docker-compose ps -a'
+alias dcrm='docker-compose rm'
+alias dcb='docker-compose build'
 
 # 削除
 # 各項目の全削除
@@ -332,3 +344,8 @@ if ! zplug check --verbose; then
   fi
 fi
 zplug load --verbose
+
+# Created by `pipx` on 2021-11-26 12:12:45
+export PATH="$PATH:/Users/kai/.local/bin"
+
+# Created by `poetry` on 2022-01-22

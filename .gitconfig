@@ -22,3 +22,5 @@
     difff = diff --word-diff
 [core]
 	editor = nvim
+[init]
+	defaultBranch = main

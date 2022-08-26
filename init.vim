@@ -27,14 +27,24 @@ nnoremap <Up>   gk
 " 逆に普通の行単位で移動したい時のために逆の map も設定しておく
 nnoremap gj j
 nnoremap gk k
-" NERDTreeToggleをctrl+tに割り当て
-nnoremap <C-n> :NERDTreeToggle<CR>
 " 行頭行末の移動にleaderを使用
-nnoremap <leader>6 ^
-nnoremap <leader>4 $
+nnoremap <leader>a ^
+nnoremap <leader>e $
 " 行頭行末の移動にleaderを使用
 nnoremap ; :
 nnoremap : ;
+
+" バッファの切り替え
+nnoremap <leader>n :bnext<CR>
+nnoremap <leader>p :bprev<CR>
+nnoremap <leader>x :bd<CR>
+
+" 一文字削除の時は、ブラックホールレジスタに格納
+nnoremap x "_x
+nnoremap X "_X
+
+" 行削除の時は、ブラックホールレジスタに格納 
+nnoremap dd "_dd
 
 " Insert Mode
 inoremap <silent> jj <ESC>
@@ -54,13 +64,6 @@ cnoremap <C-f> <Right>
 cnoremap <C-a> <Home>
 cnoremap <C-e> <End>
 cnoremap <C-d> <Del>
-
-"
-  "if !has('nvim')
-  "  call dein#add('roxma/nvim-yarp')
-  "  call dein#add('roxma/vim-hug-neovim-rpc')
-  "endif
-
 
 " ------------------------------------------------------------
 " Start dein.vim Script 
@@ -99,6 +102,14 @@ endif
 if has('vim_starting') && dein#check_install()
   call dein#install()
 endif
+
+" plugin remove check {{{
+let s:removed_plugins = dein#check_clean()
+if len(s:removed_plugins) > 0
+  call map(s:removed_plugins, "delete(v:val, 'rf')")
+  call dein#recache_runtimepath()
+endif
+" }}}
 " ------------------------------------------------------------
 " End dein.vim Script 
 " ------------------------------------------------------------
@@ -154,31 +165,32 @@ let g:airline#extensions#whitespace#enabled = 1
 " ------------------------------------------------------------
 " Start fzf-preview.vim setting
 " ------------------------------------------------------------
-nmap <Leader>f [fzf-p]
-xmap <Leader>f [fzf-p]
+" nmap <Leader>f [fzf-p]
+" xmap <Leader>f [fzf-p]
 
-nnoremap <silent> [fzf-p]p     :<C-u>CocCommand fzf-preview.FromResources project_mru git<CR>
-nnoremap <silent> [fzf-p]gs    :<C-u>CocCommand fzf-preview.GitStatus<CR>
-nnoremap <silent> [fzf-p]ga    :<C-u>CocCommand fzf-preview.GitActions<CR>
-nnoremap <silent> [fzf-p]b     :<C-u>CocCommand fzf-preview.Buffers<CR>
-nnoremap <silent> [fzf-p]B     :<C-u>CocCommand fzf-preview.AllBuffers<CR>
-nnoremap <silent> [fzf-p]o     :<C-u>CocCommand fzf-preview.FromResources buffer project_mru<CR>
-nnoremap <silent> [fzf-p]<C-o> :<C-u>CocCommand fzf-preview.Jumps<CR>
-nnoremap <silent> [fzf-p]g;    :<C-u>CocCommand fzf-preview.Changes<CR>
-nnoremap <silent> [fzf-p]/     :<C-u>CocCommand fzf-preview.Lines --add-fzf-arg=--no-sort --add-fzf-arg=--query="'"<CR>
-nnoremap <silent> [fzf-p]*     :<C-u>CocCommand fzf-preview.Lines --add-fzf-arg=--no-sort --add-fzf-arg=--query="'<C-r>=expand('<cword>')<CR>"<CR>
-nnoremap          [fzf-p]gr    :<C-u>CocCommand fzf-preview.ProjectGrep<Space>
-xnoremap          [fzf-p]gr    "sy:CocCommand   fzf-preview.ProjectGrep<Space>-F<Space>"<C-r>=substitute(substitute(@s, '\n', '', 'g'), '/', '\\/', 'g')<CR>"
-nnoremap <silent> [fzf-p]t     :<C-u>CocCommand fzf-preview.BufferTags<CR>
-nnoremap <silent> [fzf-p]q     :<C-u>CocCommand fzf-preview.QuickFix<CR>
-nnoremap <silent> [fzf-p]l     :<C-u>CocCommand fzf-preview.LocationList<CR>
-nnoremap <silent> [fzf-p]y     :<C-u>CocCommand fzf-preview.Yankround<CR>
+" nnoremap <silent> [fzf-p]p     :<C-u>CocCommand fzf-preview.FromResources project_mru git<CR>
+" nnoremap <silent> [fzf-p]gs    :<C-u>CocCommand fzf-preview.GitStatus<CR>
+" nnoremap <silent> [fzf-p]ga    :<C-u>CocCommand fzf-preview.GitActions<CR>
+" nnoremap <silent> [fzf-p]b     :<C-u>CocCommand fzf-preview.Buffers<CR>
+" nnoremap <silent> [fzf-p]B     :<C-u>CocCommand fzf-preview.AllBuffers<CR>
+" nnoremap <silent> [fzf-p]o     :<C-u>CocCommand fzf-preview.FromResources buffer project_mru<CR>
+" nnoremap <silent> [fzf-p]<C-o> :<C-u>CocCommand fzf-preview.Jumps<CR>
+" nnoremap <silent> [fzf-p]g;    :<C-u>CocCommand fzf-preview.Changes<CR>
+" nnoremap <silent> [fzf-p]/     :<C-u>CocCommand fzf-preview.Lines --add-fzf-arg=--no-sort --add-fzf-arg=--query="'"<CR>
+" nnoremap <silent> [fzf-p]*     :<C-u>CocCommand fzf-preview.Lines --add-fzf-arg=--no-sort --add-fzf-arg=--query="'<C-r>=expand('<cword>')<CR>"<CR>
+" nnoremap          [fzf-p]gr    :<C-u>CocCommand fzf-preview.ProjectGrep<Space>
+" xnoremap          [fzf-p]gr    "sy:CocCommand   fzf-preview.ProjectGrep<Space>-F<Space>"<C-r>=substitute(substitute(@s, '\n', '', 'g'), '/', '\\/', 'g')<CR>"
+" nnoremap <silent> [fzf-p]t     :<C-u>CocCommand fzf-preview.BufferTags<CR>
+" nnoremap <silent> [fzf-p]q     :<C-u>CocCommand fzf-preview.QuickFix<CR>
+" nnoremap <silent> [fzf-p]l     :<C-u>CocCommand fzf-preview.LocationList<CR>
+" nnoremap <silent> [fzf-p]y     :<C-u>CocCommand fzf-preview.Yankround<CR>
 " ------------------------------------------------------------
 " End fzf-preview.vim setting
 " ------------------------------------------------------------
 
-
-" yankround.vim
+" ------------------------------------------------------------
+" Start yankroundn.vim setting
+" ------------------------------------------------------------
 nmap <Leader>y [yankround]
 xmap <Leader>y [yankround]
 nmap p <Plug>(yankround-p)
@@ -189,3 +201,7 @@ xmap gp <Plug>(yankround-gp)
 nmap gP <Plug>(yankround-gP)
 nmap <silent> [yankround]p <Plug>(yankround-prev)
 nmap <silent> [yankround]n <Plug>(yankround-next)
+" ------------------------------------------------------------
+" End yankroundn.vim setting
+" ------------------------------------------------------------
+
