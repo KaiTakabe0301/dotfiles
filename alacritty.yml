@@ -31,4 +31,4 @@ colors:
     cyan:       '#56b6c2'
     white:      '#828997' # mono-2
 
-background_opacity: 0.9
+window.opacity: 0.9
