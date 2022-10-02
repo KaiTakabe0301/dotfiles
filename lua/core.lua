@@ -3,7 +3,7 @@
 vim.opt.number = true
 -- -特殊文字表示
 vim.opt.list = true
-vim.opt.listchars = {tab='>-', trail='*', nbsp='+'}
+vim.opt.listchars = { tab = '>-', trail = '*', nbsp = '+' }
 -- -エラー時の音を画面表示に
 vim.opt.visualbell = true
 -- -括弧の連携
@@ -52,4 +52,3 @@ vim.opt.clipboard = 'unnamedplus'
 
 -- マウス有効
 vim.opt.mouse = 'a'
-
