@@ -45,10 +45,11 @@ vim.opt.backspace = 'start,eol,indent'
 
 -- ファイル環境
 -- -フォーマット
-vim.opt.fileformats = 'dos', 'unix', 'mac'
+vim.opt.fileformats = 'unix'
 
 -- クリップボード連携
 vim.opt.clipboard = 'unnamedplus'
 
 -- マウス有効
 vim.opt.mouse = 'a'
+
