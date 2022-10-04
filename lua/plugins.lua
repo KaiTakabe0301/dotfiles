@@ -113,10 +113,15 @@ require("nvim-tree").setup {
 
 -- Lua
   use {
-    "SmiteshP/nvim-gps",
+    "SmiteshP/nvim-navic",
     requires = "nvim-treesitter/nvim-treesitter",
     config = function()
-      require('nvim-gps').setup()
+      local navic = require("nvim-navic")
+      require("lspconfig").clangd.setup {
+        on_attach = function(client, bufnr)
+          navic.attach(client, bufnr)
+        end
+      }
     end
   }
 
