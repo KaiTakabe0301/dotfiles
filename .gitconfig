@@ -29,7 +29,8 @@
   email = ph.c11.java.eo12@gmail.com
 
 [color]
-  diff=always
+  ui=auto
+  diff=auto
   diff-highlight=always
 
 [alias]
