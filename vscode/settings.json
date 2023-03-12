@@ -1,0 +1,396 @@
+{
+  "terminal.integrated.fontFamily": "Hack Nerd Font",
+  "workbench.colorTheme": "One Dark Pro",
+  "workbench.editor.showTabs": true,
+
+  //? workbench setting
+  "workbench.iconTheme": "material-icon-theme",
+
+  //? file setting
+  "files.autoSave": "afterDelay",
+  "files.trimTrailingWhitespace": true,
+  "files.autoGuessEncoding": true,
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
+
+  //? editor setting
+  "editor.suggestSelection": "first",
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": [
+    "source.organizeImports",
+    "source.fixAll.eslint"
+  ],
+  "editor.wordWrap": "off",
+  "editor.snippetSuggestions": "top",
+  "editor.tabCompletion": "on",
+  "editor.renderWhitespace": "all",
+
+  //? emmet setting
+  "emmet.showSuggestionsAsSnippets": true,
+  "emmet.includeLanguages": {
+    "twig": "html",
+    "vue-html": "html",
+    "django-html": "html"
+  },
+
+  // magit settings
+
+  //? vim setting
+  "vim.useSystemClipboard": true,
+  "vim.visualstar": true,
+  "vim.hlsearch": true,
+  "vim.easymotion": true,
+  "vim.useCtrlKeys": true,
+  // "vim.leader": "<space>",
+  "vim.surround": true,
+  "vim.insertModeKeyBindings": [
+    //? j j でノーマルモードに戻る
+    {
+      "before": ["j", "j"],
+      "after": ["<Esc>"]
+    }
+  ],
+  "vim.normalModeKeyBindingsNonRecursive": [
+    // {
+    //   "before": ["leader", "w"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "workbench.action.files.save",
+    //       "args": []
+    //     }
+    //   ]
+    // },
+    // {
+    //   "before": ["<Leader>", "h"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "workbench.action.focusLeftGroup",
+    //       "args": []
+    //     }
+    //   ]
+    // },
+    // {
+    //   "before": ["<Leader>", "j"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "workbench.action.focusBelowGroup",
+    //       "args": []
+    //     }
+    //   ]
+    // },
+    // {
+    //   "before": ["<Leader>", "k"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "workbench.action.focusAboveGroup",
+    //       "args": []
+    //     }
+    //   ]
+    // },
+    // {
+    //   "before": ["<Leader>", "l"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "workbench.action.focusRightGroup",
+    //       "args": []
+    //     }
+    //   ]
+    // },
+    // {
+    //   "before": ["<Leader>", "n"],
+    //   "after": ["g", "t"]
+    // },
+    // {
+    //   "before": ["<Leader>", "p"],
+    //   "after": ["g", "T"]
+    // },
+    // {
+    //   "before": ["<Leader>", "x"],
+    //   "commands": [":q!"]
+    // },
+    // {
+    //   "before": ["<leader>", "v"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "workbench.action.splitEditor",
+    //       "args": []
+    //     }
+    //   ]
+    // },
+    // {
+    //   "before": ["<leader>", "<leader>", "p"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "workbench.action.moveEditorLeftInGroup",
+    //       "args": []
+    //     }
+    //   ]
+    // },
+    // {
+    //   "before": ["<leader>", "<leader>", "n"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "workbench.action.moveEditorRightInGroup",
+    //       "args": []
+    //     }
+    //   ]
+    // },
+    // {
+    //   "before": ["<leader>", "<C-h>"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "workbench.action.moveEditorToPreviousGroup",
+    //       "args": []
+    //     }
+    //   ]
+    // },
+    // {
+    //   "before": ["<leader>", "<C-l>"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "workbench.action.moveEditorToNextGroup",
+    //       "args": []
+    //     }
+    //   ]
+    // },
+    {
+      "before": ["d"],
+      "after": ["\"", "_", "d"]
+    },
+    {
+      "before": ["x"],
+      "after": ["\"", "_", "x"]
+    },
+    {
+      "before": ["leader", "s"],
+      "after": [":", "%", "s", "/"]
+    },
+    {
+      "before": ["leader", "b"],
+      "after": ["%"]
+    },
+    {
+      "before": ["u"],
+      "after": [],
+      "commands": [
+        {
+          "command": "undo"
+        }
+      ]
+    },
+    {
+      "before": ["<C-r>"],
+      "after": [],
+      "commands": [
+        {
+          "command": "redo"
+        }
+      ]
+    },
+    // {
+    //   "before": ["<leader>", "a"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "cursorHomeSelect"
+    //     }
+    //   ]
+    // },
+    // {
+    //   "before": ["<leader>", "e"],
+    //   "after": [],
+    //   "commands": [
+    //     {
+    //       "command": "cursorEndSelect"
+    //     }
+    //   ]
+    // },
+    {
+      "before": ["<space>"],
+      "commands": ["vspacecode.space"]
+    },
+    {
+      "before": [","],
+      "commands": [
+        "vspacecode.space",
+        {
+          "command": "whichkey.triggerKey",
+          "args": "m"
+        }
+      ]
+    }
+  ],
+  //? visual modeのキーバインディングを設定
+  "vim.visualModeKeyBindingsNonRecursive": [
+    {
+      "before": ["d"],
+      "after": ["\"", "_", "d"]
+    },
+    {
+      "before": ["x"],
+      "after": ["\"", "_", "x"]
+    },
+    {
+      "before": ["<space>"],
+      "commands": ["vspacecode.space"]
+    },
+    {
+      "before": [","],
+      "commands": [
+        "vspacecode.space",
+        {
+          "command": "whichkey.triggerKey",
+          "args": "m"
+        }
+      ]
+    }
+  ],
+  // vim status bar color
+  "vim.statusBarColorControl": false,
+  "vim.statusBarColors.normal": ["#161821", "#818596"],
+  "vim.statusBarColors.insert": ["#84A0C6", "#161821"],
+  "vim.statusBarColors.visual": ["#B4BE82", "#161821"],
+  "vim.statusBarColors.visualline": ["#B4BE82", "#161821"],
+  "vim.statusBarColors.visualblock": ["#B4BE82", "#161821"],
+  "vim.statusBarColors.replace": ["#E2A478", "#161821"],
+  "vim.statusBarColors.commandlineinprogress": ["#818596", "#161821"],
+  "vim.statusBarColors.searchinprogressmode": ["#818596", "#161821"],
+  "vim.statusBarColors.easymotionmode": ["#818596", "#161821"],
+  "vim.statusBarColors.easymotioninputmode": ["#818596", "#161821"],
+  "vim.statusBarColors.surroundinputmode": ["#818596", "#161821"],
+
+  "window.zoomlevel": 0,
+  //? C++ setting
+  "C_Cpp.updateChannel": "Insiders",
+  "C_Cpp.clang_format_style": "file",
+  //? ruby setting
+  "ruby.lint": {
+    "reek": true,
+    "rubocop": true,
+    "ruby": true, //?Runs ruby -wc
+    "fasterer": true,
+    "debride": true,
+    "ruby-lint": true
+  },
+  //?"ruby.rubocop.executePath": "C:/Ruby25-x64/bin/",
+  "ruby.intellisense": "rubyLocate",
+  "ruby.format": "rufo",
+  "ruby.useLanguageServer": true,
+  "solargraph.definitions": true,
+  "solargraph.diagnostics": true,
+  "solargraph.completion": true,
+  //? python setting
+  "[python]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": true,
+    "editor.formatOnType": true
+  },
+  "python.venvPath": ".venv",
+  "python.languageServer": "Pylance",
+  "python.linting.enabled": true,
+  "python.linting.flake8Enabled": true,
+  "python.linting.lintOnSave": true,
+  "python.linting.flake8Args": [
+    "--max-line-length=120",
+    "--ignore=E203,W503,W504"
+  ],
+  "python.formatting.provider": "black",
+  "python.formatting.blackPath": "black",
+  "python.formatting.blackArgs": ["--line-length=120"],
+
+  //? background cover setting
+  "backgroundCover.imagePath": "c:\\Users\\Kai\\Pictures\\background\\0e18274d80cb78576fcf4bc7f0591a94.jpg",
+  "backgroundCover.randomImageFolder": "c:/Users/Kai/Pictures/background/ahegao",
+  "backgroundCover.autoStatus": false,
+  "backgroundCover.opacity": 1,
+  //"terminal.integrated.fontFamily": "Source Code Pro for PowerLine",
+  //"terminal.integrated.fontFamily": "RobotoMono Nerd Font",
+  "oneDarkPro.vivid": true,
+  "glassit.alpha": 240,
+  "editor.accessibilitySupport": "on",
+
+  //? Vuter setting
+  "vetur.format.defaultFormatter.html": "prettier",
+  "vetur.format.defaultFormatter.css": "prettier",
+  "vetur.format.defaultFormatter.pug": "prettier",
+  "vetur.format.defaultFormatter.postcss": "prettier",
+  "vetur.format.defaultFormatter.scss": "prettier",
+  "vetur.format.defaultFormatter.less": "prettier",
+  "vetur.format.defaultFormatter.stylus": "stylus-supremacy",
+  "vetur.format.defaultFormatter.js": "prettier",
+  "vetur.format.defaultFormatter.ts": "prettier",
+  "vetur.format.defaultFormatter.sass": "sass-formatter",
+  "workbench.colorCustomizations": {
+    "statusBar.background": "#161821",
+    "statusBar.noFolderBackground": "#161821",
+    "statusBar.debuggingBackground": "#161821",
+    "statusBar.foreground": "#818596"
+  },
+  "editor.minimap.enabled": false,
+
+  // Scans builtin modules as well
+  "node-module-intellisense.scanBuiltinModules": true,
+
+  // Scans devDependencies as well
+  "node-module-intellisense.scanDevDependencies": true,
+
+  // Scans file modules as well
+  "node-module-intellisense.scanFileModules": true,
+
+  /**
+   * Scans alternative module paths (eg. Search on ${workspcaceRoot}/lib).
+   * Useful when using packages like (https://www.npmjs.com/package/app-module-path) to manage require paths folder.
+   **/
+  "node-module-intellisense.modulePaths": [],
+
+  // File module extensions
+  "node-module-intellisense.autoStripExtensions": [
+    ".js",
+    ".jsx",
+    ".ts",
+    ".d.ts",
+    ".tsx",
+    ".vue",
+    ".json"
+  ],
+
+  "npm-intellisense.importES6": true,
+  "npm-intellisense.importQuotes": "'",
+  "npm-intellisense.importLinebreak": ";\r\n",
+  "npm-intellisense.importDeclarationType": "const",
+  "workbench.editorAssociations": {
+    "*.ipynb": "jupyter.notebook.ipynb"
+  },
+
+  //tabnine
+  "tabnine.experimentalAutoImports": true,
+
+  "window.zoomLevel": 1,
+  "explorer.confirmDragAndDrop": false,
+  "errorLens.enabled": true,
+
+  "eslint.workingDirectories": [
+    {
+      "mode": "auto"
+    }
+  ],
+  "audioCues.lineHasBreakpoint": "off",
+  "audioCues.lineHasError": "off",
+  "audioCues.lineHasFoldedArea": "off",
+  "audioCues.lineHasInlineSuggestion": "off",
+  "audioCues.noInlayHints": "off",
+  "audioCues.onDebugBreak": "off",
+  "terminal.integrated.enableMultiLinePasteWarning": false
+}
