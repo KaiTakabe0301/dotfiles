@@ -50,11 +50,50 @@ alias grep='rg'
 
 # setting for fizzy find
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# fzfのカラーテーマを One Darkに設定
+local fzf_color_theme=$(cat <<"EOF"
+--color=fg:#D8DEE9,bg:#2E3440,hl:#A3BE8C,fg+:#D8DEE9,bg+:#434C5E,hl+:#A3BE8C
+--color=pointer:#BF616A,info:#4C566A,spinner:#4C566A,header:#4C566A,prompt:#81A1C1,marker:#EBCB8B
+EOF
+)
+
+local find_ignore="find ./ -type d \( -name '.git' -o -name 'node_modules' \) -prune -o -type"
+
+# fzfのデフォルトで反映するオプションを設定する
+export FZF_DEFAULT_OPTS=$(cat <<EOF
+--multi
+--height=60%
+--select-1
+--exit-0
+--reverse
+--bind ctrl-d:preview-page-down,ctrl-u:preview-page-up
+EOF
+)
+
 export FZF_DEFAULT_COMMAND='fd --type f --follow --hidden --exclude .git'
+
 export FZF_CTRL_T_COMMAND='fd --type f'
-export FZF_ALT_C_COMMAND='fd --type d --follow --hidden --exclude .git'
-export FZF_COMPLETION_TRIGGER="," # default: '**'
-export FZF_DEFAULT_OPTS='--color=fg+:11 --height 70% --reverse --select-1 --exit-0 --multi'
+
+# ディレクトリ検索のコマンド
+export FZF_ALT_C_COMMAND=$(cat <<EOF
+( (type fd > /dev/null) &&
+  fd --type d \
+    --strip-cwd-prefix \
+    --hidden \
+    --exclude '{.git,node_modules}/**' ) \
+  || ${find_ignore} d -print 2> /dev/null
+EOF
+)
+#export FZF_ALT_C_OPTS="--preview 'lsd --tree {} | head -100'"
+
+export FZF_COMPLETION_TRIGGER='**'
+
+# tmux上でfzfを起動した際のオプション
+export FZF_TMUX=1
+export FZF_TMUX_OPTS="-p 80%"
+
+export FZF_BASE=$HOME/.fzf
+
 
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#bbbbbb,bold,underline"
 
@@ -162,6 +201,9 @@ setopt noautoremoveslash
 
 # rsysncでsshを使用する
 export RSYNC_RSH=ssh
+
+# ターミナルの再起動にエイリアスを設定
+alias relogin='exec $SHELL -l'
 
 # その他
 umask 022
