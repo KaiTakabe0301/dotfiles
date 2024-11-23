@@ -1,0 +1,55 @@
+[color]
+	ui = auto
+	diff
+	diff-highlight = always
+
+[core]
+	pager = delta
+	editor = nvim
+
+[delta]
+	navigate = true
+	light = true
+	side-by-side = true
+
+[diff]
+	colorMoved = default
+
+[ghq]
+	root = ~/.ghq
+
+[init]
+	defaultBranch = main
+
+[interactive]
+	diffFilter = delta --color-only
+
+[merge]
+	conflictStyle = diff3
+
+[pull]
+	rebase = true
+	autoStash = true
+
+[push]
+	useForceIfIncludes = true
+
+[rebase]
+	autoStash = true
+
+[rerere]
+	enabled = true
+
+[user]
+	name = KaiTakabe0301
+	email = tb12e053.tkb@gmail.com
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAd0Vv9PptXgDzpIwqiDXkMJ8lnbG3w01YTxN1zyD+WL
+
+[gpg]
+  format = ssh
+
+[gpg "ssh"]
+  program = "/Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+
+[commit]
+  gpgsign = true
