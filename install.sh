@@ -78,12 +78,12 @@ install_homebrew_bundle() {
   echo "- 👨🏻‍🚀 Install Homebrew Bundle"
   echo "- 👨🏻‍🚀 Checking Homebrew Bundle..."
 
-  if brew bundle check; then
+  if brew bundle check --file='home/dot_config/homebrew/Brewfile'; then
     echo "- 👨🏻‍🚀 Homebrew Bundle is already installed"
   else
     echo "- 👨🏻‍🚀 Homebrew Bundle not found"
     echo "- 👨🏻‍🚀 Installing Homebrew Bundle..."
-    brew bundle install
+    brew bundle install --file='home/dot_config/homebrew/Brewfile'
     echo "- 👨🏻‍🚀 Homebrew Bundle is ready to go 🎉"
   fi
 }
