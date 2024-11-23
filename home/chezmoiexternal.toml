@@ -1,0 +1,14 @@
+# https://www.chezmoi.io/reference/special-files-and-directories/chezmoiexternal-format/
+
+[".tmux/plugins/tpm"]
+type = "archive"
+url = "https://github.com/tmux-plugins/tpm/archive/master.tar.gz"
+exact = true
+stripComponents = 1
+refreshPeriod = "168h"
+
+# [".config/nvim"]
+# type = "git-repo"
+# url = "https://github.com/ganyariya/astronvim-template"
+# refreshPeriod = "24h"
+# clone.args = ["--depth", "1", "-b", "main"]
