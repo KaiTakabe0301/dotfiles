@@ -58,6 +58,7 @@ install_xcode_cli_tools() {
 }
 
 # This function installs Homebrew if it is not already installed.
+# I want to manage chezmoi using homebrew, so I will not install homebrew in .chezmoiscripts.
 install_homebrew() {
   echo "- 👨🏻‍🚀 Install Homebrew"
   echo "- 👨🏻‍🚀 Checking Homebrew..."
