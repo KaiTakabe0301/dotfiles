@@ -1,13 +1,336 @@
-#
-# Executes commands at the start of an interactive session.
-#
-# Authors:
-#   Sorin Ionescu <sorin.ionescu@gmail.com>
-#
-
 # Source Prezto.
 if [[ -s "${ZDOTDIR:-$HOME}/.zprezto/init.zsh" ]]; then
   source "${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
 fi
 
-# Customize to your needs...
+# 自作関数のパスを設定
+export PATH="$HOME/.mycommand:$PATH"
+
+# ---------------------------------------------------------
+# starship setting
+# ---------------------------------------------------------
+eval "$(starship init zsh)"
+
+
+# ---------------------------------------------------------
+# direnv setting
+# ---------------------------------------------------------
+eval "$(direnv hook zsh)"
+
+
+# ---------------------------------------------------------
+# General
+# ---------------------------------------------------------
+export LANG=ja_JP.UTF-8
+export KCODE=u
+
+# エディタをvimに設定
+export EDITOR=vim visudo
+
+# 色を使用
+autoload -Uz colors ; colors
+
+# Spaceshipでの[I]を表示しない
+SPACESHIP_VI_MODE_SHOW=false
+
+# Ctrl+Dでログアウトしてしまうことを防ぐ
+setopt IGNOREEOF
+
+# パスを追加したい場合
+export PATH="$HOME/bin:$PATH"
+
+# cdした際のディレクトリをディレクトリスタックへ自動追加
+setopt auto_pushd
+
+# ディレクトリスタックへの追加の際に重複させない
+setopt pushd_ignore_dups
+
+# viキーバインド
+bindkey -v
+bindkey "jj" vi-cmd-mode
+
+# フローコントロールを無効にする
+setopt no_flow_control
+
+# ワイルドカード展開を使用する
+setopt extended_glob
+
+# cdコマンドを省略して、ディレクトリ名のみの入力で移動
+setopt auto_cd
+
+# コマンドラインがどのように展開され実行されたかを表示するようになる
+#setopt xtrace
+
+# pushdから重複を削除
+setopt pushd_ignore_dups
+
+# ビープ音を鳴らさないようにする
+setopt no_beep
+
+# カッコの対応などを自動的に補完する
+setopt auto_param_keys
+
+# bgプロセスの状態変化を即時に知らせる
+setopt notify
+
+# 8bit文字を有効にする
+setopt print_eight_bit
+
+# 終了ステータスが0以外の場合にステータスを表示する
+setopt print_exit_value
+
+# ファイル名の展開でディレクトリにマッチした場合 末尾に / を付加
+setopt mark_dirs
+
+# 上書きリダイレクトの禁止
+setopt no_clobber
+
+# sudo の後ろでコマンド名を補完する
+zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
+                   /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
+
+# ps コマンドのプロセス名補完
+zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
+
+# パスの最後のスラッシュを削除しない
+setopt noautoremoveslash
+
+# 各コマンドが実行されるときにパスをハッシュに入れる
+#setopt hash_cmds
+
+# ターミナルの再起動にエイリアスを設定
+alias relogin='exec $SHELL -l'
+
+# user maskを設定
+# ディレクトリのパーミッションは755、ファイルのパーミッションは644
+umask 022
+
+# core fileを作成しない（異常終了時のダンプファイルを出力しない)
+ulimit -c 0
+
+
+# ---------------------------------------------------------
+# Completion
+# ---------------------------------------------------------
+# コマンドのスペルチェックをする
+setopt correct
+
+# コマンドライン全てのスペルチェックをする
+setopt correct_all
+
+# 単語の入力途中でもTab補完を有効化
+setopt complete_in_word
+
+# 補完の選択を楽にする
+zstyle ':completion:*' menu select
+
+# 補完候補をできるだけ詰めて表示する
+setopt list_packed
+
+# 補完候補にファイルの種類も表示する
+setopt list_types
+
+# --prefix=/usr などの = 以降でも補完
+setopt magic_equal_subst
+
+
+# ---------------------------------------------------------
+# zsh-completions setting
+# ---------------------------------------------------------
+
+# enable zsh-completions
+if type brew &>/dev/null; then
+  FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+
+  autoload -Uz compinit
+  compinit
+fi
+
+
+# ---------------------------------------------------------
+# mise setting
+# ---------------------------------------------------------
+eval "$(mise activate zsh)"
+export MISE_NODE_COREPACK=true
+
+
+# ---------------------------------------------------------
+# python setting
+# ---------------------------------------------------------
+# pipenvのvenvをproject配下に作成するように変更
+export PIPENV_VENV_IN_PROJECT=true
+
+
+# ---------------------------------------------------------
+# rust setting
+# ---------------------------------------------------------
+# cargoのパスを設定
+[ -s "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+export PATH="$HOME/.cargo/bin:$PATH"
+
+
+# ---------------------------------------------------------
+# lsd Setting
+# ---------------------------------------------------------
+alias ls='lsd'
+alias l='ls -l'
+alias la='ls -a'
+alias lla='ls -al'
+alias lt='ls --tree'
+
+
+# ---------------------------------------------------------
+# ripgrep Setting
+# ---------------------------------------------------------
+alias grep='rg'
+
+
+# ---------------------------------------------------------
+# fzf setting
+# ---------------------------------------------------------
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
+
+# fzfのカラーテーマを One Darkに設定
+local fzf_color_theme=$(cat <<"EOF"
+--color=fg:#D8DEE9,bg:#2E3440,hl:#A3BE8C,fg+:#D8DEE9,bg+:#434C5E,hl+:#A3BE8C
+--color=pointer:#BF616A,info:#4C566A,spinner:#4C566A,header:#4C566A,prompt:#81A1C1,marker:#EBCB8B
+EOF
+)
+
+local find_ignore="find ./ -type d \( -name '.git' -o -name 'node_modules' \) -prune -o -type"
+
+# fzfのデフォルトで反映するオプションを設定する
+export FZF_DEFAULT_OPTS=$(cat <<EOF
+--multi
+--height=60%
+--select-1
+--exit-0
+--reverse
+--bind ctrl-d:preview-page-down,ctrl-u:preview-page-up
+EOF
+)
+
+export FZF_DEFAULT_COMMAND='fd --type f --follow --hidden --exclude .git'
+
+export FZF_CTRL_T_COMMAND='fd --type f'
+
+# ディレクトリ検索のコマンド
+export FZF_ALT_C_COMMAND=$(cat <<EOF
+( (type fd > /dev/null) &&
+  fd --type d \
+    --strip-cwd-prefix \
+    --hidden \
+    --exclude '{.git,node_modules}/**' ) \
+  || ${find_ignore} d -print 2> /dev/null
+EOF
+)
+#export FZF_ALT_C_OPTS="--preview 'lsd --tree {} | head -100'"
+
+export FZF_COMPLETION_TRIGGER='**'
+
+# tmux上でfzfを起動した際のオプション
+export FZF_TMUX=1
+export FZF_TMUX_OPTS="-p 80%"
+
+export FZF_BASE=$HOME/.fzf
+
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#bbbbbb,bold,underline"
+
+
+
+# ---------------------------------------------------------
+# fzf custom functions
+# ---------------------------------------------------------
+# fbr - checkout git branch (including remote branches)
+fbr() {
+  local branches branch
+  branches=$(git branch --all | grep -v HEAD) &&
+  branch=$(echo "$branches" |
+           fzf-tmux -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
+  git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+}
+
+# git commit をfzfで選択
+alias tg='git diff $(git log --pretty=format:"%h %s" | fzf-tmux --height 100% --prompt "SELECT COMMIT>" --preview "git diff --color=always {1}\^..{1}" | awk '\''{print $1 "\^.." $1}'\'') | less -R'
+
+# git checkout branchをfzfで選択
+alias co='git checkout $(git branch -a | tr -d " " |fzf-tmux --height 100% --prompt "CHECKOUT BRANCH>" --preview "git log --color=always {}" | head -n 1 | sed -e "s/^\*\s*//g" | perl -pe "s/remotes\/origin\///g")'
+
+#git branch --delete <branch>をfzfで選択
+alias bd='git branch -d $(git branch -a | fzf --prompt "DELETE BRANCH>")'
+
+# cdrの設定
+autoload -Uz is-at-least
+if is-at-least 4.3.11
+then
+  autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
+  add-zsh-hook chpwd chpwd_recent_dirs
+  zstyle ':chpwd:*'      recent-dirs-max 500
+  zstyle ':chpwd:*'      recent-dirs-default yes
+  zstyle ':completion:*' recent-dirs-insert both
+fi
+
+# fzf-cdr
+alias cdd='fzf-cdr'
+function fzf-cdr() {
+    target_dir=`cdr -l | sed 's/^[^ ][^ ]*  *//' | fzf`
+    target_dir=`echo ${target_dir/\~/$HOME}`
+    target_dir=`echo $target_dir | sed 's/\\\\//'`
+    if [ -n "$target_dir" ]; then
+        cd $target_dir
+    fi
+}
+
+# frepo - search repository and change directory
+alias frp='frepo'
+frepo() {
+  local dir
+  dir=$(ghq list > /dev/null | fzf-tmux +m --height 100% --prompt "SELECT REPOSITORY>") &&
+    cd $(ghq root)/$dir
+}
+
+
+# ---------------------------------------------------------
+# docker setting
+# ---------------------------------------------------------
+# docker-composeのエイリアス
+alias docker-compose="docker compose"
+
+#構築系
+alias dcb='docker-compose build'
+alias dcbnc='docker-compose build --no-cache'
+alias dcconf='docker-compose config'
+
+# 起動系
+alias dcup='docker-compose up'
+alias dcupd='docker-compose up -d'
+alias dcupb='docker-compose up --build'
+alias dcupbd='docker-compose up -d --build'
+alias dcstop='docker-compose stop'
+alias dcdown='docker-compose down'
+alias dcrst='docker-compose restart'
+
+#プロセス系
+alias dps='docker ps'
+alias dpsa='docker ps -a'
+alias dcps='docker-compose ps'
+alias dcpsa='docker-compose ps -a'
+alias dcrm='docker-compose rm'
+alias dcb='docker-compose build'
+
+# 削除
+# 各項目の全削除
+alias dcpr='docker container prune'
+alias dvpr='docker volume prune'
+alias dipr='docker image prune'
+alias dsypr='docker system prune'
+
+# コンテナに対して操作
+alias dcrun='docker-compose run'
+alias dcrunrm='docker-compose run --rm'
+alias dcexec='docker-compose exec'
+# app コンテナに対して操作
+alias dcrrb='docker-compose run --rm bash'
+alias dcea='docker-compose exec app'
+alias dceab='docker-compose exec app bash'
