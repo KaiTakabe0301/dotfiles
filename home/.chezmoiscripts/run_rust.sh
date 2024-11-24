@@ -37,3 +37,4 @@ echo "- 🦀 $(rustup --version)"
 echo "- 🦀 $(rustc --version)"
 echo "- 🦀 $(rustdoc --version)"
 echo "- 🦀 $(cargo --version)"
+echo '- 🦀 Rust is ready to go 🎉'
