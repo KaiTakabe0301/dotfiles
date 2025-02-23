@@ -1,1 +1,5 @@
 install.sh
+
+{{- if eq .chezmoi.hostname "kai-caddi" }}
+home/dot_config/dot_obsidian.vimrc
+{{- end }}
