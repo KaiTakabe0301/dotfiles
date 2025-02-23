@@ -345,3 +345,10 @@ alias dceab='docker-compose exec app bash'
 # enable volta
 export VOLTA_HOME="$HOME/.volta"
 export PATH="$VOLTA_HOME/bin:$PATH"
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/kai_takabe/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/kai_takabe/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/kai_takabe/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/kai_takabe/google-cloud-sdk/completion.zsh.inc'; fi
+
