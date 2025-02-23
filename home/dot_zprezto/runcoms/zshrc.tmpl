@@ -153,13 +153,11 @@ if type brew &>/dev/null; then
   compinit
 fi
 
-{{- if eq .chezmoi.hostname "kai-private" }}
 # ---------------------------------------------------------
 # mise setting
 # ---------------------------------------------------------
 eval "$(mise activate zsh)"
 export MISE_NODE_COREPACK=true
-{{- end }}
 
 
 # ---------------------------------------------------------
