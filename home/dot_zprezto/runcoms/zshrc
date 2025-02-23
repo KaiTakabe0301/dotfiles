@@ -341,3 +341,7 @@ alias dcexec='docker-compose exec'
 alias dcrrb='docker-compose run --rm bash'
 alias dcea='docker-compose exec app'
 alias dceab='docker-compose exec app bash'
+
+# enable volta
+export VOLTA_HOME="$HOME/.volta"
+export PATH="$VOLTA_HOME/bin:$PATH"
