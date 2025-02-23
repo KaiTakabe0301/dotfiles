@@ -352,3 +352,8 @@ if [ -f '/Users/kai_takabe/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/kai_
 # The next line enables shell command completion for gcloud.
 if [ -f '/Users/kai_takabe/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/kai_takabe/google-cloud-sdk/completion.zsh.inc'; fi
 
+
+# enable postgresql client
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+export LDFLAGS="-L/opt/homebrew/opt/libpq/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/libpq/include"
