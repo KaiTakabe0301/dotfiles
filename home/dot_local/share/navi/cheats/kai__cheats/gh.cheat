@@ -1,0 +1,5 @@
+% github, cli
+
+# Create a repository interactively
+gh repo create
+
