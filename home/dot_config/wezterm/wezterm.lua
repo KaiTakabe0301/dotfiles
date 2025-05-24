@@ -7,12 +7,12 @@ config.use_ime = true
 
 -- 1.00で不透明、0.00で透明
 -- tmux nord themeが透過に対応していないため、透過は無効にする
-config.window_background_opacity = 1.00
+config.window_background_opacity = 0.95
 
 config.macos_window_background_blur = 20
 config.font =
   wezterm.font('Hack Nerd Font', { weight = 'Bold', italic = false })
-config.color_scheme = 'OneHalfDark'
+config.color_scheme = 'nord'
 
 ----------------------------------------------------
 -- Tab
