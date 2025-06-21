@@ -14,6 +14,8 @@
 
       "Bash(touch:*)",
       "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
 
       "Bash(grep:*)",
       "Bash(rg:*)",
@@ -35,9 +37,7 @@
       "WebFetch(domain:nestjs.com)",
       "WebFetch(domain:tailwindcss.com)"
     ],
-    "deny": [
-      "Bash(sudo:*)"
-    ]
+    "deny": ["Bash(sudo:*)"]
   },
   "env": {
     "ANTHROPIC_MODEL": "claude-opus-4-20250514"
