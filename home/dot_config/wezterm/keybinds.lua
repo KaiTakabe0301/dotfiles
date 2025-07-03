@@ -31,5 +31,8 @@ return {
     { key = "p", mods = "SHIFT|CTRL", action = act.ActivateCommandPalette },
     -- 設定再読み込み
     { key = "r", mods = "SHIFT|CTRL", action = act.ReloadConfiguration },
+
+    -- claude codeなどのcliで改行する
+    { key = "Enter", mods = "SHIFT", action = wezterm.action.SendString('\n')}
   },
 }
