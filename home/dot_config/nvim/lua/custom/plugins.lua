@@ -56,4 +56,7 @@ return {
       },
     },
   },
+
+  -- Load none-ls configuration
+  require("custom.plugins.none-ls"),
 }
