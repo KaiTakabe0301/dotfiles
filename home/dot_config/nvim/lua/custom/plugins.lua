@@ -52,7 +52,8 @@ return {
       ensure_installed = {
         "vim", "lua", "vimdoc",
         "html", "css", "javascript", "typescript", "tsx", "json",
-        "python", "go", "rust", "yaml", "toml", "markdown", "bash"
+        "python", "go", "rust", "yaml", "toml", "markdown", "bash",
+        "graphql"
       },
     },
   },
