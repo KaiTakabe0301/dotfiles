@@ -77,7 +77,7 @@ M.polish_hl = {
     
     -- Functions (blue)
     ["@function"] = { fg = M.base_16.base0D },           -- blue
-    ["@function.builtin"] = { fg = M.base_16.base0A },   -- yellow
+    ["@function.builtin"] = { fg = M.base_16.base0C },   -- cyan (support functions)
     ["@function.call"] = { fg = M.base_16.base0D },      -- blue
     ["@function.method"] = { fg = M.base_16.base0D },    -- blue
     ["@function.method.call"] = { fg = M.base_16.base0D }, -- blue
@@ -109,6 +109,13 @@ M.polish_hl = {
     
     -- Operators (white/foreground)
     ["@operator"] = { fg = M.base_16.base05 },           -- white
+    ["@keyword.operator"] = { fg = M.base_16.base05 },   -- white
+    ["@keyword.operator.arithmetic"] = { fg = M.base_16.base0C }, -- cyan
+    ["@keyword.operator.comparison"] = { fg = M.base_16.base0C }, -- cyan
+    ["@keyword.operator.logical"] = { fg = M.base_16.base0C },    -- cyan
+    ["@keyword.operator.bitwise"] = { fg = M.base_16.base0C },    -- cyan
+    ["@keyword.operator.expression"] = { fg = M.base_16.base0E }, -- purple (new, instanceof, etc.)
+    ["@keyword.operator.type"] = { fg = M.base_16.base0E },       -- purple (typeof, keyof, etc.)
     
     -- Numbers and Literals
     ["@number"] = { fg = M.base_16.base09 },             -- orange
@@ -128,6 +135,31 @@ M.polish_hl = {
     ["@tag"] = { fg = M.base_16.base08 },                -- red
     ["@tag.attribute"] = { fg = M.base_16.base09 },      -- orange
     ["@tag.delimiter"] = { fg = M.base_16.base05 },      -- white
+    
+    -- Support functions and types
+    ["@support.function"] = { fg = M.base_16.base0C },   -- cyan
+    ["@support.type"] = { fg = M.base_16.base0C },       -- cyan
+    ["@support.class"] = { fg = M.base_16.base0A },      -- yellow
+    
+    -- Object variables and properties
+    ["@variable.object"] = { fg = M.base_16.base0A },    -- yellow
+    ["@variable.other.object"] = { fg = M.base_16.base0A }, -- yellow
+    ["@variable.other.object.property"] = { fg = M.base_16.base08 }, -- red
+    ["@variable.other.readwrite.alias"] = { fg = M.base_16.base08 }, -- red
+    
+    -- Object literal keys
+    ["@string.special.key"] = { fg = M.base_16.base08 }, -- red (object keys)
+    ["@property.key"] = { fg = M.base_16.base08 },       -- red
+    ["@variable.key"] = { fg = M.base_16.base08 },       -- red
+    
+    -- CSS Properties
+    ["@property.css"] = { fg = M.base_16.base0C },       -- cyan
+    ["@support.type.property-name.css"] = { fg = M.base_16.base0C }, -- cyan
+    ["@attribute.css"] = { fg = M.base_16.base09 },      -- orange
+    
+    -- Additional language-specific
+    ["@attribute"] = { fg = M.base_16.base09 },          -- orange
+    ["@attribute.builtin"] = { fg = M.base_16.base09 },  -- orange
   },
 }
 
