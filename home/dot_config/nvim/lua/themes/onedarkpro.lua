@@ -6,7 +6,7 @@ local M = {}
 M.base_30 = {
   white        = "#abb2bf",
   darker_black = "#1b1f27",
-  black        = "#1e222a",  -- nvim bg
+  black        = "#282c34",  -- nvim bg
   black2       = "#252931",
   one_bg       = "#282c34",  -- statusline bg
   one_bg2      = "#30343c",
@@ -34,10 +34,11 @@ M.base_30 = {
   lightbg      = "#2d3139",
   pmenu_bg     = "#98c379",
   folder_bg    = "#61afef",
+  comment      = "#7f848e",  -- Binaryify OneDark-Pro comment color
 }
 
 M.base_16 = {
-  base00 = "#1e222a",
+  base00 = "#282c34",
   base01 = "#353b45",
   base02 = "#3e4451",
   base03 = "#545862",
@@ -62,7 +63,7 @@ M.polish_hl = {
     Function = { fg = M.base_16.base0D },   -- blue
     Operator = { fg = M.base_16.base05 },   -- fg (white)
     Keyword = { fg = M.base_16.base0E },    -- purple
-    Comment = { fg = M.base_30.grey_fg, italic = true },
+    Comment = { fg = M.base_30.comment, italic = true },
   },
   
   treesitter = {
@@ -104,10 +105,29 @@ M.polish_hl = {
     ["@string"] = { fg = M.base_16.base0B },             -- green
     
     -- Comments
-    ["@comment"] = { fg = M.base_30.grey_fg, italic = true },
+    ["@comment"] = { fg = M.base_30.comment, italic = true },
     
-    -- Operators (cyan)
-    ["@operator"] = { fg = M.base_16.base0C },           -- cyan
+    -- Operators (white/foreground)
+    ["@operator"] = { fg = M.base_16.base05 },           -- white
+    
+    -- Numbers and Literals
+    ["@number"] = { fg = M.base_16.base09 },             -- orange
+    ["@float"] = { fg = M.base_16.base09 },              -- orange
+    ["@boolean"] = { fg = M.base_16.base09 },            -- orange
+    
+    -- Special values
+    ["@constant.null"] = { fg = M.base_16.base09 },      -- orange
+    ["@constant.undefined"] = { fg = M.base_16.base09 }, -- orange
+    
+    -- Punctuation
+    ["@punctuation.bracket"] = { fg = M.base_16.base05 }, -- white
+    ["@punctuation.delimiter"] = { fg = M.base_16.base05 }, -- white
+    ["@punctuation.special"] = { fg = M.base_16.base05 }, -- white
+    
+    -- Tags (HTML/JSX)
+    ["@tag"] = { fg = M.base_16.base08 },                -- red
+    ["@tag.attribute"] = { fg = M.base_16.base09 },      -- orange
+    ["@tag.delimiter"] = { fg = M.base_16.base05 },      -- white
   },
 }
 
