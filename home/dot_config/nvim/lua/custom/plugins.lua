@@ -1,5 +1,13 @@
 -- Custom plugins configuration
 
+-- Load custom init script
+vim.schedule(function()
+  local init_path = vim.fn.stdpath("config") .. "/lua/custom/init.lua"
+  if vim.fn.filereadable(init_path) == 1 then
+    dofile(init_path)
+  end
+end)
+
 return {
   -- Mason-lspconfig for automatic LSP installation
   {
