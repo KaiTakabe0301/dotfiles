@@ -69,6 +69,11 @@ M.polish_hl = {
   treesitter = {
     -- Variables (red in onedarkpro)
     ["@variable"] = { fg = M.base_16.base08 },           -- red
+    ["@lsp.mod.local.typescript"] = { fg = M.base_16.base08 }, -- red (declaration)
+    ["@lsp.typemod.variable.readonly"] = { fg = M.base_16.base0A },
+    ["@lsp.typemod.variable.defaultLibrary.typescript"] = { fg = M.base_16.base0A }, -- yellow (default library types)
+    ["@lsp.typemod.variable.defaultLibrary.javascript"] = { fg = M.base_16.base0A }, -- yellow (default library types)
+
     ["@variable.builtin"] = { fg = M.base_16.base0A },   -- yellow
     ["@variable.language"] = { fg = M.base_16.base0A },  -- yellow (this, super, self)
     ["@variable.parameter"] = { fg = M.base_16.base08 }, -- red
@@ -176,8 +181,6 @@ M.polish_hl = {
     -- Special handling for specific objects
     ["@type.dom"] = { fg = M.base_16.base0C },            -- cyan (document, window)
     ["@namespace"] = { fg = M.base_16.base0A },           -- yellow (Math, JSON, etc)
-
-
   },
 }
 
