@@ -119,7 +119,7 @@ M.polish_hl = {
     ["@comment"] = { fg = M.base_30.comment, italic = true },
 
     -- Operators (white/foreground)
-    ["@operator"] = { fg = M.base_16.base05 },           -- white
+    ["@operator"] = { fg = M.base_16.base0C },           -- cyan
 
 
     -- Numbers and Literals
