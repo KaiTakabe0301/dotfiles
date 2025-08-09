@@ -50,18 +50,31 @@ return {
       -- 既定サーバ定義の登録（公式推奨）
       require("lspconfig.configs").vtsls = require("vtsls").lspconfig
 
-      -- 参照にも色を効かせたい人向け（任意）
-      local function on_attach_with_semantic(client, bufnr)
-        if nvlsp.on_attach then nvlsp.on_attach(client, bufnr) end
-        if client.supports_method("textDocument/semanticTokens/full") then
+      -- 1) on_init で元の semanticTokensProvider を退避
+      local function on_init_capture_semantic(client, _)
+        client._saved_semantic = client.server_capabilities.semanticTokensProvider
+      end
+
+      -- 2) on_attach で NvChad の on_attach を実行 → 復元 → start
+      local function on_attach_restore_and_start(client, bufnr)
+        -- まず既存の on_attach（キーマップ等）を適用
+        pcall(nvlsp.on_attach, client, bufnr)
+
+        -- NvChad に潰されたら元に戻す
+        if not client.server_capabilities.semanticTokensProvider and client._saved_semantic then
+          client.server_capabilities.semanticTokensProvider = client._saved_semantic
+        end
+
+        -- 有効なら開始＋リフレッシュ
+        if client.server_capabilities.semanticTokensProvider then
           vim.lsp.semantic_tokens.start(bufnr, client.id)
           vim.defer_fn(function() pcall(vim.lsp.semantic_tokens.refresh, bufnr) end, 50)
         end
       end
 
       lspconfig.vtsls.setup {
-        on_attach = on_attach_with_semantic,  -- 既存の on_attach をラップ
-        on_init = nvlsp.on_init,
+        on_init = on_init_capture_semantic,
+        on_attach = on_attach_restore_and_start, -- ←ここが大事。関数名ミス注意！
         capabilities = nvlsp.capabilities,
 
         -- ★ これが肝：最寄り tsconfig を“優先”してパッケージ単位で root を切る
