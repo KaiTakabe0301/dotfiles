@@ -65,16 +65,17 @@ M.polish_hl = {
     Keyword = { fg = M.base_16.base0E },    -- purple
     Comment = { fg = M.base_30.comment, italic = true },
   },
-  
+
   treesitter = {
     -- Variables (red in onedarkpro)
     ["@variable"] = { fg = M.base_16.base08 },           -- red
     ["@variable.builtin"] = { fg = M.base_16.base0A },   -- yellow
+    ["@variable.language"] = { fg = M.base_16.base0A },  -- yellow (this, super, self)
     ["@variable.parameter"] = { fg = M.base_16.base08 }, -- red
     ["@variable.member"] = { fg = M.base_16.base08 },    -- red
     ["@property"] = { fg = M.base_16.base08 },           -- red
     ["@parameter"] = { fg = M.base_16.base08 },          -- red
-    
+
     -- Functions (blue)
     ["@function"] = { fg = M.base_16.base0D },           -- blue
     ["@function.builtin"] = { fg = M.base_16.base0C },   -- cyan (support functions)
@@ -83,7 +84,7 @@ M.polish_hl = {
     ["@function.method.call"] = { fg = M.base_16.base0D }, -- blue
     ["@method"] = { fg = M.base_16.base0D },             -- blue
     ["@method.call"] = { fg = M.base_16.base0D },        -- blue
-    
+
     -- Keywords (purple)
     ["@keyword"] = { fg = M.base_16.base0E },            -- purple
     ["@keyword.import"] = { fg = M.base_16.base0E },     -- purple
@@ -91,75 +92,92 @@ M.polish_hl = {
     ["@keyword.conditional"] = { fg = M.base_16.base0E }, -- purple
     ["@keyword.repeat"] = { fg = M.base_16.base0E },     -- purple
     ["@keyword.return"] = { fg = M.base_16.base0E },     -- purple
-    
-    -- Constants (orange)
-    ["@constant"] = { fg = M.base_16.base09 },           -- orange
-    ["@constant.builtin"] = { fg = M.base_16.base09 },   -- orange
-    ["@const"] = { fg = M.base_16.base09 },              -- orange
-    
-    -- Types (yellow)
-    ["@type"] = { fg = M.base_16.base0A },               -- yellow
-    ["@type.builtin"] = { fg = M.base_16.base0A },       -- yellow
-    
-    -- Strings (green)
-    ["@string"] = { fg = M.base_16.base0B },             -- green
-    
-    -- Comments
-    ["@comment"] = { fg = M.base_30.comment, italic = true },
-    
-    -- Operators (white/foreground)
-    ["@operator"] = { fg = M.base_16.base05 },           -- white
-    ["@keyword.operator"] = { fg = M.base_16.base05 },   -- white
+    ["@keyword.operator"] = { fg = M.base_16.base0E },   -- purple (new, instanceof, etc.)
     ["@keyword.operator.arithmetic"] = { fg = M.base_16.base0C }, -- cyan
     ["@keyword.operator.comparison"] = { fg = M.base_16.base0C }, -- cyan
     ["@keyword.operator.logical"] = { fg = M.base_16.base0C },    -- cyan
     ["@keyword.operator.bitwise"] = { fg = M.base_16.base0C },    -- cyan
-    ["@keyword.operator.expression"] = { fg = M.base_16.base0E }, -- purple (new, instanceof, etc.)
-    ["@keyword.operator.type"] = { fg = M.base_16.base0E },       -- purple (typeof, keyof, etc.)
-    
+
+    -- Constants (orange)
+    ["@constant"] = { fg = M.base_16.base09 },           -- orange
+    ["@constant.builtin"] = { fg = M.base_16.base09 },   -- orange
+    ["@const"] = { fg = M.base_16.base09 },              -- orange
+
+    -- Types (yellow)
+    ["@type"] = { fg = M.base_16.base0A },               -- yellow
+    ["@type.builtin"] = { fg = M.base_16.base0A },       -- yellow
+
+    -- Strings (green)
+    ["@string"] = { fg = M.base_16.base0B },             -- green
+
+    -- Comments
+    ["@comment"] = { fg = M.base_30.comment, italic = true },
+
+    -- Operators (white/foreground)
+    ["@operator"] = { fg = M.base_16.base05 },           -- white
+
+
     -- Numbers and Literals
     ["@number"] = { fg = M.base_16.base09 },             -- orange
     ["@float"] = { fg = M.base_16.base09 },              -- orange
     ["@boolean"] = { fg = M.base_16.base09 },            -- orange
-    
+
     -- Special values
     ["@constant.null"] = { fg = M.base_16.base09 },      -- orange
     ["@constant.undefined"] = { fg = M.base_16.base09 }, -- orange
-    
+
     -- Punctuation
     ["@punctuation.bracket"] = { fg = M.base_16.base05 }, -- white
     ["@punctuation.delimiter"] = { fg = M.base_16.base05 }, -- white
     ["@punctuation.special"] = { fg = M.base_16.base05 }, -- white
-    
+
     -- Tags (HTML/JSX)
     ["@tag"] = { fg = M.base_16.base08 },                -- red
     ["@tag.attribute"] = { fg = M.base_16.base09 },      -- orange
     ["@tag.delimiter"] = { fg = M.base_16.base05 },      -- white
-    
+    ["@tag.builtin"] = { fg = M.base_16.base08 }, -- red (HTML tags)
+    ["@tag.builtin.tsx"] = { fg = M.base_16.base08 }, -- red (HTML tags)
+
     -- Support functions and types
     ["@support.function"] = { fg = M.base_16.base0C },   -- cyan
     ["@support.type"] = { fg = M.base_16.base0C },       -- cyan
     ["@support.class"] = { fg = M.base_16.base0A },      -- yellow
-    
+
     -- Object variables and properties
     ["@variable.object"] = { fg = M.base_16.base0A },    -- yellow
     ["@variable.other.object"] = { fg = M.base_16.base0A }, -- yellow
     ["@variable.other.object.property"] = { fg = M.base_16.base08 }, -- red
     ["@variable.other.readwrite.alias"] = { fg = M.base_16.base08 }, -- red
-    
+
+    -- Const variables (using custom treesitter queries)
+    ["@variable.const"] = { fg = M.base_16.base0A },       -- cyan (changed from yellow)
+
     -- Object literal keys
     ["@string.special.key"] = { fg = M.base_16.base08 }, -- red (object keys)
     ["@property.key"] = { fg = M.base_16.base08 },       -- red
     ["@variable.key"] = { fg = M.base_16.base08 },       -- red
-    
+
     -- CSS Properties
+    ["@function.css"] = { fg = M.base_16.base0C },      -- cyan
     ["@property.css"] = { fg = M.base_16.base0C },       -- cyan
     ["@support.type.property-name.css"] = { fg = M.base_16.base0C }, -- cyan
     ["@attribute.css"] = { fg = M.base_16.base09 },      -- orange
-    
+
     -- Additional language-specific
     ["@attribute"] = { fg = M.base_16.base09 },          -- orange
     ["@attribute.builtin"] = { fg = M.base_16.base09 },  -- orange
+
+    -- Builtin JavaScript objects
+    ["@type.builtin.javascript"] = { fg = M.base_16.base0A }, -- yellow (Array, Object, etc)
+    ["@type.builtin.typescript"] = { fg = M.base_16.base0A }, -- yellow
+    ["@constructor.javascript"] = { fg = M.base_16.base0A },  -- yellow
+    ["@constructor.typescript"] = { fg = M.base_16.base0A },  -- yellow
+
+    -- Special handling for specific objects
+    ["@type.dom"] = { fg = M.base_16.base0C },            -- cyan (document, window)
+    ["@namespace"] = { fg = M.base_16.base0A },           -- yellow (Math, JSON, etc)
+
+
   },
 }
 
