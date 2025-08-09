@@ -109,7 +109,8 @@ M.polish_hl = {
     ["@const"] = { fg = M.base_16.base09 },              -- orange
 
     -- Types (yellow)
-    ["@type"] = { fg = M.base_16.base0A },               -- yellow
+    ["@type"] = { fg = M.base_16.base08 },               -- red
+
     ["@type.builtin"] = { fg = M.base_16.base0A },       -- yellow
 
     -- Strings (green)
@@ -147,6 +148,9 @@ M.polish_hl = {
     ["@support.function"] = { fg = M.base_16.base0C },   -- cyan
     ["@support.type"] = { fg = M.base_16.base0C },       -- cyan
     ["@support.class"] = { fg = M.base_16.base0A },      -- yellow
+
+    -- Class
+    ["@lsp.type.class.typescript"] = { fg = M.base_16.base0A }, -- yellow
 
     -- Object variables and properties
     ["@variable.object"] = { fg = M.base_16.base0A },    -- yellow
