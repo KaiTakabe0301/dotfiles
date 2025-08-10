@@ -18,4 +18,6 @@ return {
   require("custom.plugins.none-ls"),
 
   require("custom.plugins.lazygit-nvim"),
+
+  require("custom.plugins.indent-blankline"),
 }
