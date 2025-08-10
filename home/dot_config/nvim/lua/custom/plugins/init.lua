@@ -22,4 +22,6 @@ return {
   require("custom.plugins.indent-blankline"),
 
   require("custom.plugins.hlchunk"),
+
+  require("custom.plugins.rainbow-delimiters"),
 }
