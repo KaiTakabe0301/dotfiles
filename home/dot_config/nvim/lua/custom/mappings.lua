@@ -17,9 +17,41 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 
--- 2. バッファ関連のマッピングを追加
+-- 2. スマートなバッファ削除関数
+local function smart_buffer_delete()
+  local bufnr = vim.api.nvim_get_current_buf()
+  local buflisted = vim.fn.getbufinfo({buflisted = 1})
+  
+  -- リストされているバッファが1つだけの場合
+  if #buflisted == 1 then
+    -- nvim-treeが開いているか確認
+    local nvim_tree_open = false
+    for _, win in ipairs(vim.api.nvim_list_wins()) do
+      local buf = vim.api.nvim_win_get_buf(win)
+      local ft = vim.api.nvim_buf_get_option(buf, 'filetype')
+      if ft == 'NvimTree' then
+        nvim_tree_open = true
+        vim.api.nvim_set_current_win(win)  -- nvim-treeにフォーカスを移動
+        break
+      end
+    end
+    
+    -- nvim-treeが開いていない場合は開く
+    if not nvim_tree_open then
+      vim.cmd('NvimTreeOpen')
+    end
+    
+    -- 元のバッファを削除
+    vim.cmd('bdelete! ' .. bufnr)
+  else
+    -- 通常のバッファ削除
+    vim.cmd('bdelete')
+  end
+end
+
+-- 3. バッファ関連のマッピングを追加
 map("n", "<leader>bb", "<cmd>Telescope buffers<cr>", { desc = "Find buffers" })
-map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "Delete buffer" })
+map("n", "<leader>bd", smart_buffer_delete, { desc = "Delete buffer (smart)" })
 map("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "Next buffer" })
 map("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
 map("n", "<leader>bD", "<cmd>bdelete!<cr>", { desc = "Force delete buffer" })

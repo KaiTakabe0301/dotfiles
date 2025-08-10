@@ -26,4 +26,6 @@ return {
   require("custom.plugins.rainbow-delimiters"),
 
   require("custom.plugins.whichkey"),
+
+  require "custom.plugins.nvim-tree",
 }
