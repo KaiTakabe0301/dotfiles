@@ -8,7 +8,6 @@ vim.schedule(function()
   end
 end)
 
-
 return {
   require("custom.plugins.mason-lspconfig"),
 
@@ -17,4 +16,6 @@ return {
   require("custom.plugins.nvim-treesitter"),
 
   require("custom.plugins.none-ls"),
+
+  require("custom.plugins.lazygit-nvim"),
 }
