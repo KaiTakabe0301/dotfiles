@@ -1,44 +1,4 @@
--- Custom plugins configuration
-
--- Load custom init script
-vim.schedule(function()
-  local init_path = vim.fn.stdpath("config") .. "/lua/custom/init.lua"
-  if vim.fn.filereadable(init_path) == 1 then
-    dofile(init_path)
-  end
-end)
-
 return {
-  -- Mason-lspconfig for automatic LSP installation
-  {
-    "mason-org/mason-lspconfig.nvim",
-     config = function()
-       require "configs.lspconfig"
-     end,
-    lazy = false,
-    opts = {
-      automatic_installation = true,
-      ensure_installed = {
-        "lua_ls",
-        "vtsls",
-        "html",
-        "cssls",
-        "pyright",
-        "gopls",
-        "rust_analyzer",
-        "yamlls",
-        "jsonls",
-        "bashls",
-      },
-    },
-    dependencies = {
-        { "mason-org/mason.nvim", opts = {} },
-        { "neovim/nvim-lspconfig", opts = {} },
-    },
-  },
-
-  -- nvim-vtsls for TypeScript
-  {
     "yioneko/nvim-vtsls",
     lazy = false,
     dependencies = { "neovim/nvim-lspconfig" },
@@ -77,7 +37,7 @@ return {
         on_attach = on_attach_restore_and_start, -- ←ここが大事。関数名ミス注意！
         capabilities = nvlsp.capabilities,
 
-        -- ★ これが肝：最寄り tsconfig を“優先”してパッケージ単位で root を切る
+        -- ★ これが肝：最寄り tsconfig を"優先"してパッケージ単位で root を切る
         root_dir = function(fname)
           return util.root_pattern("tsconfig.json")(fname)
               or util.root_pattern("package.json", "jsconfig.json")(fname)
@@ -111,26 +71,4 @@ return {
         },
       }
     end,
-  }
-
-
-
-
-  ,
-
-  -- Enhanced TreeSitter language support
-  {
-    "nvim-treesitter/nvim-treesitter",
-    opts = {
-      ensure_installed = {
-        "vim", "lua", "vimdoc",
-        "html", "css", "javascript", "typescript", "tsx", "json",
-        "python", "go", "rust", "yaml", "toml", "markdown", "bash",
-        "graphql"
-      },
-    },
-  },
-
-  -- Load none-ls configuration
-  require("custom.plugins.none-ls"),
 }
