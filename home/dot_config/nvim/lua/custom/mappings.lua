@@ -1,3 +1,5 @@
+-- NvChad v2.5の正しい形式で設定
+
 local map = vim.keymap.set
 local nomap = vim.keymap.del
 
@@ -9,21 +11,44 @@ map("i", "jj", "<ESC>")
 -- NvChadのデフォルトマッピングを削除
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
-    pcall(function()
-      nomap("n", "<leader>b")
-    end)
+    vim.defer_fn(function()
+      pcall(vim.keymap.del, "n", "<leader>b")
+    end, 100)
   end,
 })
 
--- 2. which-keyのためのバッファグループを設定
--- which-keyが自動的にグループとして認識するように設定
-map("n", "<leader>b", function()
-  -- 何もしない関数をマップして、which-keyがサブコマンドを表示するようにする
-end, { desc = "Buffers" })
-
--- 3. バッファ関連のマッピングを追加
+-- 2. バッファ関連のマッピングを追加
 map("n", "<leader>bb", "<cmd>Telescope buffers<cr>", { desc = "Find buffers" })
 map("n", "<leader>bd", "<cmd>bdelete<cr>", { desc = "Delete buffer" })
 map("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "Next buffer" })
 map("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
 map("n", "<leader>bD", "<cmd>bdelete!<cr>", { desc = "Force delete buffer" })
+
+-- 4. デフォルトのwhich-keyマッピングを削除して移動
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    vim.defer_fn(function()
+      -- which-key関連の削除
+      pcall(vim.keymap.del, "n", "<leader>wK")
+      pcall(vim.keymap.del, "n", "<leader>wk")
+
+      -- 念のためLSP関連も削除（存在する場合）
+      pcall(vim.keymap.del, "n", "<leader>wa")
+      pcall(vim.keymap.del, "n", "<leader>wr")
+      pcall(vim.keymap.del, "n", "<leader>wl")
+    end, 100)
+  end,
+})
+
+-- 5. which-key関連を<leader>Wに移動
+map("n", "<leader>WK", "<cmd>WhichKey <CR>", { desc = "All keymaps" })
+map("n", "<leader>Wk", function()
+  vim.cmd("WhichKey " .. vim.fn.input "WhichKey: ")
+end, { desc = "Query lookup" })
+
+-- 6. LSP関連を<leader>Lに設定（ワークスペース関連）
+map("n", "<leader>La", vim.lsp.buf.add_workspace_folder, { desc = "Add workspace folder" })
+map("n", "<leader>Lr", vim.lsp.buf.remove_workspace_folder, { desc = "Remove workspace folder" })
+map("n", "<leader>Ll", function()
+  print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
+end, { desc = "List workspace folders" })

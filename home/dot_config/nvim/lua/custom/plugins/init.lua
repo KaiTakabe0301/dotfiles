@@ -24,4 +24,6 @@ return {
   require("custom.plugins.hlchunk"),
 
   require("custom.plugins.rainbow-delimiters"),
+
+  require("custom.plugins.whichkey"),
 }
