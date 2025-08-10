@@ -185,6 +185,14 @@ M.polish_hl = {
     -- Special handling for specific objects
     ["@type.dom"] = { fg = M.base_16.base0C },            -- cyan (document, window)
     ["@namespace"] = { fg = M.base_16.base0A },           -- yellow (Math, JSON, etc)
+
+    RainbowDelimiterRed = { fg = M.base_16.base08 }, -- red
+    RainbowDelimiterOrange = { fg = M.base_16.base09 }, -- orange
+    RainbowDelimiterYellow = { fg = M.base_16.base0A }, -- yellow
+    RainbowDelimiterGreen = { fg = M.base_16.base0B }, -- green
+    RainbowDelimiterCyan = { fg = M.base_16.base0C }, -- cyan
+    RainbowDelimiterBlue = { fg = M.base_16.base0D }, -- blue
+    RainbowDelimiterViolet = { fg = M.base_16.base0E }, -- purple
   },
 }
 

@@ -17,13 +17,14 @@ return {
         -- base46 や他のHLより優先されるように少し高め
         priority = { [""] = 210, lua = 210 },
         highlight = {
-          "RainbowDelimiterRed",
-          "RainbowDelimiterOrange",
           "RainbowDelimiterYellow",
-          "RainbowDelimiterGreen",
-          "RainbowDelimiterCyan",
-          "RainbowDelimiterBlue",
           "RainbowDelimiterViolet",
+          "RainbowDelimiterCyan",
+          -- "RainbowDelimiterOrange",
+          -- "RainbowDelimiterRed",
+          -- "RainbowDelimiterGreen",
+          -- "RainbowDelimiterBlue",
+
         },
       }
     end,
