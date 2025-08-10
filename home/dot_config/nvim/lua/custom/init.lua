@@ -25,3 +25,16 @@ if vim.highlight and vim.highlight.priorities then
   -- semantic_tokens を Treesitter より上に
   p.semantic_tokens = math.max((p.treesitter or 100) + 1, p.semantic_tokens or 95)
 end
+
+-- 不可視文字を表示
+vim.opt.list = true
+
+-- 表示方法を指定
+vim.opt.listchars = {
+  space = "·", -- 半角スペースを「·」で表示
+  tab = "→ ", -- タブを「→」＋スペースで表示
+  trail = "•", -- 行末のスペースを「•」で表示
+  extends = "❯", -- 画面幅を超える部分
+  precedes = "❮", -- 行頭が画面外の場合
+  nbsp = "␣", -- ノーブレークスペース
+}
