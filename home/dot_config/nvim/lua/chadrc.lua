@@ -12,7 +12,7 @@ M.base46 = {
   compile_on_startup = true,
 }
 
--- M.nvdash = { load_on_startup = true }
+M.nvdash = { load_on_startup = true }
 -- M.ui = {
 --       tabufline = {
 --          lazyload = false
