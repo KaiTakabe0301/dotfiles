@@ -1,74 +1,68 @@
 return {
-    "yioneko/nvim-vtsls",
-    lazy = false,
-    dependencies = { "neovim/nvim-lspconfig" },
-    config = function()
-      local lspconfig = require("lspconfig")
-      local util = require("lspconfig.util")
-      local nvlsp = require("nvchad.configs.lspconfig")
+  "yioneko/nvim-vtsls",
+  lazy = false,
+  dependencies = { "neovim/nvim-lspconfig" },
+  config = function()
+    vim.lsp.config("vtsls", {
+      -- NvChad の on_init（semanticTokens 無効化）をオーバーライド
+      -- vtsls では semantic tokens を有効のままにする
+      on_init = function(client, _) end,
 
-      -- 既定サーバ定義の登録（公式推奨）
-      require("lspconfig.configs").vtsls = require("vtsls").lspconfig
+      on_attach = function(client, bufnr)
+        -- nvim-vtsls のコマンド登録（VtsExec, VtsRename 等）
+        require("vtsls")._on_attach(client.id, bufnr)
 
-      -- 1) on_init で元の semanticTokensProvider を退避
-      local function on_init_capture_semantic(client, _)
-        client._saved_semantic = client.server_capabilities.semanticTokensProvider
-      end
-
-      -- 2) on_attach で NvChad の on_attach を実行 → 復元 → start
-      local function on_attach_restore_and_start(client, bufnr)
-        -- まず既存の on_attach（キーマップ等）を適用
-        pcall(nvlsp.on_attach, client, bufnr)
-
-        -- NvChad に潰されたら元に戻す
-        if not client.server_capabilities.semanticTokensProvider and client._saved_semantic then
-          client.server_capabilities.semanticTokensProvider = client._saved_semantic
-        end
-
-        -- 有効なら開始＋リフレッシュ
+        -- semantic tokens を有効化・リフレッシュ
         if client.server_capabilities.semanticTokensProvider then
           vim.lsp.semantic_tokens.start(bufnr, client.id)
-          vim.defer_fn(function() pcall(vim.lsp.semantic_tokens.refresh, bufnr) end, 50)
+          vim.defer_fn(function()
+            pcall(vim.lsp.semantic_tokens.refresh, bufnr)
+          end, 50)
         end
-      end
+      end,
 
-      lspconfig.vtsls.setup {
-        on_init = on_init_capture_semantic,
-        on_attach = on_attach_restore_and_start, -- ←ここが大事。関数名ミス注意！
-        capabilities = nvlsp.capabilities,
+      root_dir = function(bufnr, on_dir)
+        on_dir(
+          vim.fs.root(bufnr, { "tsconfig.json" })
+            or vim.fs.root(bufnr, { "package.json", "jsconfig.json" })
+            or vim.fs.root(bufnr, { ".git" })
+        )
+      end,
+      single_file_support = false,
 
-        -- ★ これが肝：最寄り tsconfig を"優先"してパッケージ単位で root を切る
-        root_dir = function(fname)
-          return util.root_pattern("tsconfig.json")(fname)
-              or util.root_pattern("package.json", "jsconfig.json")(fname)
-              or util.find_git_ancestor(fname)
-        end,
-        single_file_support = false,
-
-        settings = {
-          complete_function_calls = true,
-          vtsls = {
-            enableMoveToFileCodeAction = true,
-            autoUseWorkspaceTsdk = true, -- ★ 各パッケージの node_modules/typescript を自動使用
-            experimental = {
-              completion = { enableServerSideFuzzyMatch = true },
-            },
-          },
-          typescript = {
-            updateImportsOnFileMove = { enabled = "always" },
-            suggest = { completeFunctionCalls = true },
-            -- pnpm/yarn Workspace でローカル plugin を見つけやすくする保険（任意）
-            tsserver = { pluginPaths = { "." } },
-            inlayHints = {
-              enumMemberValues = { enabled = true },
-              functionLikeReturnTypes = { enabled = true },
-              parameterNames = { enabled = "literals" },
-              parameterTypes = { enabled = true },
-              propertyDeclarationTypes = { enabled = true },
-              variableTypes = { enabled = false },
-            },
+      settings = {
+        complete_function_calls = true,
+        vtsls = {
+          enableMoveToFileCodeAction = true,
+          autoUseWorkspaceTsdk = true,
+          experimental = {
+            completion = { enableServerSideFuzzyMatch = true },
           },
         },
-      }
-    end,
+        typescript = {
+          updateImportsOnFileMove = { enabled = "always" },
+          suggest = { completeFunctionCalls = true },
+          tsserver = { pluginPaths = { "." } },
+          inlayHints = {
+            enumMemberValues = { enabled = true },
+            functionLikeReturnTypes = { enabled = true },
+            parameterNames = { enabled = "literals" },
+            parameterTypes = { enabled = true },
+            propertyDeclarationTypes = { enabled = true },
+            variableTypes = { enabled = false },
+          },
+        },
+      },
+    })
+
+    -- LspDetach 時に nvim-vtsls のクリーンアップを実行
+    vim.api.nvim_create_autocmd("LspDetach", {
+      callback = function(args)
+        local client = vim.lsp.get_client_by_id(args.data.client_id)
+        if client and client.name == "vtsls" then
+          require("vtsls")._on_detach(args.data.client_id, args.buf)
+        end
+      end,
+    })
+  end,
 }

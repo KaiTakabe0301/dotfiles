@@ -6,7 +6,7 @@ return {
 
   dependencies = {
     "jay-babu/mason-null-ls.nvim",
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     "nvim-lua/plenary.nvim",
     "nvimtools/none-ls-extras.nvim",
     "gbprod/none-ls-shellcheck.nvim",
@@ -19,35 +19,32 @@ return {
     require("mason-null-ls").setup({
       ensure_installed = {
         -- Python
-        "ruff",          -- Fast Python linter and formatter
-        "black",         -- Python formatter
-        "mypy",          -- Python type checker
+        "ruff", -- Fast Python linter and formatter
+        "black", -- Python formatter
+        "mypy", -- Python type checker
 
         -- Go
-        "gofumpt",       -- Go formatter (stricter than gofmt)
-        "goimports",     -- Go import formatter
-        "staticcheck",   -- Go linter
+        "gofumpt", -- Go formatter (stricter than gofmt)
+        "goimports", -- Go import formatter
+        "staticcheck", -- Go linter
         "golangci-lint", -- Go meta linter
 
         -- Rust
-        "rustfmt",       -- Rust formatter
+        "rustfmt", -- Rust formatter
 
         -- TypeScript/JavaScript
-        "prettier",      -- Multi-language formatter
-        "eslint_d",      -- Fast ESLint daemon
+        "prettier", -- Multi-language formatter
+        "eslint_d", -- Fast ESLint daemon
 
         -- YAML
-        "yamllint",      -- YAML linter
+        "yamllint", -- YAML linter
 
         -- Markdown
-        "markdownlint",  -- Markdown linter
-
-        -- Lua
-        "stylua",        -- Lua formatter
+        "markdownlint", -- Markdown linter
 
         -- Shell
-        "shfmt",         -- Shell formatter
-        "shellcheck",    -- Shell linter
+        "shfmt", -- Shell formatter
+        "shellcheck", -- Shell linter
       },
       automatic_installation = true,
       handlers = {},
@@ -180,11 +177,6 @@ return {
         -- Markdown
         diagnostics.markdownlint.with({
           extra_args = { "--disable", "MD013" }, -- Disable line length rule
-        }),
-
-        -- Lua
-        formatting.stylua.with({
-          extra_args = { "--indent-type", "Spaces", "--indent-width", "2" },
         }),
 
         -- Shell
