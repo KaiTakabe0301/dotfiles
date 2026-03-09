@@ -9,7 +9,24 @@ vim.schedule(function()
 end)
 
 return {
-  require "custom.plugins.mason-lspconfig",
+  -- mason.nvim v2 オーバーライド（NvChad デフォルトの williamboman/mason.nvim を置き換え）
+  {
+    "mason-org/mason.nvim",
+    cmd = { "Mason", "MasonInstall", "MasonInstallAll", "MasonUpdate" },
+    opts = {
+      PATH = "prepend",
+      ui = {
+        icons = {
+          package_installed = "✓",
+          package_pending = "➜",
+          package_uninstalled = "✗",
+        },
+      },
+      max_concurrent_installers = 10,
+    },
+  },
+
+  require("custom.plugins.mason-lspconfig"),
 
   require "custom.plugins.nvim-vtsls",
 
@@ -25,5 +42,7 @@ return {
 
   require "custom.plugins.rainbow-delimiters",
 
-  require "custom.plugins.whichkey",
+  require("custom.plugins.whichkey"),
+
+  require("custom.plugins.nvim-tree"),
 }
