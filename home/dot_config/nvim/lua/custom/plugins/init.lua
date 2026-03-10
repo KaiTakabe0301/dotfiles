@@ -45,4 +45,8 @@ return {
   require("custom.plugins.whichkey"),
 
   require("custom.plugins.nvim-tree"),
+
+  require("custom.plugins.noice"),
+
+  require("custom.plugins.cmp-cmdline"),
 }
