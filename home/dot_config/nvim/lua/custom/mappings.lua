@@ -84,3 +84,31 @@ map("n", "<leader>Lr", vim.lsp.buf.remove_workspace_folder, { desc = "Remove wor
 map("n", "<leader>Ll", function()
   print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
 end, { desc = "List workspace folders" })
+
+-- Telescope: ファイルタイプで絞り込み検索
+map("n", "<leader>ft", function()
+  vim.ui.input({ prompt = "File extension: " }, function(ext)
+    if not ext or ext == "" then return end
+    local globs = {}
+    for e in ext:gmatch("[^,]+") do
+      table.insert(globs, "--glob")
+      table.insert(globs, "*." .. e:match("^%s*(.-)%s*$"))
+    end
+    require("telescope.builtin").find_files({
+      find_command = vim.list_extend({ "rg", "--files" }, globs),
+    })
+  end)
+end, { desc = "Find files by extension" })
+
+map("n", "<leader>fW", function()
+  vim.ui.input({ prompt = "File extension: " }, function(ext)
+    if not ext or ext == "" then return end
+    local patterns = {}
+    for e in ext:gmatch("[^,]+") do
+      table.insert(patterns, "*." .. e:match("^%s*(.-)%s*$"))
+    end
+    require("telescope.builtin").live_grep({
+      glob_pattern = patterns,
+    })
+  end)
+end, { desc = "Live grep by extension" })

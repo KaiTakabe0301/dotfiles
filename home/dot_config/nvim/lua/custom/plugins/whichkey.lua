@@ -15,6 +15,7 @@ return {
 
     -- 静的グループの登録（アイコンは別プロパティで設定）
     wk.add {
+      { "<leader>f", group = "Find", icon = "" },
       { "<leader>b", group = "Buffers", icon = "󰈔" },
       { "<leader>W", group = "WhichKey", icon = "" },
       { "<leader>L", group = "LSP", icon = "" },
