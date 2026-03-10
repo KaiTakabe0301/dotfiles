@@ -15,6 +15,24 @@ return {
     cmd = { "Mason", "MasonInstall", "MasonInstallAll", "MasonUpdate" },
     opts = {
       PATH = "prepend",
+      ensure_installed = {
+        -- Formatters
+        "black",
+        "gofumpt",
+        "goimports",
+        "prettier",
+        "shfmt",
+        "stylua",
+        -- Linters
+        "ruff",
+        "mypy",
+        "staticcheck",
+        "golangci-lint",
+        "eslint_d",
+        "yamllint",
+        "markdownlint",
+        "shellcheck",
+      },
       ui = {
         icons = {
           package_installed = "✓",
@@ -32,7 +50,7 @@ return {
 
   require "custom.plugins.nvim-treesitter",
 
-  require "custom.plugins.none-ls",
+  require "custom.plugins.nvim-lint",
 
   require "custom.plugins.lazygit-nvim",
 
