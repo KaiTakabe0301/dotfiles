@@ -67,4 +67,6 @@ return {
   require("custom.plugins.noice"),
 
   require("custom.plugins.cmp-cmdline"),
+
+  require("custom.plugins.smart-splits"),
 }
