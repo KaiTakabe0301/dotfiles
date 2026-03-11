@@ -8,14 +8,8 @@ map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jj", "<ESC>")
 
 -- 1. デフォルトの <leader>b (新規バッファ作成) を無効化
--- NvChadのデフォルトマッピングを削除
-vim.api.nvim_create_autocmd("VimEnter", {
-  callback = function()
-    vim.defer_fn(function()
-      pcall(vim.keymap.del, "n", "<leader>b")
-    end, 100)
-  end,
-})
+-- NvChadのデフォルトマッピングを即座に上書き（遅延削除だとタイミング問題が発生するため）
+map("n", "<leader>b", "<Nop>", { desc = "Buffers prefix" })
 
 -- 2. スマートなバッファ削除関数
 local function smart_buffer_delete()
@@ -54,23 +48,15 @@ map("n", "<leader>bb", "<cmd>Telescope buffers<cr>", { desc = "Find buffers" })
 map("n", "<leader>bd", smart_buffer_delete, { desc = "Delete buffer (smart)" })
 map("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "Next buffer" })
 map("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
+map("n", "<leader>bc", "<cmd>enew<cr>", { desc = "Create new buffer" })
 map("n", "<leader>bD", "<cmd>bdelete!<cr>", { desc = "Force delete buffer" })
 
--- 4. デフォルトのwhich-keyマッピングを削除して移動
-vim.api.nvim_create_autocmd("VimEnter", {
-  callback = function()
-    vim.defer_fn(function()
-      -- which-key関連の削除
-      pcall(vim.keymap.del, "n", "<leader>wK")
-      pcall(vim.keymap.del, "n", "<leader>wk")
-
-      -- 念のためLSP関連も削除（存在する場合）
-      pcall(vim.keymap.del, "n", "<leader>wa")
-      pcall(vim.keymap.del, "n", "<leader>wr")
-      pcall(vim.keymap.del, "n", "<leader>wl")
-    end, 100)
-  end,
-})
+-- 4. デフォルトのwhich-keyマッピングを無効化（即座に上書き）
+map("n", "<leader>wK", "<Nop>", { desc = "" })
+map("n", "<leader>wk", "<Nop>", { desc = "" })
+map("n", "<leader>wa", "<Nop>", { desc = "" })
+map("n", "<leader>wr", "<Nop>", { desc = "" })
+map("n", "<leader>wl", "<Nop>", { desc = "" })
 
 -- 5. which-key関連を<leader>Wに移動
 map("n", "<leader>WK", "<cmd>WhichKey <CR>", { desc = "All keymaps" })
