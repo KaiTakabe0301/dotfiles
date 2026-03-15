@@ -86,6 +86,11 @@ local function setup_sep_highlights()
   local buf_off_bg = api.nvim_get_hl(0, { name = "TbBufOff" }).bg
   local fill_bg = api.nvim_get_hl(0, { name = "TbFill" }).bg
 
+  -- Active buffer left border (blue bar)
+  local blue = "#61afef"
+  api.nvim_set_hl(0, "WinBarActiveBorder", { fg = blue, bg = buf_on_bg })
+  api.nvim_set_hl(0, "WinBarActiveBorderFill", { fg = blue, bg = fill_bg })
+
   -- Separators between tab states
   api.nvim_set_hl(0, "WinBarSepOnToFill", { fg = buf_on_bg, bg = fill_bg })
   api.nvim_set_hl(0, "WinBarSepFillToOn", { fg = buf_on_bg, bg = fill_bg })
@@ -163,8 +168,9 @@ local function style_buf(nr, bufs, cur, winid)
     name = name:sub(1, max_name - 2) .. ".."
   end
 
-  -- Assemble tab content: space + icon + name + close + space
-  local tab = " " .. icon_hl_str .. icon_str .. hl_text(name, tb_hl)
+  -- Assemble tab content: border + space + icon + name + close + space
+  local left_border = is_cur and hl_text("▎", "WinBarActiveBorder") or ""
+  local tab = left_border .. " " .. icon_hl_str .. icon_str .. hl_text(name, tb_hl)
   tab = "%" .. nr .. "@WinBarGoToBuf@" .. tab .. "%X"
   tab = hl_text(tab .. close_str .. hl_text(" ", tb_hl), tb_hl)
 
@@ -191,7 +197,7 @@ local function render_single(winid)
   local pinned = winbuf.is_pinned(winid, nr)
   local pin_indicator = pinned and hl_text(" 󰐃", "TbBufOnClose") or ""
 
-  return hl_text(" ", "TbFill") .. icon_hl_str .. icon_str .. hl_text(name, "TbFill") .. mod_indicator .. pin_indicator .. hl_text("%=", "TbFill")
+  return hl_text("▎", "WinBarActiveBorderFill") .. hl_text(" ", "TbFill") .. icon_hl_str .. icon_str .. hl_text(name, "TbFill") .. mod_indicator .. pin_indicator .. hl_text("%=", "TbFill")
 end
 
 --- Get separator string between two states
@@ -206,7 +212,7 @@ local function get_separator(left_on, right_on)
   if left_name == right_name then
     -- Same state, use thin separator
     local hl_name = "TbBuf" .. (left_name == "Fill" and "Off" or left_name)
-    return hl_text("│", hl_name)
+    return hl_text(" ", hl_name)
   end
 
   -- Use powerline separator: left block ends, right block begins
