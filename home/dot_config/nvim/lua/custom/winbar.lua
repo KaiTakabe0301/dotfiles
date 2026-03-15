@@ -80,46 +80,61 @@ local function icon_hl(fg_group, bg_group)
   return "%#" .. combined .. "#"
 end
 
---- Style a single buffer tab
+--- Setup separator highlight groups based on current theme
+local function setup_sep_highlights()
+  local buf_on_bg = api.nvim_get_hl(0, { name = "TbBufOn" }).bg
+  local buf_off_bg = api.nvim_get_hl(0, { name = "TbBufOff" }).bg
+  local fill_bg = api.nvim_get_hl(0, { name = "TbFill" }).bg
+
+  -- Separators between tab states
+  api.nvim_set_hl(0, "WinBarSepOnToFill", { fg = buf_on_bg, bg = fill_bg })
+  api.nvim_set_hl(0, "WinBarSepFillToOn", { fg = buf_on_bg, bg = fill_bg })
+  api.nvim_set_hl(0, "WinBarSepOnToOff", { fg = buf_on_bg, bg = buf_off_bg })
+  api.nvim_set_hl(0, "WinBarSepOffToOn", { fg = buf_on_bg, bg = buf_off_bg })
+  api.nvim_set_hl(0, "WinBarSepOffToFill", { fg = buf_off_bg, bg = fill_bg })
+  api.nvim_set_hl(0, "WinBarSepFillToOff", { fg = buf_off_bg, bg = fill_bg })
+end
+
+--- Get icon and highlight for a buffer
+--- @param name string
+--- @param tb_hl string
+--- @return string icon_str, string icon_hl_str
+local function get_icon(name, tb_hl)
+  local icon_str = "󰈚 "
+  local icon_hl_str = icon_hl("DevIconDefault", tb_hl)
+
+  if name ~= "" and name ~= "No Name" then
+    local devicons_ok, devicons = pcall(require, "nvim-web-devicons")
+    if devicons_ok then
+      local devicon, devicon_hl_name = devicons.get_icon(name)
+      if devicon then
+        icon_str = devicon .. " "
+        icon_hl_str = icon_hl(devicon_hl_name, tb_hl)
+      end
+    end
+  end
+
+  return icon_str, icon_hl_str
+end
+
+--- Style a single buffer tab with variable width
 --- @param nr integer buffer number
 --- @param bufs integer[] all buffers in this window
 --- @param cur integer current buffer number
---- @param max_width integer max width per tab
---- @return string
-local function style_buf(nr, bufs, cur, max_width)
+--- @return string content, boolean is_active, integer display_width
+local function style_buf(nr, bufs, cur)
   local is_cur = (cur == nr)
   local on_off = is_cur and "On" or "Off"
   local tb_hl = "TbBuf" .. on_off
-
-  -- icon
-  local icon_str = "󰈚 "
-  local icon_hl_str = icon_hl("DevIconDefault", tb_hl)
 
   local name = filename(api.nvim_buf_get_name(nr))
   if name == "" then
     name = "No Name"
   else
     name = unique_name(name, nr, bufs)
-    local devicons_ok, devicons = pcall(require, "nvim-web-devicons")
-    if devicons_ok then
-      local devicon, devicon_hl_name = devicons.get_icon(name)
-      if devicon then
-        icon_str = " " .. devicon .. " "
-        icon_hl_str = icon_hl(devicon_hl_name, tb_hl)
-      end
-    end
   end
 
-  -- truncate name
-  local max_name = max_width - 5
-  if #name > max_name then
-    name = name:sub(1, max_name - 2) .. ".."
-  end
-
-  -- padding
-  local pad = math.floor((max_width - #name - 5) / 2)
-  pad = pad <= 0 and 1 or pad
-  local padding = string.rep(" ", pad)
+  local icon_str, icon_hl_str = get_icon(name, tb_hl)
 
   -- modified / close indicator
   local mod = api.nvim_get_option_value("mod", { buf = nr })
@@ -129,16 +144,65 @@ local function style_buf(nr, bufs, cur, max_width)
   else
     close_str = mod and hl_text("  ", "TbBufOffModified") or hl_text(" 󰅖 ", "TbBufOffClose")
   end
-
-  -- clickable close button
   close_str = "%" .. nr .. "@WinBarKillBuf@" .. close_str .. "%X"
 
-  -- assemble: clickable name area + close button
-  local tab = padding .. icon_hl_str .. icon_str .. hl_text(name, tb_hl) .. padding
-  tab = "%" .. nr .. "@WinBarGoToBuf@" .. tab .. "%X"
-  tab = hl_text(tab .. close_str, tb_hl)
+  -- Calculate display width: icon(2+space) + name + close(3) + padding(2)
+  -- icon_str is e.g. " " (icon + space) = ~2 display cols
+  local display_width = 2 + #name + 3 + 2
+  display_width = math.max(10, math.min(30, display_width))
 
-  return tab
+  -- Truncate name if needed
+  local max_name = display_width - 7 -- 2(icon) + 3(close) + 2(padding)
+  if #name > max_name then
+    name = name:sub(1, max_name - 2) .. ".."
+  end
+
+  -- Assemble tab content: space + icon + name + close + space
+  local tab = " " .. icon_hl_str .. icon_str .. hl_text(name, tb_hl)
+  tab = "%" .. nr .. "@WinBarGoToBuf@" .. tab .. "%X"
+  tab = hl_text(tab .. close_str .. hl_text(" ", tb_hl), tb_hl)
+
+  return tab, is_cur, display_width
+end
+
+--- Render simple single-buffer winbar (icon + filename only)
+--- @param winid integer
+--- @return string
+local function render_single(winid)
+  local winbuf = require("custom.winbuf")
+  local bufs = winbuf.get_bufs(winid)
+  if #bufs == 0 then return "" end
+
+  local nr = bufs[1]
+  local name = filename(api.nvim_buf_get_name(nr))
+  if name == "" then name = "No Name" end
+
+  local icon_str, icon_hl_str = get_icon(name, "TbFill")
+
+  local mod = api.nvim_get_option_value("mod", { buf = nr })
+  local mod_indicator = mod and hl_text(" ● ", "TbBufOnModified") or ""
+
+  return hl_text(" ", "TbFill") .. icon_hl_str .. icon_str .. hl_text(name, "TbFill") .. mod_indicator .. hl_text("%=", "TbFill")
+end
+
+--- Get separator string between two states
+--- @param left_on boolean|nil  left tab is active (nil = fill)
+--- @param right_on boolean|nil right tab is active (nil = fill)
+--- @return string
+local function get_separator(left_on, right_on)
+  -- left_on/right_on: true=On, false=Off, nil=Fill
+  local left_name = left_on == true and "On" or (left_on == false and "Off" or "Fill")
+  local right_name = right_on == true and "On" or (right_on == false and "Off" or "Fill")
+
+  if left_name == right_name then
+    -- Same state, use thin separator
+    local hl_name = "TbBuf" .. (left_name == "Fill" and "Off" or left_name)
+    return hl_text("│", hl_name)
+  end
+
+  -- Use powerline separator: left block ends, right block begins
+  local sep_hl = "WinBarSep" .. left_name .. "To" .. right_name
+  return hl_text("", sep_hl)
 end
 
 --- Render winbar string for a given window
@@ -149,40 +213,81 @@ local function render(winid)
   local bufs = winbuf.get_bufs(winid)
   if #bufs == 0 then return "" end
 
+  -- Single buffer: simple display
+  if #bufs == 1 then
+    return render_single(winid)
+  end
+
   local cur = api.nvim_win_get_buf(winid)
   local win_width = api.nvim_win_get_width(winid)
 
-  -- Calculate tab width: distribute evenly, capped at 25
-  local buf_width = math.min(25, math.floor(win_width / #bufs))
-  if buf_width < 10 then buf_width = 10 end
+  -- Build tab info with variable widths
+  local tab_info = {} -- { content, is_active, width }
+  local total_width = 0
+  for _, nr in ipairs(bufs) do
+    local content, is_active, width = style_buf(nr, bufs, cur)
+    table.insert(tab_info, { content = content, is_active = is_active, width = width })
+    total_width = total_width + width
+  end
 
-  -- How many tabs fit
-  local max_tabs = math.floor(win_width / buf_width)
-
-  -- Ensure current buffer is visible: find its index and window around it
+  -- Determine visible range (ensure current buffer is visible)
   local cur_idx = 1
-  for i, nr in ipairs(bufs) do
-    if nr == cur then
+  for i, info in ipairs(tab_info) do
+    if info.is_active then
       cur_idx = i
       break
     end
   end
 
-  local start_idx = 1
-  if #bufs > max_tabs then
-    -- Center current buffer in visible range
-    start_idx = math.max(1, cur_idx - math.floor(max_tabs / 2))
-    if start_idx + max_tabs - 1 > #bufs then
-      start_idx = math.max(1, #bufs - max_tabs + 1)
+  -- Calculate which tabs fit, expanding from current buffer
+  local start_idx, end_idx = cur_idx, cur_idx
+  local used_width = tab_info[cur_idx].width + 2 -- +2 for edge separators
+
+  -- Expand left and right alternately
+  while true do
+    local expanded = false
+    -- Try right
+    if end_idx < #tab_info then
+      local w = tab_info[end_idx + 1].width + 1 -- +1 for separator
+      if used_width + w <= win_width then
+        end_idx = end_idx + 1
+        used_width = used_width + w
+        expanded = true
+      end
+    end
+    -- Try left
+    if start_idx > 1 then
+      local w = tab_info[start_idx - 1].width + 1
+      if used_width + w <= win_width then
+        start_idx = start_idx - 1
+        used_width = used_width + w
+        expanded = true
+      end
+    end
+    if not expanded then break end
+  end
+
+  -- Build output with separators
+  local parts = {}
+
+  -- Leading separator: Fill → first tab
+  local first_on = tab_info[start_idx].is_active
+  table.insert(parts, get_separator(nil, first_on))
+
+  for i = start_idx, end_idx do
+    table.insert(parts, tab_info[i].content)
+
+    if i < end_idx then
+      -- Separator between tabs
+      local left_on = tab_info[i].is_active
+      local right_on = tab_info[i + 1].is_active
+      table.insert(parts, get_separator(left_on, right_on))
     end
   end
 
-  local end_idx = math.min(#bufs, start_idx + max_tabs - 1)
-
-  local parts = {}
-  for i = start_idx, end_idx do
-    table.insert(parts, style_buf(bufs[i], bufs, cur, buf_width))
-  end
+  -- Trailing separator: last tab → Fill
+  local last_on = tab_info[end_idx].is_active
+  table.insert(parts, get_separator(last_on, nil))
 
   return table.concat(parts) .. hl_text("%=", "TbFill")
 end
@@ -202,6 +307,9 @@ end
 
 --- Setup winbar: register click handlers and autocommands
 function M.setup()
+  -- Setup separator highlights
+  setup_sep_highlights()
+
   -- VimL click handlers (statusline %@ requires global VimL functions)
   vim.cmd([[
     function! WinBarGoToBuf(bufnr, clicks, btn, modifiers)
@@ -284,6 +392,17 @@ function M.setup()
   api.nvim_create_autocmd("BufModifiedSet", {
     group = augroup,
     callback = function()
+      vim.schedule(function()
+        M.update_all()
+      end)
+    end,
+  })
+
+  -- Re-setup highlights on colorscheme change
+  api.nvim_create_autocmd("ColorScheme", {
+    group = augroup,
+    callback = function()
+      setup_sep_highlights()
       vim.schedule(function()
         M.update_all()
       end)

@@ -91,6 +91,28 @@ function M.prev()
   vim.api.nvim_win_set_buf(winid, bufs[prev_idx])
 end
 
+--- Move current buffer right (later) in the window's list
+function M.move_right()
+  local winid = vim.api.nvim_get_current_win()
+  local bufs = M.get_bufs(winid)
+  if #bufs <= 1 then return end
+  local cur = vim.api.nvim_get_current_buf()
+  local idx = find_index(bufs, cur)
+  if not idx or idx >= #bufs then return end
+  bufs[idx], bufs[idx + 1] = bufs[idx + 1], bufs[idx]
+end
+
+--- Move current buffer left (earlier) in the window's list
+function M.move_left()
+  local winid = vim.api.nvim_get_current_win()
+  local bufs = M.get_bufs(winid)
+  if #bufs <= 1 then return end
+  local cur = vim.api.nvim_get_current_buf()
+  local idx = find_index(bufs, cur)
+  if not idx or idx <= 1 then return end
+  bufs[idx], bufs[idx - 1] = bufs[idx - 1], bufs[idx]
+end
+
 --- Setup autocommands for window-scoped buffer tracking
 function M.setup()
   local augroup = vim.api.nvim_create_augroup("WinScopedBufs", { clear = true })

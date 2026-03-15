@@ -53,6 +53,14 @@ map("n", "<leader>bn", function() require("custom.winbuf").next() end, { desc = 
 map("n", "<leader>bp", function() require("custom.winbuf").prev() end, { desc = "Previous buffer (window-scoped)" })
 map("n", "<leader>bc", "<cmd>enew<cr>", { desc = "Create new buffer" })
 map("n", "<leader>bD", "<cmd>bdelete!<cr>", { desc = "Force delete buffer" })
+map("n", "<leader>bl", function()
+  require("custom.winbuf").move_right()
+  require("custom.winbar").update_all()
+end, { desc = "Move buffer right" })
+map("n", "<leader>bh", function()
+  require("custom.winbuf").move_left()
+  require("custom.winbar").update_all()
+end, { desc = "Move buffer left" })
 
 -- 4. デフォルトのwhich-keyマッピングを無効化（即座に上書き）
 map("n", "<leader>wK", "<Nop>", { desc = "" })
