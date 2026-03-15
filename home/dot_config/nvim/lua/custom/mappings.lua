@@ -11,45 +11,70 @@ map("i", "jj", "<ESC>")
 -- NvChadのデフォルトマッピングを即座に上書き（遅延削除だとタイミング問題が発生するため）
 map("n", "<leader>b", "<Nop>", { desc = "Buffers prefix" })
 
--- 2. スマートなバッファ削除関数
+-- 2. スマートなバッファ削除関数（ウィンドウスコープ対応）
 local function smart_buffer_delete()
+  local winbuf = require("custom.winbuf")
   local bufnr = vim.api.nvim_get_current_buf()
-  local buflisted = vim.fn.getbufinfo({buflisted = 1})
-  
-  -- リストされているバッファが1つだけの場合
-  if #buflisted == 1 then
+  local winid = vim.api.nvim_get_current_win()
+
+  -- Pinned buffers cannot be deleted
+  if winbuf.is_pinned(winid, bufnr) then return end
+
+  local bufs = winbuf.get_bufs(winid)
+
+  -- ウィンドウスコープ内のバッファが1つ以下の場合
+  if #bufs <= 1 then
     -- nvim-treeが開いているか確認
     local nvim_tree_open = false
     for _, win in ipairs(vim.api.nvim_list_wins()) do
       local buf = vim.api.nvim_win_get_buf(win)
-      local ft = vim.api.nvim_buf_get_option(buf, 'filetype')
+      local ft = vim.bo[buf].filetype
       if ft == 'NvimTree' then
         nvim_tree_open = true
-        vim.api.nvim_set_current_win(win)  -- nvim-treeにフォーカスを移動
+        vim.api.nvim_set_current_win(win)
         break
       end
     end
-    
+
     -- nvim-treeが開いていない場合は開く
     if not nvim_tree_open then
       vim.cmd('NvimTreeOpen')
     end
-    
+
     -- 元のバッファを削除
     vim.cmd('bdelete! ' .. bufnr)
   else
-    -- 通常のバッファ削除
-    vim.cmd('bdelete')
+    -- スコープ内の次バッファに切替後、削除
+    winbuf.next()
+    vim.cmd('bdelete! ' .. bufnr)
   end
 end
+
+-- Pin toggle
+map("n", "<leader>bi", function()
+  local winbuf = require("custom.winbuf")
+  local winid = vim.api.nvim_get_current_win()
+  local bufnr = vim.api.nvim_get_current_buf()
+  winbuf.toggle_pin(winid, bufnr)
+  require("custom.winbar").update_all()
+end, { desc = "Toggle pin buffer" })
 
 -- 3. バッファ関連のマッピングを追加
 map("n", "<leader>bb", "<cmd>Telescope buffers<cr>", { desc = "Find buffers" })
 map("n", "<leader>bd", smart_buffer_delete, { desc = "Delete buffer (smart)" })
-map("n", "<leader>bn", "<cmd>bnext<cr>", { desc = "Next buffer" })
-map("n", "<leader>bp", "<cmd>bprevious<cr>", { desc = "Previous buffer" })
+map("n", "<leader>bn", function() require("custom.winbuf").next() end, { desc = "Next buffer (window-scoped)" })
+map("n", "<leader>bp", function() require("custom.winbuf").prev() end, { desc = "Previous buffer (window-scoped)" })
 map("n", "<leader>bc", "<cmd>enew<cr>", { desc = "Create new buffer" })
 map("n", "<leader>bD", "<cmd>bdelete!<cr>", { desc = "Force delete buffer" })
+map("n", "<leader>bo", function() require("custom.winbar").kill_other_bufs() end, { desc = "Close other buffers (keep pinned)" })
+map("n", "<leader>bl", function()
+  require("custom.winbuf").move_right()
+  require("custom.winbar").update_all()
+end, { desc = "Move buffer right" })
+map("n", "<leader>bh", function()
+  require("custom.winbuf").move_left()
+  require("custom.winbar").update_all()
+end, { desc = "Move buffer left" })
 
 -- 4. デフォルトのwhich-keyマッピングを無効化（即座に上書き）
 map("n", "<leader>wK", "<Nop>", { desc = "" })

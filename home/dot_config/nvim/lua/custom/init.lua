@@ -49,10 +49,15 @@ vim.api.nvim_create_autocmd({ "WinResized", "VimResized" }, {
       if buf and win
         and vim.api.nvim_buf_is_valid(buf)
         and vim.api.nvim_win_is_valid(win)
+        and vim.api.nvim_win_get_buf(win) == buf
         and vim.bo[buf].filetype == "nvdash" then
         vim.bo[buf].ma = true
-        require("nvchad.nvdash").open(buf, win, "refresh")
+        pcall(require("nvchad.nvdash").open, buf, win, "refresh")
       end
     end)
   end,
 })
+
+-- ウィンドウスコープのバッファ管理を有効化
+require("custom.winbuf").setup()
+require("custom.winbar").setup()
