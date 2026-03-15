@@ -38,3 +38,21 @@ vim.opt.listchars = {
   precedes = "❮", -- 行頭が画面外の場合
   nbsp = "␣", -- ノーブレークスペース
 }
+
+-- nvdash のリサイズ時カーソルエラー (E5108) を修正
+-- リサイズ後に "refresh" アクションで open() を呼び、カーソル再設定とキーマップ再構築を実行する
+vim.api.nvim_create_autocmd({ "WinResized", "VimResized" }, {
+  callback = function()
+    vim.schedule(function()
+      local buf = vim.g.nvdash_buf
+      local win = vim.g.nvdash_win
+      if buf and win
+        and vim.api.nvim_buf_is_valid(buf)
+        and vim.api.nvim_win_is_valid(win)
+        and vim.bo[buf].filetype == "nvdash" then
+        vim.bo[buf].ma = true
+        require("nvchad.nvdash").open(buf, win, "refresh")
+      end
+    end)
+  end,
+})
