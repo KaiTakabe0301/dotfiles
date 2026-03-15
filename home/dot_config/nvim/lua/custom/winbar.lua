@@ -369,6 +369,25 @@ function M.setup()
     end)
   end
 
+  M.kill_other_bufs = function()
+    local winbuf = require("custom.winbuf")
+    local winid = api.nvim_get_current_win()
+    local cur = api.nvim_win_get_buf(winid)
+    local bufs = { unpack(winbuf.get_bufs(winid)) }
+
+    for _, bufnr in ipairs(bufs) do
+      if bufnr ~= cur and not winbuf.is_pinned(winid, bufnr) then
+        if api.nvim_buf_is_valid(bufnr) then
+          api.nvim_buf_delete(bufnr, { force = false })
+        end
+      end
+    end
+
+    vim.schedule(function()
+      M.update_all()
+    end)
+  end
+
   -- Autocommands
   local augroup = api.nvim_create_augroup("WinBarBufs", { clear = true })
 

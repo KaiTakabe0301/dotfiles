@@ -66,6 +66,7 @@ map("n", "<leader>bn", function() require("custom.winbuf").next() end, { desc = 
 map("n", "<leader>bp", function() require("custom.winbuf").prev() end, { desc = "Previous buffer (window-scoped)" })
 map("n", "<leader>bc", "<cmd>enew<cr>", { desc = "Create new buffer" })
 map("n", "<leader>bD", "<cmd>bdelete!<cr>", { desc = "Force delete buffer" })
+map("n", "<leader>bo", function() require("custom.winbar").kill_other_bufs() end, { desc = "Close other buffers (keep pinned)" })
 map("n", "<leader>bl", function()
   require("custom.winbuf").move_right()
   require("custom.winbar").update_all()
