@@ -6,6 +6,9 @@ local M = {}
 --- @type table<integer, integer[]>  winid → {bufnr, ...}
 local _win_bufs = {}
 
+--- @type table<integer, table<integer, boolean>>  winid → { [bufnr] = true }
+local _pinned = {}
+
 -- Filetypes to skip when registering buffers
 local skip_ft = {
   NvimTree = true,
@@ -91,6 +94,44 @@ function M.prev()
   vim.api.nvim_win_set_buf(winid, bufs[prev_idx])
 end
 
+--- Toggle pin state for a buffer in a window
+--- @param winid integer
+--- @param bufnr integer
+function M.toggle_pin(winid, bufnr)
+  if not _pinned[winid] then _pinned[winid] = {} end
+  local bufs = _win_bufs[winid] or {}
+  local idx = find_index(bufs, bufnr)
+  if not idx then return end
+
+  if _pinned[winid][bufnr] then
+    -- Unpin: move to just after pinned group
+    _pinned[winid][bufnr] = nil
+    table.remove(bufs, idx)
+    local pin_end = 0
+    for i, b in ipairs(bufs) do
+      if _pinned[winid][b] then pin_end = i end
+    end
+    table.insert(bufs, pin_end + 1, bufnr)
+  else
+    -- Pin: move to end of pinned group
+    _pinned[winid][bufnr] = true
+    table.remove(bufs, idx)
+    local pin_end = 0
+    for i, b in ipairs(bufs) do
+      if _pinned[winid][b] then pin_end = i end
+    end
+    table.insert(bufs, pin_end + 1, bufnr)
+  end
+end
+
+--- Check if a buffer is pinned in a window
+--- @param winid integer
+--- @param bufnr integer
+--- @return boolean
+function M.is_pinned(winid, bufnr)
+  return _pinned[winid] and _pinned[winid][bufnr] or false
+end
+
 --- Move current buffer right (later) in the window's list
 function M.move_right()
   local winid = vim.api.nvim_get_current_win()
@@ -99,6 +140,10 @@ function M.move_right()
   local cur = vim.api.nvim_get_current_buf()
   local idx = find_index(bufs, cur)
   if not idx or idx >= #bufs then return end
+  -- Pinned buffers cannot move
+  if M.is_pinned(winid, cur) then return end
+  -- Non-pinned buffer cannot move into pinned region
+  if M.is_pinned(winid, bufs[idx + 1]) then return end
   bufs[idx], bufs[idx + 1] = bufs[idx + 1], bufs[idx]
 end
 
@@ -110,6 +155,10 @@ function M.move_left()
   local cur = vim.api.nvim_get_current_buf()
   local idx = find_index(bufs, cur)
   if not idx or idx <= 1 then return end
+  -- Pinned buffers cannot move
+  if M.is_pinned(winid, cur) then return end
+  -- Non-pinned buffer cannot move into pinned region
+  if M.is_pinned(winid, bufs[idx - 1]) then return end
   bufs[idx], bufs[idx - 1] = bufs[idx - 1], bufs[idx]
 end
 
@@ -150,6 +199,7 @@ function M.setup()
       local winid = tonumber(args.match)
       if winid then
         _win_bufs[winid] = nil
+        _pinned[winid] = nil
       end
     end,
   })
@@ -161,6 +211,9 @@ function M.setup()
       local bufnr = args.buf
       for winid, _ in pairs(_win_bufs) do
         M.unregister(winid, bufnr)
+        if _pinned[winid] then
+          _pinned[winid][bufnr] = nil
+        end
       end
     end,
   })

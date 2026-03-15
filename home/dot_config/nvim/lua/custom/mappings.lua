@@ -16,6 +16,10 @@ local function smart_buffer_delete()
   local winbuf = require("custom.winbuf")
   local bufnr = vim.api.nvim_get_current_buf()
   local winid = vim.api.nvim_get_current_win()
+
+  -- Pinned buffers cannot be deleted
+  if winbuf.is_pinned(winid, bufnr) then return end
+
   local bufs = winbuf.get_bufs(winid)
 
   -- ウィンドウスコープ内のバッファが1つ以下の場合
@@ -45,6 +49,15 @@ local function smart_buffer_delete()
     vim.cmd('bdelete! ' .. bufnr)
   end
 end
+
+-- Pin toggle
+map("n", "<leader>bi", function()
+  local winbuf = require("custom.winbuf")
+  local winid = vim.api.nvim_get_current_win()
+  local bufnr = vim.api.nvim_get_current_buf()
+  winbuf.toggle_pin(winid, bufnr)
+  require("custom.winbar").update_all()
+end, { desc = "Toggle pin buffer" })
 
 -- 3. バッファ関連のマッピングを追加
 map("n", "<leader>bb", "<cmd>Telescope buffers<cr>", { desc = "Find buffers" })

@@ -121,8 +121,9 @@ end
 --- @param nr integer buffer number
 --- @param bufs integer[] all buffers in this window
 --- @param cur integer current buffer number
+--- @param winid integer window id
 --- @return string content, boolean is_active, integer display_width
-local function style_buf(nr, bufs, cur)
+local function style_buf(nr, bufs, cur, winid)
   local is_cur = (cur == nr)
   local on_off = is_cur and "On" or "Off"
   local tb_hl = "TbBuf" .. on_off
@@ -138,13 +139,18 @@ local function style_buf(nr, bufs, cur)
 
   -- modified / close indicator
   local mod = api.nvim_get_option_value("mod", { buf = nr })
+  local pinned = require("custom.winbuf").is_pinned(winid, nr)
   local close_str
-  if is_cur then
+  if pinned then
+    -- Pinned: show pin icon, no click handler
+    close_str = hl_text(" 󰐃 ", "TbBuf" .. on_off .. "Close")
+  elseif is_cur then
     close_str = mod and hl_text("  ", "TbBufOnModified") or hl_text(" 󰅖 ", "TbBufOnClose")
+    close_str = "%" .. nr .. "@WinBarKillBuf@" .. close_str .. "%X"
   else
     close_str = mod and hl_text("  ", "TbBufOffModified") or hl_text(" 󰅖 ", "TbBufOffClose")
+    close_str = "%" .. nr .. "@WinBarKillBuf@" .. close_str .. "%X"
   end
-  close_str = "%" .. nr .. "@WinBarKillBuf@" .. close_str .. "%X"
 
   -- Calculate display width: icon(2+space) + name + close(3) + padding(2)
   -- icon_str is e.g. " " (icon + space) = ~2 display cols
@@ -182,7 +188,10 @@ local function render_single(winid)
   local mod = api.nvim_get_option_value("mod", { buf = nr })
   local mod_indicator = mod and hl_text(" ● ", "TbBufOnModified") or ""
 
-  return hl_text(" ", "TbFill") .. icon_hl_str .. icon_str .. hl_text(name, "TbFill") .. mod_indicator .. hl_text("%=", "TbFill")
+  local pinned = winbuf.is_pinned(winid, nr)
+  local pin_indicator = pinned and hl_text(" 󰐃", "TbBufOnClose") or ""
+
+  return hl_text(" ", "TbFill") .. icon_hl_str .. icon_str .. hl_text(name, "TbFill") .. mod_indicator .. pin_indicator .. hl_text("%=", "TbFill")
 end
 
 --- Get separator string between two states
@@ -225,7 +234,7 @@ local function render(winid)
   local tab_info = {} -- { content, is_active, width }
   local total_width = 0
   for _, nr in ipairs(bufs) do
-    local content, is_active, width = style_buf(nr, bufs, cur)
+    local content, is_active, width = style_buf(nr, bufs, cur, winid)
     table.insert(tab_info, { content = content, is_active = is_active, width = width })
     total_width = total_width + width
   end
@@ -327,6 +336,10 @@ function M.setup()
   M.kill_buf = function(bufnr)
     local winbuf = require("custom.winbuf")
     local winid = api.nvim_get_current_win()
+
+    -- Pinned buffers cannot be closed
+    if winbuf.is_pinned(winid, bufnr) then return end
+
     local bufs = winbuf.get_bufs(winid)
 
     if #bufs <= 1 then
