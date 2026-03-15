@@ -56,3 +56,7 @@ vim.api.nvim_create_autocmd({ "WinResized", "VimResized" }, {
     end)
   end,
 })
+
+-- ウィンドウスコープのバッファ管理を有効化
+require("custom.winbuf").setup()
+require("custom.winbar").setup()
