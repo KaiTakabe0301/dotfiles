@@ -111,6 +111,10 @@ map("n", "<leader>ft", function()
   end)
 end, { desc = "Find files by extension" })
 
+map("n", "<leader>fw", function()
+  require("telescope").extensions.live_grep_args.live_grep_args()
+end, { desc = "Live grep (with args) [C-h: help]" })
+
 map("n", "<leader>fW", function()
   vim.ui.input({ prompt = "File extension: " }, function(ext)
     if not ext or ext == "" then return end
