@@ -111,30 +111,72 @@ map("n", "<leader>ft", function()
   end)
 end, { desc = "Find files by extension" })
 
--- Plugin Keybindings ヘルプをフローティングウィンドウで表示
+-- Plugin Keybindings ヘルプをフローティングウィンドウで表示（ページ切り替え対応）
 map("n", "<C-h>", function()
-  local lines = {
-    " Plugin Keybindings - Help ",
-    "──────────────────────────────────────────",
-    "",
-    " [Flash.nvim]",
-    " s       Flash ジャンプ",
-    " S       Treesitter 選択",
-    " r       Remote Flash (oモード)",
-    " R       Treesitter Search (o/xモード)",
-    " C-s     Flash Search 切替 (cモード)",
-    "",
-    " [nvim-surround]",
-    " ys{motion}{char}   surround 追加",
-    " ds{char}           surround 削除",
-    " cs{old}{new}       surround 変更",
-    " S{char}            選択範囲を surround (vモード)",
+  local pages = {
+    {
+      title = "Flash.nvim",
+      lines = {
+        " s       Flash ジャンプ",
+        " S       Treesitter 選択",
+        " r       Remote Flash (oモード)",
+        " R       Treesitter Search (o/xモード)",
+        " C-s     Flash Search 切替 (cモード)",
+      },
+    },
+    {
+      title = "nvim-surround",
+      lines = {
+        " ys{motion}{char}   surround 追加",
+        " ds{char}           surround 削除",
+        " cs{old}{new}       surround 変更",
+        " S{char}            選択範囲を surround (vモード)",
+      },
+    },
   }
-  local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+
   local width = 46
-  local height = #lines
-  local win = vim.api.nvim_open_win(buf, true, {
+  local current_page = 1
+  local buf = vim.api.nvim_create_buf(false, true)
+  local win
+
+  local function render_page()
+    local page = pages[current_page]
+    local content = {
+      " " .. page.title,
+      "──────────────────────────────────────────",
+      "",
+    }
+    for _, line in ipairs(page.lines) do
+      table.insert(content, line)
+    end
+    table.insert(content, "")
+    table.insert(content, string.format(
+      " [n: next] [p: prev] [q: quit]  %d/%d",
+      current_page, #pages
+    ))
+
+    vim.api.nvim_buf_set_option(buf, "modifiable", true)
+    vim.api.nvim_buf_set_lines(buf, 0, -1, false, content)
+    vim.api.nvim_buf_set_option(buf, "modifiable", false)
+
+    local height = #content
+    if win and vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_win_set_height(win, height)
+      vim.api.nvim_win_set_config(win, {
+        relative = "editor",
+        width = width,
+        height = height,
+        col = math.floor((vim.o.columns - width) / 2),
+        row = math.floor((vim.o.lines - height) / 2),
+      })
+    end
+
+    return height
+  end
+
+  local height = render_page()
+  win = vim.api.nvim_open_win(buf, true, {
     relative = "editor",
     width = width,
     height = height,
@@ -144,9 +186,24 @@ map("n", "<C-h>", function()
     border = "rounded",
   })
   vim.api.nvim_set_option_value("winhl", "Normal:Normal,FloatBorder:FloatBorder", { win = win })
+
   vim.keymap.set("n", "q", function()
     if vim.api.nvim_win_is_valid(win) then
       vim.api.nvim_win_close(win, true)
+    end
+  end, { buffer = buf, nowait = true })
+
+  vim.keymap.set("n", "n", function()
+    if current_page < #pages then
+      current_page = current_page + 1
+      render_page()
+    end
+  end, { buffer = buf, nowait = true })
+
+  vim.keymap.set("n", "p", function()
+    if current_page > 1 then
+      current_page = current_page - 1
+      render_page()
     end
   end, { buffer = buf, nowait = true })
 end, { desc = "Plugin keybindings help" })
