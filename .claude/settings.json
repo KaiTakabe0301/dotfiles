@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(.claude/skills/create-pr/scripts/*)",
-      "Bash(.claude/skills/chezmoi-apply/scripts/*)"
+      "Bash(.claude/skills/chezmoi-apply/scripts/*)",
+      "Bash(rm -f /tmp/pr-body.md)"
     ]
   }
 }
