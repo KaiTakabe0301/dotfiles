@@ -72,6 +72,8 @@ return {
 
   require("custom.plugins.smart-splits"),
 
+  require("custom.plugins.flash"),
+
   {
     "KaiTakabe0301/telescope-live-grep-args.nvim",
     dependencies = { "nvim-telescope/telescope.nvim" },
