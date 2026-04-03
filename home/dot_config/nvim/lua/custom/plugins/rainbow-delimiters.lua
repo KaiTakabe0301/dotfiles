@@ -7,7 +7,13 @@ return {
       -- 色名の順番 = ネスト1,2,3... の適用順
       vim.g.rainbow_delimiters = {
         strategy = {
-          [""] = rd.strategy["global"], -- ほぼ全言語で有効
+          [""] = function(bufnr)
+            local success, parser = pcall(vim.treesitter.get_parser, bufnr)
+            if not success or not parser then
+              return nil
+            end
+            return rd.strategy["global"]
+          end,
           vim = rd.strategy["local"], -- VimScriptはローカル推奨
         },
         query = {
