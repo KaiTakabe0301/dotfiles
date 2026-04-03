@@ -69,4 +69,65 @@ return {
   require("custom.plugins.cmp-cmdline"),
 
   require("custom.plugins.smart-splits"),
+
+  {
+    "nvim-telescope/telescope-live-grep-args.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim" },
+    config = function()
+      local telescope = require("telescope")
+      local lga_actions = require("telescope-live-grep-args.actions")
+
+      telescope.setup({
+        extensions = {
+          live_grep_args = {
+            auto_quoting = true,
+            mappings = {
+              i = {
+                ["<C-k>"] = lga_actions.quote_prompt(),
+                ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
+                ["<C-t>"] = lga_actions.quote_prompt({ postfix = " -t " }),
+                ["<C-h>"] = function()
+                  local lines = {
+                    " Live Grep Args - Help ",
+                    "─────────────────────────────",
+                    " C-k   クォートで囲む",
+                    " C-i   --iglob パターン追加",
+                    " C-t   -t ファイルタイプ追加",
+                    "─────────────────────────────",
+                    " ripgrep フラグ (末尾に追加):",
+                    "  -i    大文字小文字を無視",
+                    "  -w    単語単位で一致",
+                    "  -s    大文字小文字を区別",
+                    "  -F    正規表現を無効化",
+                    "─────────────────────────────",
+                    " 例: \"search\" -i -w",
+                  }
+                  local buf = vim.api.nvim_create_buf(false, true)
+                  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+                  local width = 33
+                  local height = #lines
+                  local win = vim.api.nvim_open_win(buf, false, {
+                    relative = "editor",
+                    width = width,
+                    height = height,
+                    col = math.floor((vim.o.columns - width) / 2),
+                    row = math.floor((vim.o.lines - height) / 2),
+                    style = "minimal",
+                    border = "rounded",
+                  })
+                  vim.api.nvim_set_option_value("winhl", "Normal:Normal,FloatBorder:FloatBorder", { win = win })
+                  vim.defer_fn(function()
+                    if vim.api.nvim_win_is_valid(win) then
+                      vim.api.nvim_win_close(win, true)
+                    end
+                  end, 5000)
+                end,
+              },
+            },
+          },
+        },
+      })
+      telescope.load_extension("live_grep_args")
+    end,
+  },
 }
