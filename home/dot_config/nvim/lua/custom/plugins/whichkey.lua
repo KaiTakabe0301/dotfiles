@@ -17,6 +17,7 @@ return {
     wk.add {
       { "<leader>f", group = "Find", icon = "" },
       { "<leader>b", group = "Buffers", icon = "󰈔" },
+      { "<leader>g", group = "Git", icon = "" },
       { "<leader>W", group = "WhichKey", icon = "" },
       { "<leader>L", group = "LSP", icon = "" },
     }
