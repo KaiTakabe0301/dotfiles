@@ -74,6 +74,8 @@ return {
 
   require("custom.plugins.flash"),
 
+  require("custom.plugins.nvim-surround"),
+
   {
     "KaiTakabe0301/telescope-live-grep-args.nvim",
     dependencies = { "nvim-telescope/telescope.nvim" },
