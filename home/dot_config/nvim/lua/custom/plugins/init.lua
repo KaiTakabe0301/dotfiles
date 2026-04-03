@@ -54,6 +54,8 @@ return {
 
   require "custom.plugins.lazygit-nvim",
 
+  require "custom.plugins.codediff",
+
   require "custom.plugins.indent-blankline",
 
   require "custom.plugins.hlchunk",
