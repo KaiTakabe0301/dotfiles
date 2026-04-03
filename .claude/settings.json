@@ -3,7 +3,6 @@
     "allow": [
       "Bash(.claude/skills/create-pr/scripts/*)",
       "Bash(.claude/skills/chezmoi-apply/scripts/*)",
-      "Bash(rm -f /tmp/pr-body.md)",
       "Skill(chezmoi-apply)",
       "Skill(create-pr)"
     ]
