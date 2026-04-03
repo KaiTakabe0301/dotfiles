@@ -111,6 +111,42 @@ map("n", "<leader>ft", function()
   end)
 end, { desc = "Find files by extension" })
 
+-- Flash.nvim ヘルプをフローティングウィンドウで表示
+map("n", "<C-h>", function()
+  local lines = {
+    " Flash.nvim - Help ",
+    "─────────────────────────────",
+    " s       Flash ジャンプ",
+    " S       Treesitter 選択",
+    " r       Remote Flash (oモード)",
+    " R       Treesitter Search (o/xモード)",
+    " C-s     Flash Search 切替 (cモード)",
+    "─────────────────────────────",
+    " 使い方:",
+    "  s → 文字入力 → ラベル選択",
+    "  S → Treesitter ノード選択",
+  }
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  local width = 40
+  local height = #lines
+  local win = vim.api.nvim_open_win(buf, true, {
+    relative = "editor",
+    width = width,
+    height = height,
+    col = math.floor((vim.o.columns - width) / 2),
+    row = math.floor((vim.o.lines - height) / 2),
+    style = "minimal",
+    border = "rounded",
+  })
+  vim.api.nvim_set_option_value("winhl", "Normal:Normal,FloatBorder:FloatBorder", { win = win })
+  vim.keymap.set("n", "q", function()
+    if vim.api.nvim_win_is_valid(win) then
+      vim.api.nvim_win_close(win, true)
+    end
+  end, { buffer = buf, nowait = true })
+end, { desc = "Flash help" })
+
 map("n", "<leader>fw", function()
   require("telescope").extensions.live_grep_args.live_grep_args()
 end, { desc = "Live grep (with args) [C-h: help]" })
