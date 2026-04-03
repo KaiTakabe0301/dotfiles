@@ -73,11 +73,17 @@ Step 1 の出力から以下を自動決定する:
 
 ### Step 5: PR作成
 
+まず Write ツールで PR 本文を一時ファイルに書き出し、そのパスをスクリプトに渡す。
+
 ```bash
-.claude/skills/create-pr/scripts/create-pr.sh "<title>" "<body>"
+# 1. Write ツールで pr-body.md に PR 本文を書き出す
+# 2. スクリプトにファイルパスを渡す（スクリプトが使用後に自動削除する）
+.claude/skills/create-pr/scripts/create-pr.sh "<title>" pr-body.md
 ```
 
-- タイトルとボディを引数で渡す
+- **PR 本文はシェル引数に直接渡さない**（マークダウンの `#` が権限チェックに引っかかるため）
+- Write ツールで `pr-body.md` に本文を書き出してからスクリプトに渡す
+- スクリプトが PR 作成後にボディファイルを自動削除する（追加のクリーンアップ不要）
 - ボディは以下の形式にする:
 
 ```
