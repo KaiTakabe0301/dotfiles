@@ -111,24 +111,28 @@ map("n", "<leader>ft", function()
   end)
 end, { desc = "Find files by extension" })
 
--- Flash.nvim ヘルプをフローティングウィンドウで表示
+-- Plugin Keybindings ヘルプをフローティングウィンドウで表示
 map("n", "<C-h>", function()
   local lines = {
-    " Flash.nvim - Help ",
-    "─────────────────────────────",
+    " Plugin Keybindings - Help ",
+    "──────────────────────────────────────────",
+    "",
+    " [Flash.nvim]",
     " s       Flash ジャンプ",
     " S       Treesitter 選択",
     " r       Remote Flash (oモード)",
     " R       Treesitter Search (o/xモード)",
     " C-s     Flash Search 切替 (cモード)",
-    "─────────────────────────────",
-    " 使い方:",
-    "  s → 文字入力 → ラベル選択",
-    "  S → Treesitter ノード選択",
+    "",
+    " [nvim-surround]",
+    " ys{motion}{char}   surround 追加",
+    " ds{char}           surround 削除",
+    " cs{old}{new}       surround 変更",
+    " S{char}            選択範囲を surround (vモード)",
   }
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
-  local width = 40
+  local width = 46
   local height = #lines
   local win = vim.api.nvim_open_win(buf, true, {
     relative = "editor",
@@ -145,7 +149,7 @@ map("n", "<C-h>", function()
       vim.api.nvim_win_close(win, true)
     end
   end, { buffer = buf, nowait = true })
-end, { desc = "Flash help" })
+end, { desc = "Plugin keybindings help" })
 
 map("n", "<leader>fw", function()
   require("telescope").extensions.live_grep_args.live_grep_args()
