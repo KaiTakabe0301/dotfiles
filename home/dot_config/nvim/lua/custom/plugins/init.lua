@@ -73,7 +73,7 @@ return {
   require("custom.plugins.smart-splits"),
 
   {
-    "nvim-telescope/telescope-live-grep-args.nvim",
+    "KaiTakabe0301/telescope-live-grep-args.nvim",
     dependencies = { "nvim-telescope/telescope.nvim" },
     config = function()
       local telescope = require("telescope")
