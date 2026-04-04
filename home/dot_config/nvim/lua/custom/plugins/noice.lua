@@ -27,16 +27,6 @@ return {
       hover = { enabled = false },
       progress = { enabled = false },
     },
-    routes = {
-      {
-        filter = {
-          event = "notify",
-          error = true,
-        },
-        view = "notify",
-        opts = { timeout = false },
-      },
-    },
     presets = {
       command_palette = true,
     },
