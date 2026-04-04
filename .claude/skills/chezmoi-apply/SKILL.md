@@ -3,11 +3,15 @@ name: chezmoi-apply
 description: |
   chezmoi の更新差分を確認し、指定したパスの範囲だけを選択的に反映するスキル。
   全体を apply するのではなく、特定のディレクトリやファイルだけを対象にできる。
+  IMPORTANT: chezmoi のソースディレクトリ（~/.local/share/chezmoi/home/）配下のファイルを
+  編集・作成した後は、必ずこのスキルを使って反映すること。Bash で chezmoi コマンドを
+  直接実行してはならない。
   トリガー: "chezmoi apply", "chezmoi 反映", "dotfiles 反映", "設定を反映",
   "chezmoi diff", "chezmoi 差分", "dotfiles 更新", "設定ファイルを更新",
   "chezmoi status", "chezmoi の変更確認", "dotfiles の差分",
   "nvim の設定を反映", "zsh の設定を反映", "git の設定を反映",
-  "部分的に apply", "一部だけ反映"
+  "部分的に apply", "一部だけ反映", "反映して", "適用して", "apply して",
+  home/dot_config 配下のファイル編集後の反映, dotfiles のソース編集後の適用
 allowed-tools:
   - "Bash(.claude/skills/chezmoi-apply/scripts/*)"
 ---
