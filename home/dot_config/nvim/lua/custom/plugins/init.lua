@@ -80,6 +80,10 @@ return {
 
   require("custom.plugins.auto-save"),
 
+  require("custom.plugins.telescope-ui-select"),
+
+  require("custom.plugins.overseer"),
+
   {
     "KaiTakabe0301/telescope-live-grep-args.nvim",
     dependencies = { "nvim-telescope/telescope.nvim" },
