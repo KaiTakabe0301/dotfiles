@@ -3,6 +3,7 @@ return {
   event = "VeryLazy",
   dependencies = {
     "MunifTanjim/nui.nvim",
+    "rcarriga/nvim-notify",
   },
   opts = {
     cmdline = {
@@ -25,6 +26,16 @@ return {
       signature = { enabled = false },
       hover = { enabled = false },
       progress = { enabled = false },
+    },
+    routes = {
+      {
+        filter = {
+          event = "notify",
+          error = true,
+        },
+        view = "notify",
+        opts = { timeout = false },
+      },
     },
     presets = {
       command_palette = true,

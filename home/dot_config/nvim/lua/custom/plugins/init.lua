@@ -66,6 +66,8 @@ return {
 
   require("custom.plugins.nvim-tree"),
 
+  require("custom.plugins.notify"),
+
   require("custom.plugins.noice"),
 
   require("custom.plugins.cmp-cmdline"),

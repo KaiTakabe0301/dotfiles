@@ -72,7 +72,8 @@ return {
       component_aliases = {
         default = {
           "on_exit_set_status",
-          { "on_complete_notify", statuses = { "FAILURE" } },
+          { "on_complete_notify", statuses = { "SUCCESS", "FAILURE" }, system = "unfocused" },
+          { "on_output_notify", max_lines = 3, delay_ms = 1000 },
           "on_complete_dispose",
         },
       },
