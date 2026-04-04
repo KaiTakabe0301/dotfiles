@@ -24,41 +24,98 @@ local function get_project_root()
   return nil
 end
 
---- Recursively find config files, excluding certain directories
----@param root string
+-- Build a filename lookup table: lowercase filename -> list of handler keys
+-- and a separate exact-match table for case-sensitive names.
+-- justfile is matched case-insensitively; all others are exact.
+---@type table<string, string[]>  filename -> handler keys (exact match)
+local filename_to_handlers = {}
+---@type table<string, string[]>  lowercase filename -> handler keys (case-insensitive, justfile only)
+local filename_to_handlers_ci = {}
+
+--- Register a filename -> handler_key mapping (called during handler table setup below)
+---@param handler_key string
 ---@param filenames string[]
----@return string[]
-local function find_config_files(root, filenames)
-  local results = {}
+local function register_filenames(handler_key, filenames)
+  for _, f in ipairs(filenames) do
+    if f:lower() == "justfile" or f:lower() == ".justfile" then
+      local lower = f:lower()
+      if not filename_to_handlers_ci[lower] then
+        filename_to_handlers_ci[lower] = {}
+      end
+      table.insert(filename_to_handlers_ci[lower], handler_key)
+    else
+      if not filename_to_handlers[f] then
+        filename_to_handlers[f] = {}
+      end
+      table.insert(filename_to_handlers[f], handler_key)
+    end
+  end
+end
+
+--- Single recursive scan of the project tree.
+--- Returns a table: handler_key -> list of filepaths
+---@param root string
+---@return table<string, string[]>
+local function scan_project(root)
+  local result = {}
   local function scan(dir)
     local handle = vim.uv.fs_scandir(dir)
     if not handle then
       return
     end
     while true do
-      local name, type = vim.uv.fs_scandir_next(handle)
+      local name, ftype = vim.uv.fs_scandir_next(handle)
       if not name then
         break
       end
-      if type == "directory" and not exclude_dirs[name] then
+      if ftype == "directory" and not exclude_dirs[name] then
         scan(vim.fs.joinpath(dir, name))
-      elseif type == "file" then
-        for _, target in ipairs(filenames) do
-          if name == target or (target:lower() == name:lower() and target:lower() == "justfile") then
-            table.insert(results, vim.fs.joinpath(dir, name))
+      elseif ftype == "file" then
+        -- Exact match
+        local keys = filename_to_handlers[name]
+        if keys then
+          local fullpath = vim.fs.joinpath(dir, name)
+          -- Skip files at project root (covered by built-in providers)
+          if dir ~= root then
+            for _, key in ipairs(keys) do
+              if not result[key] then
+                result[key] = {}
+              end
+              table.insert(result[key], fullpath)
+            end
+          end
+        end
+        -- Case-insensitive match (justfile)
+        local lower = name:lower()
+        local ci_keys = filename_to_handlers_ci[lower]
+        if ci_keys then
+          local fullpath = vim.fs.joinpath(dir, name)
+          if dir ~= root then
+            for _, key in ipairs(ci_keys) do
+              if not result[key] then
+                result[key] = {}
+              end
+              table.insert(result[key], fullpath)
+            end
           end
         end
       end
     end
   end
   scan(root)
-  return results
+  return result
 end
 
---- Detect package manager from lockfiles
+--- Detect package manager from lockfiles (cached per root)
+---@type table<string, string>
+local npm_manager_cache = {}
+
 ---@param root string
 ---@return string
 local function detect_npm_manager(root)
+  if npm_manager_cache[root] then
+    return npm_manager_cache[root]
+  end
   local lockfiles = {
     { file = "pnpm-lock.yaml", mgr = "pnpm" },
     { file = "yarn.lock", mgr = "yarn" },
@@ -68,10 +125,25 @@ local function detect_npm_manager(root)
   }
   for _, entry in ipairs(lockfiles) do
     if vim.uv.fs_stat(vim.fs.joinpath(root, entry.file)) then
+      npm_manager_cache[root] = entry.mgr
       return entry.mgr
     end
   end
+  npm_manager_cache[root] = "npm"
   return "npm"
+end
+
+--- Cached vim.fn.executable check
+---@type table<string, boolean>
+local executable_cache = {}
+
+---@param cmd string
+---@return boolean
+local function is_executable(cmd)
+  if executable_cache[cmd] == nil then
+    executable_cache[cmd] = vim.fn.executable(cmd) == 1
+  end
+  return executable_cache[cmd]
 end
 
 --- Get relative path from root
@@ -81,14 +153,6 @@ end
 local function relative_path(root, path)
   local rel = path:sub(#root + 2) -- +2 for trailing /
   return rel
-end
-
---- Check if a path is directly under root (no subdirectory)
----@param root string
----@param filepath string
----@return boolean
-local function is_root_file(root, filepath)
-  return vim.fs.dirname(filepath) == root
 end
 
 -- Handler definitions for each tool type
@@ -188,7 +252,7 @@ handlers.composer = {
 handlers.make = {
   config_files = { "Makefile" },
   process = function(root, filepath, tasks, cb_done)
-    if vim.fn.executable("make") == 0 then
+    if not is_executable("make") then
       cb_done()
       return
     end
@@ -238,7 +302,7 @@ handlers.make = {
 handlers.just = {
   config_files = { "justfile", "Justfile", ".justfile" },
   process = function(root, filepath, tasks, cb_done)
-    if vim.fn.executable("just") == 0 then
+    if not is_executable("just") then
       cb_done()
       return
     end
@@ -275,7 +339,7 @@ handlers.just = {
 handlers.task = {
   config_files = { "Taskfile.yml", "Taskfile.yaml", "Taskfile.dist.yml", "Taskfile.dist.yaml" },
   process = function(root, filepath, tasks, cb_done)
-    if vim.fn.executable("task") == 0 then
+    if not is_executable("task") then
       cb_done()
       return
     end
@@ -314,7 +378,7 @@ handlers.task = {
 handlers.mix = {
   config_files = { "mix.exs" },
   process = function(root, filepath, tasks, cb_done)
-    if vim.fn.executable("mix") == 0 then
+    if not is_executable("mix") then
       cb_done()
       return
     end
@@ -340,7 +404,7 @@ handlers.mix = {
 handlers.rake = {
   config_files = { "Rakefile" },
   process = function(root, filepath, tasks, cb_done)
-    if vim.fn.executable("rake") == 0 then
+    if not is_executable("rake") then
       cb_done()
       return
     end
@@ -406,7 +470,7 @@ handlers["cargo-make"] = {
 handlers.mise = {
   config_files = { "mise.toml", ".mise.toml" },
   process = function(root, filepath, tasks, cb_done)
-    if vim.fn.executable("mise") == 0 then
+    if not is_executable("mise") then
       cb_done()
       return
     end
@@ -482,7 +546,7 @@ handlers.tox = {
 handlers.mage = {
   config_files = { "magefile.go" },
   process = function(root, filepath, tasks, cb_done)
-    if vim.fn.executable("mage") == 0 then
+    if not is_executable("mage") then
       cb_done()
       return
     end
@@ -522,7 +586,7 @@ handlers.mage = {
 handlers.devenv = {
   config_files = { "devenv.nix" },
   process = function(root, filepath, tasks, cb_done)
-    if vim.fn.executable("devenv") == 0 then
+    if not is_executable("devenv") then
       cb_done()
       return
     end
@@ -548,7 +612,7 @@ handlers.devenv = {
 handlers.cargo = {
   config_files = { "Cargo.toml" },
   process = function(root, filepath, tasks, cb_done)
-    if vim.fn.executable("cargo") == 0 then
+    if not is_executable("cargo") then
       cb_done()
       return
     end
@@ -570,6 +634,11 @@ handlers.cargo = {
   end,
 }
 
+-- Register all handler filenames for the lookup table
+for key, handler in pairs(handlers) do
+  register_filenames(key, handler.config_files)
+end
+
 ---@type overseer.TemplateFileProvider
 return {
   cache_key = function()
@@ -581,25 +650,16 @@ return {
       return "Not in a git repository"
     end
 
-    local ret = {}
-    local remaining = 0
+    -- Single scan of the entire project tree
+    local files_by_handler = scan_project(root)
 
-    local function on_done()
-      remaining = remaining - 1
-      if remaining == 0 then
-        cb(ret)
-      end
-    end
-
-    -- Collect all config files to process
+    -- Collect work items from scan results
     ---@type { handler: ToolHandler, filepath: string }[]
     local work_items = {}
-
-    for _, handler in pairs(handlers) do
-      local found = find_config_files(root, handler.config_files)
-      for _, filepath in ipairs(found) do
-        -- Skip files at project root (covered by built-in providers)
-        if not is_root_file(root, filepath) then
+    for key, filepaths in pairs(files_by_handler) do
+      local handler = handlers[key]
+      if handler then
+        for _, filepath in ipairs(filepaths) do
           table.insert(work_items, { handler = handler, filepath = filepath })
         end
       end
@@ -609,7 +669,16 @@ return {
       return {}
     end
 
-    remaining = #work_items
+    local ret = {}
+    local remaining = #work_items
+
+    local function on_done()
+      remaining = remaining - 1
+      if remaining == 0 then
+        cb(ret)
+      end
+    end
+
     for _, item in ipairs(work_items) do
       item.handler.process(root, item.filepath, ret, on_done)
     end
