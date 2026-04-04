@@ -111,201 +111,88 @@ map("n", "<leader>ft", function()
   end)
 end, { desc = "Find files by extension" })
 
--- Plugin Keybindings ヘルプ（Snacks.win で一覧 → 詳細表示）
-do
+-- Plugin Keybindings ヘルプ（Snacks.picker でプラグイン一覧 + プレビュー表示）
+map("n", "<C-h>", function()
   local plugin_help = {
     {
       name = "Flash.nvim",
-      pages = {
-        {
-          title = "Flash.nvim",
-          lines = {
-            " s       Flash ジャンプ",
-            " S       Treesitter 選択",
-            " r       Remote Flash (oモード)",
-            " R       Treesitter Search (o/xモード)",
-            " C-s     Flash Search 切替 (cモード)",
-          },
-        },
-      },
+      preview = table.concat({
+        " Key     Action",
+        " ───────────────────────────────────",
+        " s       Flash jump",
+        " S       Treesitter select",
+        " r       Remote Flash (o mode)",
+        " R       Treesitter Search (o/x mode)",
+        " C-s     Flash Search toggle (c mode)",
+      }, "\n"),
     },
     {
       name = "nvim-surround",
-      pages = {
-        {
-          title = "nvim-surround - キーバインド",
-          lines = {
-            " ys{motion}{char}   surround 追加",
-            " ds{char}           surround 削除",
-            " cs{old}{new}       surround 変更",
-            " yss{char}          行全体を surround",
-            " S{char}            選択範囲を surround (vモード)",
-          },
-        },
-        {
-          title = "nvim-surround - motion / char",
-          lines = {
-            " [motion の例]",
-            " iw    inner word       aw    a word",
-            " i\"    inner \"...\"      a\"    a \"...\"",
-            " i)    inner (...)      a)    a (...)",
-            " i]    inner [...]      a]    a [...]",
-            " i}    inner {...}      a}    a {...}",
-            " it    inner <tag>      at    a <tag>",
-            " is    inner sentence   as    a sentence",
-            "",
-            " [char の例]",
-            " ) or (   ()  ※( はスペース付き",
-            " ] or [   []  ※[ はスペース付き",
-            " } or {   {}  ※{ はスペース付き",
-            " > or <   <>  ※< はスペース付き",
-            " \" ' `    引用符で囲む",
-            " t        <tag>...</tag> (タグ入力)",
-          },
-        },
-      },
+      preview = table.concat({
+        " Keybindings",
+        " ───────────────────────────────────",
+        " ys{motion}{char}   surround add",
+        " ds{char}           surround delete",
+        " cs{old}{new}       surround change",
+        " yss{char}          surround line",
+        " S{char}            surround selection (v mode)",
+        "",
+        " Motion Examples",
+        " ───────────────────────────────────",
+        " iw  inner word        aw  a word",
+        ' i"  inner "..."       a"  a "..."',
+        " i)  inner (...)       a)  a (...)",
+        " i]  inner [...]       a]  a [...]",
+        " i}  inner {...}       a}  a {...}",
+        " it  inner <tag>       at  a <tag>",
+        " is  inner sentence    as  a sentence",
+        "",
+        " Char Examples",
+        " ───────────────────────────────────",
+        " ) or (    ()    ( adds space",
+        " ] or [    []    [ adds space",
+        " } or {    {}    { adds space",
+        " > or <    <>    < adds space",
+        ' " \' `     quote with char',
+        " t         <tag>...</tag>  (tag input)",
+      }, "\n"),
     },
   }
 
-  local function calc_width(content, title)
-    local max_w = vim.fn.strdisplaywidth(title) + 4
-    for _, line in ipairs(content) do
-      local w = vim.fn.strdisplaywidth(line)
-      if w > max_w then max_w = w end
-    end
-    return math.min(max_w + 4, vim.o.columns - 4)
-  end
-
-  local show_index, show_plugin
-
-  show_index = function()
-    local content = { "" }
-    for i, plugin in ipairs(plugin_help) do
-      table.insert(content, "  " .. i .. ". " .. plugin.name)
-    end
-    table.insert(content, "")
-    table.insert(content, " [Enter: select] [q: quit]")
-
-    local title = "Plugin Help"
-    local win = Snacks.win({
-      text = content,
-      width = calc_width(content, title),
-      height = #content,
-      border = "rounded",
-      title = " " .. title .. " ",
-      title_pos = "center",
-      enter = true,
-      backdrop = 60,
-      wo = { cursorline = true },
-      keys = {
-        q = "close",
-        ["<CR>"] = function(self)
-          local cursor = vim.api.nvim_win_get_cursor(self.win)
-          local idx = cursor[1] - 1
-          if idx >= 1 and idx <= #plugin_help then
-            self:close()
-            vim.schedule(function()
-              show_plugin(idx)
-            end)
-          end
-        end,
-      },
-      on_win = function(self)
-        vim.api.nvim_win_set_cursor(self.win, { 2, 0 })
-      end,
+  local items = {}
+  for _, plugin in ipairs(plugin_help) do
+    table.insert(items, {
+      text = plugin.name,
+      preview = { text = plugin.preview, ft = "markdown" },
     })
   end
 
-  show_plugin = function(idx)
-    local plugin = plugin_help[idx]
-    local pages = plugin.pages
-    local current_page = 1
-
-    local function build_content()
-      local page = pages[current_page]
-      local content = { "" }
-      for _, line in ipairs(page.lines) do
-        table.insert(content, line)
-      end
-      table.insert(content, "")
-      if #pages > 1 then
-        table.insert(content, string.format(
-          " [n: next] [p: prev] [b: back] [q: quit]  %d/%d",
-          current_page, #pages
-        ))
-      else
-        table.insert(content, " [b: back] [q: quit]")
-      end
-      return content
-    end
-
-    local function get_title()
-      return plugin.name .. " - " .. pages[current_page].title
-    end
-
-    local content = build_content()
-    local title = get_title()
-    local win = Snacks.win({
-      text = content,
-      width = calc_width(content, title),
-      height = #content,
-      border = "rounded",
-      title = " " .. title .. " ",
-      title_pos = "center",
-      enter = true,
-      backdrop = 60,
-      keys = {
-        q = "close",
-        b = function(self)
-          self:close()
-          vim.schedule(show_index)
-        end,
-        n = #pages > 1 and function(self)
-          if current_page < #pages then
-            current_page = current_page + 1
-            local c = build_content()
-            local t = get_title()
-            vim.bo[self.buf].modifiable = true
-            vim.api.nvim_buf_set_lines(self.buf, 0, -1, false, c)
-            vim.bo[self.buf].modifiable = false
-            local w = calc_width(c, t)
-            vim.api.nvim_win_set_config(self.win, {
-              relative = "editor",
-              width = w,
-              height = #c,
-              col = math.floor((vim.o.columns - w) / 2),
-              row = math.floor((vim.o.lines - #c) / 2),
-              title = " " .. t .. " ",
-              title_pos = "center",
-            })
-          end
-        end or nil,
-        p = #pages > 1 and function(self)
-          if current_page > 1 then
-            current_page = current_page - 1
-            local c = build_content()
-            local t = get_title()
-            vim.bo[self.buf].modifiable = true
-            vim.api.nvim_buf_set_lines(self.buf, 0, -1, false, c)
-            vim.bo[self.buf].modifiable = false
-            local w = calc_width(c, t)
-            vim.api.nvim_win_set_config(self.win, {
-              relative = "editor",
-              width = w,
-              height = #c,
-              col = math.floor((vim.o.columns - w) / 2),
-              row = math.floor((vim.o.lines - #c) / 2),
-              title = " " .. t .. " ",
-              title_pos = "center",
-            })
-          end
-        end or nil,
+  Snacks.picker.pick({
+    title = "Plugin Keybindings Help",
+    items = items,
+    format = function(item)
+      return { { "  " .. item.text, "Function" } }
+    end,
+    preview = "preview",
+    layout = {
+      layout = {
+        box = "horizontal",
+        width = 0.7,
+        height = 0.6,
+        {
+          box = "vertical",
+          border = "rounded",
+          { win = "input", height = 1, border = "bottom" },
+          { win = "list" },
+        },
+        { win = "preview", width = 0.65, border = "rounded" },
       },
-    })
-  end
-
-  map("n", "<C-h>", show_index, { desc = "Plugin keybindings help" })
-end
+    },
+    confirm = function(picker)
+      picker:close()
+    end,
+  })
+end, { desc = "Plugin keybindings help" })
 
 map("n", "<leader>fw", function()
   require("telescope").extensions.live_grep_args.live_grep_args()
