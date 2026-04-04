@@ -86,7 +86,12 @@ chezmoi apply のターゲットパスはホームディレクトリ配下の実
 
 ## 注意事項
 
+- **chezmoi コマンドは絶対に直接実行しないこと。必ずスクリプト経由で実行すること。**
+  - `chezmoi status` → `.claude/skills/chezmoi-apply/scripts/status.sh`
+  - `chezmoi diff` → `.claude/skills/chezmoi-apply/scripts/diff.sh`
+  - `chezmoi apply` → `.claude/skills/chezmoi-apply/scripts/apply.sh`
+  - 理由: chezmoi コマンドには `--include=files` や `--pager ""` などのフラグが必要だが、`=` やクォート文字を含むフラグを Bash ツールで直接実行すると権限確認プロンプトが発生する。スクリプト内でフラグを処理することでこの問題を回避する。
 - **スクリプトは必ず相対パスで呼び出すこと**（`settings.json` の許可パターンが相対パスで定義されているため、絶対パスだとマッチせず権限確認が発生する）
 - `apply.sh` は引数なし（全体 apply）を許可していない。必ずターゲットパスを指定すること
 - 差分が大きい場合はディレクトリ単位で段階的に反映することを推奨
-- 反映後に問題があれば `chezmoi diff` で再度状態を確認できる
+- 反映後に問題があれば `.claude/skills/chezmoi-apply/scripts/diff.sh` で再度状態を確認できる
