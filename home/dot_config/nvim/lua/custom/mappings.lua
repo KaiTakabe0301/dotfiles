@@ -111,7 +111,7 @@ map("n", "<leader>ft", function()
   end)
 end, { desc = "Find files by extension" })
 
--- Plugin Keybindings ヘルプ（フローティングウィンドウで一覧 → 詳細表示）
+-- Plugin Keybindings ヘルプ（Snacks.win で一覧 → 詳細表示）
 do
   local plugin_help = {
     {
@@ -168,50 +168,12 @@ do
   }
 
   local function calc_width(content, title)
-    local max_w = vim.fn.strdisplaywidth(title) + 4 -- タイトル + パディング
+    local max_w = vim.fn.strdisplaywidth(title) + 4
     for _, line in ipairs(content) do
       local w = vim.fn.strdisplaywidth(line)
       if w > max_w then max_w = w end
     end
-    return math.min(max_w + 2, vim.o.columns - 4) -- 左右余白 + エディタ幅上限
-  end
-
-  local function open_float(content, title)
-    local buf = vim.api.nvim_create_buf(false, true)
-    vim.api.nvim_buf_set_lines(buf, 0, -1, false, content)
-    vim.bo[buf].modifiable = false
-    local w = calc_width(content, title)
-    local height = #content
-    local win = vim.api.nvim_open_win(buf, true, {
-      relative = "editor",
-      width = w,
-      height = height,
-      col = math.floor((vim.o.columns - w) / 2),
-      row = math.floor((vim.o.lines - height) / 2),
-      style = "minimal",
-      border = "rounded",
-      title = " " .. title .. " ",
-      title_pos = "center",
-    })
-    vim.api.nvim_set_option_value("winhl", "Normal:Normal,FloatBorder:FloatBorder", { win = win })
-    vim.api.nvim_set_option_value("cursorline", true, { win = win })
-    return buf, win
-  end
-
-  local function resize_win(win, content, title)
-    if win and vim.api.nvim_win_is_valid(win) then
-      local w = calc_width(content, title)
-      local height = #content
-      vim.api.nvim_win_set_config(win, {
-        relative = "editor",
-        width = w,
-        height = height,
-        col = math.floor((vim.o.columns - w) / 2),
-        row = math.floor((vim.o.lines - height) / 2),
-        title = " " .. title .. " ",
-        title_pos = "center",
-      })
-    end
+    return math.min(max_w + 4, vim.o.columns - 4)
   end
 
   local show_index, show_plugin
@@ -224,25 +186,34 @@ do
     table.insert(content, "")
     table.insert(content, " [Enter: select] [q: quit]")
 
-    local buf, win = open_float(content, "Plugin Help")
-
-    vim.keymap.set("n", "q", function()
-      vim.api.nvim_win_close(win, true)
-    end, { buffer = buf, nowait = true })
-
-    vim.keymap.set("n", "<CR>", function()
-      local cursor = vim.api.nvim_win_get_cursor(win)
-      local idx = cursor[1] - 1 -- 1行目は空行なので -1
-      if idx >= 1 and idx <= #plugin_help then
-        vim.api.nvim_win_close(win, true)
-        vim.schedule(function()
-          show_plugin(idx)
-        end)
-      end
-    end, { buffer = buf, nowait = true })
-
-    -- カーソルを最初のプラグイン行に移動
-    vim.api.nvim_win_set_cursor(win, { 2, 0 })
+    local title = "Plugin Help"
+    local win = Snacks.win({
+      text = content,
+      width = calc_width(content, title),
+      height = #content,
+      border = "rounded",
+      title = " " .. title .. " ",
+      title_pos = "center",
+      enter = true,
+      backdrop = 60,
+      wo = { cursorline = true },
+      keys = {
+        q = "close",
+        ["<CR>"] = function(self)
+          local cursor = vim.api.nvim_win_get_cursor(self.win)
+          local idx = cursor[1] - 1
+          if idx >= 1 and idx <= #plugin_help then
+            self:close()
+            vim.schedule(function()
+              show_plugin(idx)
+            end)
+          end
+        end,
+      },
+      on_win = function(self)
+        vim.api.nvim_win_set_cursor(self.win, { 2, 0 })
+      end,
+    })
   end
 
   show_plugin = function(idx)
@@ -273,41 +244,64 @@ do
     end
 
     local content = build_content()
-    local buf, win = open_float(content, get_title())
-
-    vim.keymap.set("n", "q", function()
-      vim.api.nvim_win_close(win, true)
-    end, { buffer = buf, nowait = true })
-
-    vim.keymap.set("n", "b", function()
-      vim.api.nvim_win_close(win, true)
-      vim.schedule(show_index)
-    end, { buffer = buf, nowait = true })
-
-    if #pages > 1 then
-      local function refresh()
-        local c = build_content()
-        local t = get_title()
-        vim.bo[buf].modifiable = true
-        vim.api.nvim_buf_set_lines(buf, 0, -1, false, c)
-        vim.bo[buf].modifiable = false
-        resize_win(win, c, t)
-      end
-
-      vim.keymap.set("n", "n", function()
-        if current_page < #pages then
-          current_page = current_page + 1
-          refresh()
-        end
-      end, { buffer = buf, nowait = true })
-
-      vim.keymap.set("n", "p", function()
-        if current_page > 1 then
-          current_page = current_page - 1
-          refresh()
-        end
-      end, { buffer = buf, nowait = true })
-    end
+    local title = get_title()
+    local win = Snacks.win({
+      text = content,
+      width = calc_width(content, title),
+      height = #content,
+      border = "rounded",
+      title = " " .. title .. " ",
+      title_pos = "center",
+      enter = true,
+      backdrop = 60,
+      keys = {
+        q = "close",
+        b = function(self)
+          self:close()
+          vim.schedule(show_index)
+        end,
+        n = #pages > 1 and function(self)
+          if current_page < #pages then
+            current_page = current_page + 1
+            local c = build_content()
+            local t = get_title()
+            vim.bo[self.buf].modifiable = true
+            vim.api.nvim_buf_set_lines(self.buf, 0, -1, false, c)
+            vim.bo[self.buf].modifiable = false
+            local w = calc_width(c, t)
+            vim.api.nvim_win_set_config(self.win, {
+              relative = "editor",
+              width = w,
+              height = #c,
+              col = math.floor((vim.o.columns - w) / 2),
+              row = math.floor((vim.o.lines - #c) / 2),
+              title = " " .. t .. " ",
+              title_pos = "center",
+            })
+          end
+        end or nil,
+        p = #pages > 1 and function(self)
+          if current_page > 1 then
+            current_page = current_page - 1
+            local c = build_content()
+            local t = get_title()
+            vim.bo[self.buf].modifiable = true
+            vim.api.nvim_buf_set_lines(self.buf, 0, -1, false, c)
+            vim.bo[self.buf].modifiable = false
+            local w = calc_width(c, t)
+            vim.api.nvim_win_set_config(self.win, {
+              relative = "editor",
+              width = w,
+              height = #c,
+              col = math.floor((vim.o.columns - w) / 2),
+              row = math.floor((vim.o.lines - #c) / 2),
+              title = " " .. t .. " ",
+              title_pos = "center",
+            })
+          end
+        end or nil,
+      },
+    })
   end
 
   map("n", "<C-h>", show_index, { desc = "Plugin keybindings help" })
