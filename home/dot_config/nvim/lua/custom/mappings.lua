@@ -188,6 +188,23 @@ map("n", "<C-h>", function()
         " t         <tag>...</tag>  (tag input)",
       }, "\n"),
     },
+    {
+      name = "Copilot",
+      preview = table.concat({
+        " Insert Mode (Suggestion)",
+        " ───────────────────────────────────",
+        " <M-c>        Trigger / Next suggestion",
+        " <M-y>        Accept suggestion",
+        " <M-p>        Previous suggestion",
+        " <M-d>        Dismiss suggestion",
+        "",
+        " Normal Mode (<leader>a = AI/Copilot)",
+        " ───────────────────────────────────",
+        " <leader>at   Toggle Copilot on/off",
+        " <leader>as   Copilot status",
+        " <leader>ap   Copilot panel",
+      }, "\n"),
+    },
   }
 
   local items = {}

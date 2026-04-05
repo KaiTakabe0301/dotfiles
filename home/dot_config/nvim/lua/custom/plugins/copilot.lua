@@ -3,8 +3,23 @@ return {
     "zbirenbaum/copilot.lua",
     cmd = "Copilot",
     event = "InsertEnter",
+    keys = {
+      { "<leader>at", "<cmd>Copilot toggle<cr>", desc = "Copilot toggle" },
+      { "<leader>as", "<cmd>Copilot status<cr>", desc = "Copilot status" },
+      { "<leader>ap", "<cmd>Copilot panel<cr>", desc = "Copilot panel" },
+    },
     opts = {
-      suggestion = { enabled = false },
+      suggestion = {
+        enabled = true,
+        auto_trigger = false,
+        hide_during_completion = true,
+        keymap = {
+          accept = "<M-y>",
+          next = "<M-c>",
+          prev = "<M-p>",
+          dismiss = "<M-d>",
+        },
+      },
       panel = { enabled = false },
       filetypes = {
         markdown = true,
