@@ -20,6 +20,7 @@ return {
       { "<leader>g", group = "Git", icon = "" },
       { "<leader>W", group = "WhichKey", icon = "" },
       { "<leader>L", group = "LSP", icon = "" },
+      { "<leader>a", group = "AI/Copilot", icon = "" },
     }
   end,
 }
