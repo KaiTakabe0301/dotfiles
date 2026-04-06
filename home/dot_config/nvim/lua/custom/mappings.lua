@@ -111,107 +111,206 @@ map("n", "<leader>ft", function()
   end)
 end, { desc = "Find files by extension" })
 
+-- Plugin Keybindings ヘルプ用ハイライトグループ（NVChad風）
+vim.api.nvim_set_hl(0, "HelpCatRed", { fg = "#1e1e2e", bg = "#f38ba8", bold = true })
+vim.api.nvim_set_hl(0, "HelpCatGreen", { fg = "#1e1e2e", bg = "#a6e3a1", bold = true })
+vim.api.nvim_set_hl(0, "HelpCatYellow", { fg = "#1e1e2e", bg = "#f9e2af", bold = true })
+vim.api.nvim_set_hl(0, "HelpCatBlue", { fg = "#1e1e2e", bg = "#89b4fa", bold = true })
+vim.api.nvim_set_hl(0, "HelpCatPink", { fg = "#1e1e2e", bg = "#f5c2e7", bold = true })
+vim.api.nvim_set_hl(0, "HelpCatPurple", { fg = "#1e1e2e", bg = "#cba6f7", bold = true })
+vim.api.nvim_set_hl(0, "HelpKey", { fg = "#89b4fa", bold = true })
+vim.api.nvim_set_hl(0, "HelpDesc", { fg = "#cdd6f4" })
+
+--- プレビューデータ（テキスト行 + extmarks）を生成するヘルパー
+---@param sections table[] { name: string, hl: string, keys: string[][] }
+---@param preview_width number
+---@return string text, table[] extmarks
+local function build_preview(sections, preview_width)
+  local lines = {}
+  local extmarks = {}
+  local row = 0
+
+  for i, section in ipairs(sections) do
+    if i > 1 then
+      table.insert(lines, "")
+      row = row + 1
+    end
+
+    -- カテゴリラベル行（中央配置、overlay で色付き）
+    local label = " " .. section.name .. " "
+    local pad = math.floor((preview_width - #label) / 2)
+    table.insert(lines, string.rep(" ", preview_width))
+    table.insert(extmarks, {
+      row = row + 1,
+      col = math.max(pad, 0),
+      virt_text = { { label, section.hl } },
+      virt_text_pos = "overlay",
+    })
+    row = row + 1
+
+    table.insert(lines, "")
+    row = row + 1
+
+    -- 各キーバインド行
+    for _, item in ipairs(section.keys) do
+      local key_str = item[1]
+      local desc_str = item[2]
+      local gap = preview_width - #key_str - #desc_str - 4
+      local line = "  " .. desc_str .. string.rep(" ", math.max(gap, 1)) .. key_str
+      table.insert(lines, line)
+
+      table.insert(extmarks, {
+        row = row + 1,
+        col = 2,
+        end_col = 2 + #desc_str,
+        hl_group = "HelpDesc",
+      })
+      local key_start = #line - #key_str
+      table.insert(extmarks, {
+        row = row + 1,
+        col = key_start,
+        end_col = key_start + #key_str,
+        hl_group = "HelpKey",
+      })
+      row = row + 1
+    end
+  end
+
+  return table.concat(lines, "\n"), extmarks
+end
+
 -- Plugin Keybindings ヘルプ（Snacks.picker でプラグイン一覧 + プレビュー表示）
 map("n", "<C-h>", function()
+  local total_width = math.floor(vim.o.columns * 0.85)
+  local preview_width = math.floor(total_width * 0.65) - 6
+
   local plugin_help = {
     {
       name = "Flash.nvim",
-      preview = table.concat({
-        " Key     Action",
-        " ───────────────────────────────────",
-        " s       Flash jump",
-        " S       Treesitter select",
-        " r       Remote Flash (o mode)",
-        " R       Treesitter Search (o/x mode)",
-        " C-s     Flash Search toggle (c mode)",
-      }, "\n"),
+      sections = {
+        {
+          name = "Jump",
+          hl = "HelpCatBlue",
+          keys = {
+            { "s", "Flash jump" },
+            { "S", "Treesitter select" },
+            { "r", "Remote Flash (o mode)" },
+            { "R", "Treesitter Search (o/x mode)" },
+            { "C-s", "Flash Search toggle (c mode)" },
+          },
+        },
+      },
     },
     {
       name = "Overseer.nvim",
-      preview = table.concat({
-        " Key          Action",
-        " ────────────────────────────────────",
-        " <leader>oo   Toggle task list",
-        " <leader>or   Run task (template)",
-        " <leader>os   Shell command as task",
-        " <leader>oa   Task action (select)",
-        " <leader>ol   Restart last task",
-        " <leader>oq   Stop running task",
-        " :Make        Async make (quickfix)",
-        " :Grep        Async grep (quickfix)",
-        " :OS <cmd>    Run shell cmd as task",
-        "",
-        " Task List Keybindings",
-        " ────────────────────────────────────",
-        " ?            Show help",
-        " <CR>         Run action",
-        " o            Open task output",
-        " p            Toggle preview",
-        " dd           Dispose task",
-        " <C-e>        Edit task",
-        " <C-q>        Send to quickfix",
-        " <C-v>/<C-s>  Open vsplit/split",
-        " <C-f>        Open in float",
-        " { / }        Prev/Next task",
-        " <C-k>/<C-j>  Scroll output up/down",
-        " q            Close task list",
-      }, "\n"),
+      sections = {
+        {
+          name = "Commands",
+          hl = "HelpCatGreen",
+          keys = {
+            { "<leader>oo", "Toggle task list" },
+            { "<leader>or", "Run task (template)" },
+            { "<leader>os", "Shell command as task" },
+            { "<leader>oa", "Task action (select)" },
+            { "<leader>ol", "Restart last task" },
+            { "<leader>oq", "Stop running task" },
+            { ":Make", "Async make (quickfix)" },
+            { ":Grep", "Async grep (quickfix)" },
+            { ":OS <cmd>", "Run shell cmd as task" },
+          },
+        },
+        {
+          name = "Task List",
+          hl = "HelpCatYellow",
+          keys = {
+            { "?", "Show help" },
+            { "<CR>", "Run action" },
+            { "o", "Open task output" },
+            { "p", "Toggle preview" },
+            { "dd", "Dispose task" },
+            { "<C-e>", "Edit task" },
+            { "<C-q>", "Send to quickfix" },
+            { "<C-v>/<C-s>", "Open vsplit/split" },
+            { "<C-f>", "Open in float" },
+            { "{ / }", "Prev/Next task" },
+            { "<C-k>/<C-j>", "Scroll output up/down" },
+            { "q", "Close task list" },
+          },
+        },
+      },
     },
     {
       name = "nvim-surround",
-      preview = table.concat({
-        " Keybindings",
-        " ───────────────────────────────────",
-        " ys{motion}{char}   surround add",
-        " ds{char}           surround delete",
-        " cs{old}{new}       surround change",
-        " yss{char}          surround line",
-        " S{char}            surround selection (v mode)",
-        "",
-        " Motion Examples",
-        " ───────────────────────────────────",
-        " iw  inner word        aw  a word",
-        ' i"  inner "..."       a"  a "..."',
-        " i)  inner (...)       a)  a (...)",
-        " i]  inner [...]       a]  a [...]",
-        " i}  inner {...}       a}  a {...}",
-        " it  inner <tag>       at  a <tag>",
-        " is  inner sentence    as  a sentence",
-        "",
-        " Char Examples",
-        " ───────────────────────────────────",
-        " ) or (    ()    ( adds space",
-        " ] or [    []    [ adds space",
-        " } or {    {}    { adds space",
-        " > or <    <>    < adds space",
-        ' " \' `     quote with char',
-        " t         <tag>...</tag>  (tag input)",
-      }, "\n"),
+      sections = {
+        {
+          name = "Keybindings",
+          hl = "HelpCatPurple",
+          keys = {
+            { "ys{motion}{char}", "surround add" },
+            { "ds{char}", "surround delete" },
+            { "cs{old}{new}", "surround change" },
+            { "yss{char}", "surround line" },
+            { "S{char}", "surround selection (v mode)" },
+          },
+        },
+        {
+          name = "Motion Examples",
+          hl = "HelpCatPink",
+          keys = {
+            { "iw / aw", "inner word / a word" },
+            { 'i" / a"', 'inner "..." / a "..."' },
+            { "i) / a)", "inner (...) / a (...)" },
+            { "i] / a]", "inner [...] / a [...]" },
+            { "i} / a}", "inner {...} / a {...}" },
+            { "it / at", "inner <tag> / a <tag>" },
+          },
+        },
+        {
+          name = "Char Examples",
+          hl = "HelpCatRed",
+          keys = {
+            { ") or (", "()  ( adds space" },
+            { "] or [", "[]  [ adds space" },
+            { "} or {", "{}  { adds space" },
+            { "> or <", "<>  < adds space" },
+            { [[" ' `]], "quote with char" },
+            { "t", "<tag>...</tag> (tag input)" },
+          },
+        },
+      },
     },
     {
       name = "Copilot",
-      preview = table.concat({
-        " Insert Mode (Suggestion)",
-        " ───────────────────────────────────",
-        " <M-c>        Trigger / Next suggestion",
-        " <M-y>        Accept suggestion",
-        " <M-p>        Previous suggestion",
-        " <M-d>        Dismiss suggestion",
-        "",
-        " Normal Mode (<leader>a = AI/Copilot)",
-        " ───────────────────────────────────",
-        " <leader>at   Toggle Copilot on/off",
-        " <leader>as   Copilot status",
-        " <leader>ap   Copilot panel",
-      }, "\n"),
+      sections = {
+        {
+          name = "Insert Mode (Suggestion)",
+          hl = "HelpCatBlue",
+          keys = {
+            { "<M-c>", "Trigger / Next suggestion" },
+            { "<M-y>", "Accept suggestion" },
+            { "<M-p>", "Previous suggestion" },
+            { "<M-d>", "Dismiss suggestion" },
+          },
+        },
+        {
+          name = "Normal Mode (<leader>a)",
+          hl = "HelpCatGreen",
+          keys = {
+            { "<leader>at", "Toggle Copilot on/off" },
+            { "<leader>as", "Copilot status" },
+            { "<leader>ap", "Copilot panel" },
+          },
+        },
+      },
     },
   }
 
   local items = {}
   for _, plugin in ipairs(plugin_help) do
+    local text, extmarks = build_preview(plugin.sections, preview_width)
     table.insert(items, {
       text = plugin.name,
-      preview = { text = plugin.preview, ft = "markdown" },
+      preview = { text = text, extmarks = extmarks },
     })
   end
 
@@ -225,8 +324,8 @@ map("n", "<C-h>", function()
     layout = {
       layout = {
         box = "horizontal",
-        width = 0.7,
-        height = 0.6,
+        width = 0.85,
+        height = 0.7,
         {
           box = "vertical",
           border = "rounded",
