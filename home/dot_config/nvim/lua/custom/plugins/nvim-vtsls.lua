@@ -12,20 +12,38 @@ return {
         -- nvim-vtsls のコマンド登録（VtsExec, VtsRename 等）
         require("vtsls")._on_attach(client.id, bufnr)
 
-        -- 保存時に未インポートを自動追加
+        -- 保存時にコードアクションを自動実行
         vim.api.nvim_create_autocmd("BufWritePre", {
           buffer = bufnr,
           callback = function()
-            local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
-            params.context = { only = { "source.addMissingImports" }, diagnostics = {} }
-            local result = client:request_sync("textDocument/codeAction", params, 3000, bufnr)
-            if result and result.result then
-              for _, action in ipairs(result.result) do
-                if action.edit then
-                  vim.lsp.util.apply_workspace_edit(action.edit, client.offset_encoding)
+            local function apply_code_action(kind)
+              local params = vim.lsp.util.make_range_params(0, client.offset_encoding)
+              params.context = { only = { kind }, diagnostics = {} }
+              local result = client:request_sync("textDocument/codeAction", params, 3000, bufnr)
+              if result and result.result then
+                for _, action in ipairs(result.result) do
+                  if not action.edit and not action.command then
+                    local resolved = client:request_sync("codeAction/resolve", action, 3000, bufnr)
+                    if resolved and resolved.result then
+                      action = resolved.result
+                    end
+                  end
+                  if action.edit then
+                    vim.lsp.util.apply_workspace_edit(action.edit, client.offset_encoding)
+                  end
+                  if action.command then
+                    local command = type(action.command) == "table" and action.command or action
+                    client:request_sync("workspace/executeCommand", {
+                      command = command.command,
+                      arguments = command.arguments,
+                    }, 3000, bufnr)
+                  end
                 end
               end
             end
+
+            apply_code_action("source.addMissingImports")
+            apply_code_action("source.removeUnusedImports")
           end,
         })
 
