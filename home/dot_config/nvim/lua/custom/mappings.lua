@@ -181,9 +181,6 @@ end
 
 -- Plugin Keybindings ヘルプ（Snacks.picker でプラグイン一覧 + プレビュー表示）
 map("n", "<C-h>", function()
-  local total_width = math.floor(vim.o.columns * 0.85)
-  local preview_width = math.floor(total_width * 0.65) - 6
-
   local plugin_help = {
     {
       name = "Flash.nvim",
@@ -307,10 +304,9 @@ map("n", "<C-h>", function()
 
   local items = {}
   for _, plugin in ipairs(plugin_help) do
-    local text, extmarks = build_preview(plugin.sections, preview_width)
     table.insert(items, {
       text = plugin.name,
-      preview = { text = text, extmarks = extmarks },
+      sections = plugin.sections,
     })
   end
 
@@ -320,7 +316,23 @@ map("n", "<C-h>", function()
     format = function(item)
       return { { "  " .. item.text, "Function" } }
     end,
-    preview = "preview",
+    preview = function(ctx)
+      ctx.preview:reset()
+      local winfo = vim.fn.getwininfo(ctx.win)[1]
+      local pw = winfo.width - winfo.textoff - 2
+      local text, extmarks = build_preview(ctx.item.sections, pw)
+      local lines = vim.split(text, "\n")
+      ctx.preview:set_lines(lines)
+      local ns = vim.api.nvim_create_namespace("help_preview")
+      for _, extmark in ipairs(extmarks) do
+        local e = vim.deepcopy(extmark)
+        local row = e.row or 1
+        local col = e.col or 0
+        e.col = nil
+        e.row = nil
+        vim.api.nvim_buf_set_extmark(ctx.buf, ns, row - 1, col, e)
+      end
+    end,
     layout = {
       layout = {
         box = "horizontal",
