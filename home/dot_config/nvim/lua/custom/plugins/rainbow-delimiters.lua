@@ -34,6 +34,6 @@ return {
         },
       }
     end,
-    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    dependencies = { "KaiTakabe0301/nvim-treesitter" },
   },
 }
