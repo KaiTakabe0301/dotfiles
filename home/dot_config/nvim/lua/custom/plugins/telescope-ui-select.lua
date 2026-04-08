@@ -32,11 +32,11 @@ return {
         mappings = {
           i = {
             ["<CR>"] = open_multi_or_default,
-            ["<M-q>"] = send_selected_to_qf,
+            ["<C-s>"] = send_selected_to_qf,
           },
           n = {
             ["<CR>"] = open_multi_or_default,
-            ["<M-q>"] = send_selected_to_qf,
+            ["<C-s>"] = send_selected_to_qf,
           },
         },
       },
