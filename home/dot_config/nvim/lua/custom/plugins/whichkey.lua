@@ -3,6 +3,11 @@ return {
   "folke/which-key.nvim",
   event = "VeryLazy",
   opts = function(_, opts)
+    -- ? キーで which-key ポップアップを表示するキーマッピング
+    vim.keymap.set("n", "?", function()
+      require("which-key").show()
+    end, { desc = "Which Key" })
+
     -- グローバルアイコン設定
     opts.icons = vim.tbl_deep_extend("force", opts.icons or {}, {
       breadcrumb = "»",
