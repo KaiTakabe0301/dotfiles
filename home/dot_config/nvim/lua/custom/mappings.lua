@@ -180,7 +180,7 @@ local function build_preview(sections, preview_width)
 end
 
 -- Plugin Keybindings ヘルプ（Snacks.picker でプラグイン一覧 + プレビュー表示）
-map("n", "<C-h>", function()
+map("n", "<leader>?", function()
   local plugin_help = {
     {
       name = "Flash.nvim",
@@ -354,8 +354,16 @@ map("n", "<C-h>", function()
 end, { desc = "Plugin keybindings help" })
 
 map("n", "<leader>fw", function()
-  require("telescope").extensions.live_grep_args.live_grep_args()
-end, { desc = "Live grep (with args) [C-h: help]" })
+  local lga_actions = require("telescope-live-grep-args.actions")
+  require("telescope").extensions.live_grep_args.live_grep_args({
+    attach_mappings = function(_, map)
+      map("i", "<C-k>", lga_actions.quote_prompt(), { desc = "Quote prompt" })
+      map("i", "<C-g>", lga_actions.quote_prompt({ postfix = " --iglob " }), { desc = "Add --iglob pattern" })
+      map("i", "<C-t>", lga_actions.quote_prompt({ postfix = " -t " }), { desc = "Add -t filetype" })
+      return true
+    end,
+  })
+end, { desc = "Live grep (with args) [C-/: which_key]" })
 
 map("n", "<leader>fW", function()
   vim.ui.input({ prompt = "File extension: " }, function(ext)
@@ -369,3 +377,8 @@ map("n", "<leader>fW", function()
     })
   end)
 end, { desc = "Live grep by extension" })
+
+-- horizontal term toggle を <leader>h に変更（NvChad デフォルトの <leader>h を上書き）
+map("n", "<leader>h", function()
+  require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
+end, { desc = "terminal toggleable horizontal term" })
