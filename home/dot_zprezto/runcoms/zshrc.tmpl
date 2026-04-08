@@ -22,7 +22,8 @@ export KCODE=u
 export EDITOR=vim visudo
 
 # 色を使用
-autoload -Uz colors ; colors
+autoload -Uz colors
+colors
 
 # Spaceshipでの[I]を表示しない
 SPACESHIP_VI_MODE_SHOW=false
@@ -81,7 +82,7 @@ setopt no_clobber
 
 # sudo の後ろでコマンド名を補完する
 zstyle ':completion:*:sudo:*' command-path /usr/local/sbin /usr/local/bin \
-                   /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
+  /usr/sbin /usr/bin /sbin /bin /usr/X11R6/bin
 
 # ps コマンドのプロセス名補完
 zstyle ':completion:*:processes' command 'ps x -o pid,s,args'
@@ -132,8 +133,7 @@ setopt magic_equal_subst
 # Homebrew でインストールしたコマンドの補完を有効化
 # @See https://lifehack.world/mac-zsh-comletion-%E3%82%84homebrew%E3%81%AB%E3%82%88%E3%81%A3%E3%81%A6%E7%AE%A1%E7%90%86%E3%81%95%E3%82%8C%E3%82%8B%E8%A3%9C%E5%AE%8C%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%83%87%E3%82%A3/
 # ---------------------------------------------------------
-if type brew &>/dev/null
-then
+if type brew &>/dev/null; then
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
 
   autoload -Uz compinit
@@ -367,3 +367,6 @@ export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export LDFLAGS="-L/opt/homebrew/opt/libpq/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/libpq/include"
 {{- end }}
+
+# Settings for Worktrunk
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
