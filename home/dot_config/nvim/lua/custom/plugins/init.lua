@@ -102,14 +102,14 @@ return {
             mappings = {
               i = {
                 ["<C-k>"] = lga_actions.quote_prompt(),
-                ["<C-i>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
+                ["<C-g>"] = lga_actions.quote_prompt({ postfix = " --iglob " }),
                 ["<C-t>"] = lga_actions.quote_prompt({ postfix = " -t " }),
                 ["<C-h>"] = function()
                   local lines = {
                     " Live Grep Args - Help ",
                     "─────────────────────────────",
                     " C-k   クォートで囲む",
-                    " C-i   --iglob パターン追加",
+                    " C-g   --iglob パターン追加",
                     " C-t   -t ファイルタイプ追加",
                     "─────────────────────────────",
                     " ripgrep フラグ (末尾に追加):",
