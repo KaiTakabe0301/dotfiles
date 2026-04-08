@@ -378,7 +378,7 @@ map("n", "<leader>fW", function()
   end)
 end, { desc = "Live grep by extension" })
 
--- horizontal term toggle を <leader>h に変更（NvChad デフォルトの <leader>h を上書き）
-map("n", "<leader>h", function()
+-- horizontal term toggle（n/t 両モードで <C-\> に統一）
+map({ "n", "t" }, "<C-\\>", function()
   require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
-end, { desc = "terminal toggleable horizontal term" })
+end, { desc = "Toggle horizontal terminal" })
