@@ -378,6 +378,11 @@ map("n", "<leader>fW", function()
   end)
 end, { desc = "Live grep by extension" })
 
+-- Git blame toggle
+map("n", "<leader>gb", function()
+  require("gitsigns").toggle_current_line_blame()
+end, { desc = "Toggle git blame" })
+
 -- horizontal term toggle（n/t 両モードで <C-\> に統一）
 map({ "n", "t" }, "<C-\\>", function()
   require("nvchad.term").toggle { pos = "sp", id = "htoggleTerm" }
