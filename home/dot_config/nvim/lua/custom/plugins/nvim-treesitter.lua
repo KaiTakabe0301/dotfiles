@@ -25,6 +25,15 @@ return {
     config = function(_, opts)
       require("nvim-treesitter").setup(opts)
 
+      -- main branch の setup() は opts.ensure_installed を見ないため、
+      -- install モジュールの API を直接呼んで未インストールの parser を揃える
+      local install = require("nvim-treesitter.install")
+      if opts.ensure_installed and #opts.ensure_installed > 0 then
+        install.ensure_installed(unpack(opts.ensure_installed))
+      end
+      -- 開いたバッファの filetype に対応する parser がなければ自動 install
+      install.setup_auto_install()
+
       -- treesitter indent を適用
       vim.api.nvim_create_autocmd("FileType", {
         pattern = {
