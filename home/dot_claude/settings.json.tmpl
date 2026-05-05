@@ -1,0 +1,186 @@
+{
+  "alwaysThinkingEnabled": true,
+  "autoUpdatesChannel": "stable",
+  "env": {
+{{- if eq .chezmoi.hostname "kai-caddi" }}
+    "CLAUDE_CODE_USE_VERTEX": "true",
+    "CLOUD_ML_REGION": "us-east5",
+    "ANTHROPIC_VERTEX_PROJECT_ID": "caddi-ai-tools-dev",
+{{- end }}
+{{- if eq .chezmoi.hostname "kai-caddi" }}
+    "ANTHROPIC_MODEL": "claude-opus-4-6",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-6",
+{{- end }}
+{{- if ne .chezmoi.hostname "kai-caddi" }}
+    "ANTHROPIC_MODEL": "claude-opus-4-7",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-7",
+{{- end }}
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-6",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-5@20251001",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_ENABLE_STREAM_WATCHDOG": "1",
+    "MCP_CONNECTION_NONBLOCKING": "true",
+    "API_TIMEOUT_MS": "180000",
+    "CLAUDE_STREAM_IDLE_TIMEOUT_MS": "120000",
+    "CLAUDE_CODE_MAX_RETRIES": "5"
+  },
+  "permissions": {
+    "allow": [
+      "Read(~/.zshrc)",
+      "Bash(git:*)",
+      "Bash(gh:*)",
+      "Bash(cd:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(echo:*)",
+      "Bash(pwd:*)",
+      "Bash(curl:*)",
+      "Bash(touch:*)",
+      "Bash(mkdir:*)",
+      "Bash(chmod:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(lsof:*)",
+      "Bash(fd:*)",
+      "Bash(npm:*)",
+      "Bash(pnpm:*)",
+      "Bash(gemini:*)",
+      "Bash(rtk:*)",
+      "Write",
+      "Edit",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:vercel.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:stackoverflow.com)",
+      "WebFetch(domain:developer.mozilla.org)",
+      "WebFetch(domain:npmjs.com)",
+      "WebFetch(domain:nextjs.org)",
+      "WebFetch(domain:turborepo.com)",
+      "WebFetch(domain:prisma.io)",
+      "WebFetch(domain:nestjs.com)",
+      "WebFetch(domain:tailwindcss.com)",
+      "mcp__figma__add_code_connect_map",
+      "mcp__figma__create_design_system_rules",
+      "mcp__figma__create_new_file",
+      "mcp__figma__generate_diagram",
+      "mcp__figma__generate_figma_design",
+      "mcp__figma__get_code_connect_map",
+      "mcp__figma__get_code_connect_suggestions",
+      "mcp__figma__get_context_for_code_connect",
+      "mcp__figma__get_design_context",
+      "mcp__figma__get_figjam",
+      "mcp__figma__get_libraries",
+      "mcp__figma__get_metadata",
+      "mcp__figma__get_screenshot",
+      "mcp__figma__get_variable_defs",
+      "mcp__figma__search_design_system",
+      "mcp__figma__send_code_connect_mappings",
+      "mcp__figma__use_figma",
+      "mcp__figma__whoami",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_close",
+      "mcp__playwright__browser_console_messages",
+      "mcp__playwright__browser_drag",
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_file_upload",
+      "mcp__playwright__browser_fill_form",
+      "mcp__playwright__browser_handle_dialog",
+      "mcp__playwright__browser_hover",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_navigate_back",
+      "mcp__playwright__browser_network_requests",
+      "mcp__playwright__browser_press_key",
+      "mcp__playwright__browser_resize",
+      "mcp__playwright__browser_run_code",
+      "mcp__playwright__browser_select_option",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_tabs",
+      "mcp__playwright__browser_take_screenshot",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_wait_for",
+      "mcp__storybook-buyer__get-storybook-story-instructions",
+      "mcp__storybook-buyer__preview-stories",
+      "mcp__storybook-supplier__get-storybook-story-instructions",
+      "mcp__storybook-supplier__preview-stories",
+      "mcp__storybook-supplier-shared__get-storybook-story-instructions",
+      "mcp__storybook-supplier-shared__preview-stories"
+    ],
+    "deny": [
+      "Bash(sudo:*)"
+    ]
+  },
+  "defaultMode": "default",
+  "editorMode": "vim",
+  "enabledPlugins": {
+    "example-skills@anthropic-agent-skills": true
+  },
+  "hooks": {
+    "PermissionRequest": [
+{{- if ne .chezmoi.hostname "kai-caddi" }}
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "ccgate claude"
+          }
+        ]
+      }
+{{- end }}
+    ],
+    "PreToolUse": [
+{{- if eq .chezmoi.hostname "kai-caddi" }}
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.command' | { read -r cmd; (echo \"$cmd\" | command grep -qE \"^($HOME|~)/.claude/skills/\") && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"allow\",\"permissionDecisionReason\":\"Skills script auto-allowed\"}}' || true; }"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.command' | { read -r cmd; (echo \"$cmd\" | command grep -qE '\\b(mkdir|cp)\\b') && ! (echo \"$cmd\" | command grep -qE '\\b(rm|sudo|dd|mkfs|fdisk)\\b') && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"allow\",\"permissionDecisionReason\":\"mkdir/cp auto-allowed (no dangerous commands)\"}}' || true; }"
+          }
+        ]
+      }
+{{- end }}
+    ],
+    "PostToolUse": [
+{{- if eq .chezmoi.hostname "kai-caddi" }}
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/check-useeffect.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/check-useeffect.sh"
+          }
+        ]
+      }
+{{- end }}
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bunx -y ccstatusline@latest",
+    "padding": 0
+  },
+  "theme": "dark-daltonized",
+  "useAutoModeDuringPlan": true
+}
