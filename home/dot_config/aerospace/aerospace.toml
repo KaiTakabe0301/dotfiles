@@ -58,12 +58,12 @@ run = 'move-node-to-workspace 7'
 
 # ウィンドウ間の余白
 [gaps]
-    inner.horizontal = 8
-    inner.vertical   = 8
-    outer.left       = 8
-    outer.right      = 8
-    outer.top        = 8
-    outer.bottom     = 8
+    inner.horizontal = 10
+    inner.vertical   = 10
+    outer.left       = 10
+    outer.right      = 10
+    outer.top        = 10
+    outer.bottom     = 10
 
 [mode.main.binding]
     # 操作モードへ (tmux prefix のような感覚)
