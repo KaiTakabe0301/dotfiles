@@ -1,86 +1,138 @@
-# Reference: https://github.com/i3/i3/blob/next/etc/config
+# Reference: https://nikitabobko.github.io/AeroSpace/guide
+#
+# tmux / nvim (smart-splits.nvim) のキーバインド規約に揃えた設定。
+#   - 移動:    hjkl 方向                  (tmux: C-a + hjkl)
+#   - 入替え:  shift + hjkl               (tmux: C-a + M-hjkl のスワップ相当)
+#   - リサイズ: r でモード入り → hjkl     (HJKL は move に使うためモード経由)
+#
+# main モードは ops モード突入のみを担う。実操作は全て ops モードで行う。
+#   - Ctrl-, で ops モードへ入る (tmux prefix のような感覚)
+#   - resize モードと同じく sticky (Enter / Esc で main に戻る)
 
 # i3 doesn't have "normalizations" feature that why we disable them here.
-# But the feature is very helpful.
-# Normalizations eliminate all sorts of weird tree configurations that don't make sense.
-# Give normalizations a chance and enable them back.
 enable-normalization-flatten-containers = false
 enable-normalization-opposite-orientation-for-nested-containers = false
 
 # Mouse follows focus when focused monitor changes
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
+# デフォルトのレイアウト (ops モードの slash と同じ tiles + auto orientation)
+default-root-container-layout      = 'tiles'
+default-root-container-orientation = 'auto'
+
+# ワークスペースをモニターに固定割り当て (各モニター3つずつ)
+# モニター名は `aerospace list-monitors` で確認可能
+# ワークスペース 10 は割り当てなし (フォーカス中のモニターに動的に出現)
+[workspace-to-monitor-force-assignment]
+    1 = 'Built-in Retina Display'
+    2 = 'Built-in Retina Display'
+    3 = 'Built-in Retina Display'
+    4 = 'ULTRAGEAR'
+    5 = 'ULTRAGEAR'
+    6 = 'ULTRAGEAR'
+    7 = 'DELL U2720QM'
+    8 = 'DELL U2720QM'
+    9 = 'DELL U2720QM'
+
+
+
+# 起動時のアプリ別ワークスペース割り当て
+[[on-window-detected]]
+if.app-id = 'com.brave.Browser'
+run = 'move-node-to-workspace 1'
+
+[[on-window-detected]]
+if.app-id = 'com.github.wez.wezterm'
+run = 'move-node-to-workspace 6'
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'
+run = 'move-node-to-workspace 7'
+
+# ウィンドウ間の余白
+[gaps]
+    inner.horizontal = 8
+    inner.vertical   = 8
+    outer.left       = 8
+    outer.right      = 8
+    outer.top        = 8
+    outer.bottom     = 8
+
 [mode.main.binding]
-    # See: https://nikitabobko.github.io/AeroSpace/goodies#open-a-new-window-with-applescript
-    alt-enter = '''exec-and-forget osascript -e '
-    tell application "Terminal"
-        do script
-        activate
-    end tell'
-    '''
+    # 操作モードへ (tmux prefix のような感覚)
+    ctrl-comma = 'mode ops'
 
-    # i3 wraps focus by default
-    alt-j =         'focus --boundaries-action wrap-around-the-workspace left'
-    alt-k =         'focus --boundaries-action wrap-around-the-workspace down'
-    alt-l =         'focus --boundaries-action wrap-around-the-workspace up'
-    alt-semicolon = 'focus --boundaries-action wrap-around-the-workspace right'
+# 操作モード: alt 不要で全操作を実行できる sticky モード
+[mode.ops.binding]
+    # フォーカス移動
+    h = 'focus --boundaries-action wrap-around-the-workspace left'
+    j = 'focus --boundaries-action wrap-around-the-workspace down'
+    k = 'focus --boundaries-action wrap-around-the-workspace up'
+    l = 'focus --boundaries-action wrap-around-the-workspace right'
 
-    alt-shift-j = 'move left'
-    alt-shift-k = 'move down'
-    alt-shift-l = 'move up'
-    alt-shift-semicolon = 'move right'
+    # ウィンドウ入替え
+    shift-h = 'move left'
+    shift-j = 'move down'
+    shift-k = 'move up'
+    shift-l = 'move right'
 
-    # Consider using 'join-with' command as a 'split' replacement if you want to enable
-    # normalizations
-    alt-h = 'split horizontal'
-    alt-v = 'split vertical'
+    # split
+    backslash = 'split vertical'
+    minus     = 'split horizontal'
 
-    alt-f = 'fullscreen'
+    # フルスクリーン
+    f = 'fullscreen'
 
-    alt-s = 'layout v_accordion' # 'layout stacking' in i3
-    alt-w = 'layout h_accordion' # 'layout tabbed' in i3
-    alt-e = 'layout tiles horizontal vertical' # 'layout toggle split' in i3
+    # レイアウト切替
+    slash = 'layout tiles horizontal vertical'
+    comma = 'layout accordion horizontal vertical'
+    s     = 'layout v_accordion'
+    w     = 'layout h_accordion'
 
-    alt-shift-space = 'layout floating tiling' # 'floating toggle' in i3
+    # floating / tiling 切替 (shift-space は macOS IME と衝突するため shift-f を使用)
+    shift-f = 'layout floating tiling'
 
-    # Not supported, because this command is redundant in AeroSpace mental model.
-    # See: https://nikitabobko.github.io/AeroSpace/guide#floating-windows
-    #alt-space = 'focus toggle_tiling_floating'
+    # ワークスペース切替
+    1 = 'workspace 1'
+    2 = 'workspace 2'
+    3 = 'workspace 3'
+    4 = 'workspace 4'
+    5 = 'workspace 5'
+    6 = 'workspace 6'
+    7 = 'workspace 7'
+    8 = 'workspace 8'
+    9 = 'workspace 9'
+    0 = 'workspace 10'
 
-    # `focus parent`/`focus child` are not yet supported, and it's not clear whether they
-    # should be supported at all https://github.com/nikitabobko/AeroSpace/issues/5
-    # alt-a = 'focus parent'
+    # ワークスペースへウィンドウ移動
+    shift-1 = 'move-node-to-workspace 1'
+    shift-2 = 'move-node-to-workspace 2'
+    shift-3 = 'move-node-to-workspace 3'
+    shift-4 = 'move-node-to-workspace 4'
+    shift-5 = 'move-node-to-workspace 5'
+    shift-6 = 'move-node-to-workspace 6'
+    shift-7 = 'move-node-to-workspace 7'
+    shift-8 = 'move-node-to-workspace 8'
+    shift-9 = 'move-node-to-workspace 9'
+    shift-0 = 'move-node-to-workspace 10'
 
-    alt-1 = 'workspace 1'
-    alt-2 = 'workspace 2'
-    alt-3 = 'workspace 3'
-    alt-4 = 'workspace 4'
-    alt-5 = 'workspace 5'
-    alt-6 = 'workspace 6'
-    alt-7 = 'workspace 7'
-    alt-8 = 'workspace 8'
-    alt-9 = 'workspace 9'
-    alt-0 = 'workspace 10'
+    # 次のワークスペースへ
+    tab = 'workspace next'
 
-    alt-shift-1 = 'move-node-to-workspace 1'
-    alt-shift-2 = 'move-node-to-workspace 2'
-    alt-shift-3 = 'move-node-to-workspace 3'
-    alt-shift-4 = 'move-node-to-workspace 4'
-    alt-shift-5 = 'move-node-to-workspace 5'
-    alt-shift-6 = 'move-node-to-workspace 6'
-    alt-shift-7 = 'move-node-to-workspace 7'
-    alt-shift-8 = 'move-node-to-workspace 8'
-    alt-shift-9 = 'move-node-to-workspace 9'
-    alt-shift-0 = 'move-node-to-workspace 10'
+    # リサイズモード (resize の esc/enter は main に戻る)
+    r = 'mode resize'
 
-    alt-shift-c = 'reload-config'
+    # 設定リロード
+    shift-c = 'reload-config'
 
-    alt-r = 'mode resize'
+    # ops モード終了 (resize モードと同じ感覚)
+    enter = 'mode main'
+    esc   = 'mode main'
 
 [mode.resize.binding]
-    h = 'resize width -50'
-    j = 'resize height +50'
-    k = 'resize height -50'
-    l = 'resize width +50'
+    h     = 'resize width -50'
+    j     = 'resize height +50'
+    k     = 'resize height -50'
+    l     = 'resize width +50'
     enter = 'mode main'
-    esc = 'mode main'
+    esc   = 'mode main'
