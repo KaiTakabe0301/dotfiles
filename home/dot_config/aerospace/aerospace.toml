@@ -16,6 +16,13 @@ enable-normalization-opposite-orientation-for-nested-containers = false
 # Mouse follows focus when focused monitor changes
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
+# JankyBorders: アクティブウィンドウに枠線を表示
+# https://github.com/FelixKratz/JankyBorders
+# 色は Catppuccin Mocha 系 (active: blue, inactive: surface1)
+after-startup-command = [
+    'exec-and-forget borders'
+]
+
 # デフォルトのレイアウト (ops モードの slash と同じ tiles + auto orientation)
 default-root-container-layout      = 'tiles'
 default-root-container-orientation = 'auto'
