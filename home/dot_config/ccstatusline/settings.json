@@ -18,6 +18,11 @@
         "color": "brightBlack"
       },
       {
+        "id": "cwd-1",
+        "type": "current-working-dir",
+        "color": "blue"
+      },
+      {
         "id": "5",
         "type": "git-branch",
         "color": "magenta"
