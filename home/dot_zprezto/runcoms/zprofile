@@ -79,3 +79,15 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 if command -v mise &> /dev/null; then
   eval "$(mise activate zsh --shims)"
 fi
+
+# ---------------------------------------------------------
+# OpenAI API key
+# ログインシェルで 1 回だけ解決し、tmux server に継承させる。
+# tmux ペイン／Claude Code 起動時の Touch ID プロンプトを抑止する目的。
+# ---------------------------------------------------------
+if [ -z "${OPENAI_API_KEY:-}" ] && command -v op >/dev/null 2>&1; then
+  if _key="$(op read 'op://dlyln4vmwr2j4p5q4j4b7rhaha/x6i6qmr6yf2e7m5fpfazurs4bm/ru757byotu6tsgi6qibv52owzq' 2>/dev/null)"; then
+    export OPENAI_API_KEY="$_key"
+  fi
+  unset _key
+fi
