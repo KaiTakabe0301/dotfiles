@@ -43,7 +43,20 @@
         "backgroundColor": "bgBrightBlack"
       }
     ],
-    [],
+    [
+{{- if ne .chezmoi.hostname "kai-caddi" }}
+      {
+        "id": "ctx-mode-statusline",
+        "type": "custom-command",
+        "commandPath": "npx -y context-mode statusline | sed -E 's/^[^$]*/🧠 /; s/  *·  *preserved.*//; s/  *·  *[0-9]+% efficient.*//; s/ across sessions//g; s/ this session//g'",
+        "timeout": 5000,
+        "preserveColors": false,
+        "color": "brightWhite",
+        "backgroundColor": "bgBlue",
+        "bold": true
+      }
+{{- end}}
+    ],
     []
   ],
   "flexMode": "full-minus-40",
