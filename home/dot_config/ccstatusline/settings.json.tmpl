@@ -6,63 +6,74 @@
         "id": "icon-model",
         "type": "custom-text",
         "customText": "🤖 ",
+        "color": "#2E3440",
+        "backgroundColor": "#8FBCBB",
         "merge": "no-padding"
       },
       {
         "id": "1",
         "type": "model",
-        "color": "cyan",
+        "color": "#2E3440",
+        "backgroundColor": "#8FBCBB",
         "rawValue": true
       },
       {
         "id": "icon-ctx-pct",
         "type": "custom-text",
         "customText": "⏳ ",
-        "backgroundColor": "bgBrightRed",
+        "color": "#2E3440",
+        "backgroundColor": "#88C0D0",
         "merge": "no-padding"
       },
       {
         "id": "91611a31-b44f-4f94-93db-8f944b32656c",
         "type": "context-percentage",
-        "backgroundColor": "bgBrightRed"
+        "color": "#2E3440",
+        "backgroundColor": "#88C0D0"
       },
       {
         "id": "icon-ctx-len",
         "type": "custom-text",
         "customText": "📏 ",
-        "color": "brightBlack",
+        "color": "#2E3440",
+        "backgroundColor": "#81A1C1",
         "merge": "no-padding"
       },
       {
         "id": "3",
         "type": "context-length",
-        "color": "brightBlack",
+        "color": "#2E3440",
+        "backgroundColor": "#81A1C1",
         "rawValue": true
       },
       {
         "id": "icon-cost",
         "type": "custom-text",
         "customText": "💰 ",
-        "backgroundColor": "bgBrightGreen",
+        "color": "#ECEFF4",
+        "backgroundColor": "#5E81AC",
         "merge": "no-padding"
       },
       {
         "id": "9b1fc25a-8755-4da8-a419-c869a9428190",
         "type": "session-cost",
-        "backgroundColor": "bgBrightGreen",
+        "color": "#ECEFF4",
+        "backgroundColor": "#5E81AC",
         "rawValue": true
       },
       {
         "id": "icon-clock",
         "type": "custom-text",
         "customText": "⏰ ",
-        "backgroundColor": "bgBrightBlack",
+        "color": "#2E3440",
+        "backgroundColor": "#88C0D0",
         "merge": "no-padding"
       },
       {
         "id": "bfa9d994-fbcf-4348-8021-0dacf5eea012",
         "type": "session-clock",
-        "backgroundColor": "bgBrightBlack",
+        "color": "#2E3440",
+        "backgroundColor": "#88C0D0",
         "rawValue": true
       }
     ],
@@ -71,39 +82,45 @@
         "id": "icon-cwd",
         "type": "custom-text",
         "customText": "📁 ",
-        "color": "blue",
+        "color": "#2E3440",
+        "backgroundColor": "#D8DEE9",
         "merge": "no-padding"
       },
       {
         "id": "cwd-1",
         "type": "current-working-dir",
-        "color": "blue",
+        "color": "#2E3440",
+        "backgroundColor": "#D8DEE9",
         "rawValue": true
       },
       {
         "id": "icon-git-branch",
         "type": "custom-text",
         "customText": "🌿 ",
-        "color": "magenta",
+        "color": "#2E3440",
+        "backgroundColor": "#E5E9F0",
         "merge": "no-padding"
       },
       {
         "id": "5",
         "type": "git-branch",
-        "color": "magenta",
+        "color": "#2E3440",
+        "backgroundColor": "#E5E9F0",
         "rawValue": true
       },
       {
         "id": "icon-git-changes",
         "type": "custom-text",
         "customText": "📝 ",
-        "color": "yellow",
+        "color": "#2E3440",
+        "backgroundColor": "#ECEFF4",
         "merge": "no-padding"
       },
       {
         "id": "7",
         "type": "git-changes",
-        "color": "yellow"
+        "color": "#2E3440",
+        "backgroundColor": "#ECEFF4"
       }
     ],
     [
@@ -114,8 +131,8 @@
         "commandPath": "npx -y context-mode statusline | sed -E 's/^[^$]*/🧠 /; s/  *·  *preserved.*//; s/  *·  *[0-9]+% efficient.*//; s/ across sessions//g; s/ this session//g'",
         "timeout": 5000,
         "preserveColors": false,
-        "color": "brightWhite",
-        "backgroundColor": "bgBlue",
+        "color": "#2E3440",
+        "backgroundColor": "#B48EAD",
         "bold": true
       }
 {{- end}}
@@ -123,23 +140,23 @@
   ],
   "flexMode": "full-minus-40",
   "compactThreshold": 60,
-  "colorLevel": 2,
+  "colorLevel": 3,
   "defaultPadding": " ",
   "inheritSeparatorColors": false,
   "globalBold": false,
   "powerline": {
     "enabled": true,
     "separators": [
-      ""
+      ""
     ],
     "separatorInvertBackground": [
       false
     ],
     "startCaps": [],
     "endCaps": [
-      ""
+      ""
     ],
-    "theme": "gruvbox",
+    "theme": "custom",
     "autoAlign": false
   }
 }
