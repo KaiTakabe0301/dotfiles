@@ -64,3 +64,20 @@ end)
 - 「とりあえず /200 にしておけば収まるだろう」など経験則で divisor を決めない
 - bracket サイズを変更したら **必ず** 上記の式で再計算する
 - リファレンス値 /150 をそのまま流用しない (bracket サイズが違えば破綻する)
+
+## graph item の水平 padding の扱い
+
+graph item の `padding_left` / `padding_right` は **隣接 item (cpu icon+label) との水平距離** を制御する。bracket の縦サイズや横サイズの変更とは **本来独立**。
+
+| bracket 変更 | y_offset | divisor | graph 水平 padding |
+|--------------|----------|---------|---------------------|
+| 縦 (height) を変える | **必須** | **必須** | 不要 (連動なし) |
+| 横 (内部 padding) を変える | 不要 | 不要 | 状況次第 (視覚的に窮屈/間延びしたら調整) |
+
+bracket 横サイズ縮小時、graph item の水平位置は隣接 item に追随して自動的に詰まる (auto-fit)。手動調整が必要なのは以下のケースのみ:
+
+- text と graph 左端が **詰まりすぎ** た → `padding_left` を負方向に小さく (例: `-8 → -5` で隙間広げる)
+- text と graph 左端が **空きすぎ** た → `padding_left` をより負に大きく (例: `-5 → -10` で詰める)
+- graph 右端が bracket 右端と接触した → `padding_right` を増やす
+
+つまり「bracket サイズが変わったから機械的に調整する」のではなく、**実視認で違和感が出たときのみ** ケースバイケースで動かす。
