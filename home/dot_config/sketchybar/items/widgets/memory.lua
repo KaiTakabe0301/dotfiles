@@ -10,28 +10,28 @@ sbar.exec(
 
 local memory_graph = sbar.add("graph", "widgets.memory.graph", 60, {
 	position = "right",
-	height = 27,
 	graph = {
 		color = colors.pure_green,
 		-- fill_color = colors.pure_green,
 		line_width = 1.0,
 	},
-	y_offset = 4,
-	padding_right = 0,
-	padding_left = -10,
+	background = { height = 22 },
+	y_offset = 10,
+	padding_right = 2,
+	padding_left = -5,
 })
 
 local memory = sbar.add("item", "widgets.memory", {
 	position = "right",
 	background = {
-		height = 22,
+		height = 17,
 		color = { alpha = 0 },
 		border_color = { alpha = 0 },
 		drawing = true,
 	},
 	icon = {
 		string = icons.memory,
-		font = { size = 23 },
+		font = { size = 17 },
 		color = colors.pure_green,
 	},
 	label = {
@@ -54,8 +54,10 @@ local bracket = sbar.add("bracket", "widgets.memory.bracket", { memory_graph.nam
 memory_graph:subscribe("memory_update", function(env)
 	-- Fetch the used memory percentage from the event provider
 	local used_percentage = tonumber(env.used_percentage)
-	-- Due what height is not enabled to be set in the graph, divide the value by 150.0
-	memory_graph:push({ used_percentage / 150.0 })
+	-- chart_height = push × bar_height (44px)
+	-- bracket bg=26 用に divisor を比例拡大
+	-- divisor = 150 × (34 / 26) = 196
+	memory_graph:push({ used_percentage / 196.0 })
 
 	local alpha = 0.4
 	local color = colors.pure_green

@@ -8,12 +8,12 @@ sbar.default({
 		font = {
 			family = settings.font.text,
 			style = settings.font.style_map["Bold"],
-			size = 16.0,
+			size = 13.0,
 		},
 		color = colors.yellow,
 		highlight = colors.background,
-		padding_left = 6,
-		padding_right = 2,
+		padding_left = 3,
+		padding_right = 1,
 		corner_radius = 6,
 		background = { image = { corner_radius = 12 } },
 	},
@@ -21,7 +21,7 @@ sbar.default({
 		font = {
 			family = settings.font.text,
 			style = settings.font.style_map["Semibold"],
-			size = 13.0,
+			size = 11.0,
 		},
 		color = colors.yellow,
 		highlight = colors.background,
@@ -29,8 +29,8 @@ sbar.default({
 		padding_right = settings.paddings,
 	},
 	background = {
-		height = 34,
-		corner_radius = 10,
+		height = 26,
+		corner_radius = 8,
 		border_width = 2,
 		border_color = colors.yellow,
 		image = {
@@ -47,7 +47,7 @@ sbar.default({
 		},
 		blur_radius = 50,
 	},
-	padding_left = 8,
-	padding_right = 8,
+	padding_left = 6,
+	padding_right = 6,
 	-- scroll_texts = true,
 })

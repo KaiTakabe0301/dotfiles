@@ -77,7 +77,7 @@ local cal_day = sbar.add("item", {
 sbar.add("bracket", { cal_clock.name, cal_month.name, cal_day_of_week.name, cal_day.name }, {
 	background = {
 		color = colors.tn_black3,
-		height = 34,
+		height = 26,
 		border_color = colors.tn_blue,
 	},
 })

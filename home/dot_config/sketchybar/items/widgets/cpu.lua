@@ -8,20 +8,20 @@ sbar.exec("killall cpu_load >/dev/null; $CONFIG_DIR/helpers/event_providers/cpu_
 
 local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 60, {
 	position = "right",
-	height = 27,
 	graph = {
 		color = colors.accent1,
 		line_width = 1.0,
 	},
-	y_offset = 4,
-	padding_right = 0,
-	padding_left = -10,
+	background = { height = 22 },
+	y_offset = 10,
+	padding_right = 2,
+	padding_left = -5,
 })
 
 local cpu = sbar.add("item", "widgets.cpu", {
 	position = "right",
 	background = {
-		height = 22,
+		height = 17,
 		color = { alpha = 0 },
 		border_color = { alpha = 0 },
 		drawing = true,
@@ -52,8 +52,10 @@ local bracket = sbar.add("bracket", "widgets.cpu.bracket", { cpu_graph.name, cpu
 cpu_graph:subscribe("cpu_update", function(env)
 	-- Also available: env.user_load, env.sys_load
 	local load = tonumber(env.total_load)
-	-- Due what height is not enabled to be set in the graph, divide the value by 150.0
-	cpu_graph:push({ load / 150. })
+	-- chart_height = push × bar_height (44px)
+	-- bracket bg=26 用に divisor を比例拡大
+	-- divisor = 150 × (34 / 26) = 196
+	cpu_graph:push({ load / 196. })
 
 	local alpha = 0.4
 	local color = colors.tn_blue
