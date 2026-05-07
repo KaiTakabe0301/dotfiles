@@ -1,3 +1,16 @@
+os:
+  editPreset: "nvim-remote"
+customCommands:
+  - key: "o"
+    context: "files"
+    description: "Open file in nvim"
+    command: 'nvim -- "{{.SelectedFile.Name}}"'
+    subprocess: true
+  - key: "o"
+    context: "commitFiles"
+    description: "Open file in nvim"
+    command: 'nvim -- "{{.SelectedCommitFile.Name}}"'
+    subprocess: true
 gui:
   nerdFontsVersion: "3"
   theme:
