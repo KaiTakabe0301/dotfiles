@@ -46,8 +46,8 @@ local W_GRAPH = 42
 local W_GRAPH_PHYSICAL = W_GRAPH + 12
 
 -- 要素間 gap (線形・独立制御)
-local GAP_ICON_TEXT = 8 -- wifi icon ↔ text の gap
-local GAP_TEXT_GRAPH = 4 -- text ↔ graph の gap
+local GAP_ICON_TEXT = 4 -- wifi icon ↔ text の gap
+local GAP_TEXT_GRAPH = -4 -- text ↔ graph の gap (bg.padding 負値で graph 側に寄せる)
 local GAP_ARROW_LABEL = 2 -- text item 内、"↑/↓" と "NNN Bps" の間 (label.padding_left)
 
 -- 縦位置 (positive=UP)
@@ -152,10 +152,11 @@ local text_down = sbar.add("item", "widgets.wifi2", {
 local wifi = sbar.add("item", "widgets.wifi.padding", {
 	position = "right",
 	icon = {
-		padding_left = 4, -- 枠内左余白
+		padding_left = 5, -- 枠内左余白 (cpu/memory と同値で統一)
 		padding_right = 0,
 	},
 	label = { drawing = false, padding_left = 0, padding_right = 0 },
+	padding_left = 0, -- default 6 の継承を切って bracket 左端と icon の距離を cpu/memory に揃える
 	background = {
 		padding_right = GAP_ICON_TEXT, -- text 側との bg 間 gap (線形制御)
 	},
