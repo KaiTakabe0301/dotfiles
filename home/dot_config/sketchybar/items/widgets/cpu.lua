@@ -6,7 +6,7 @@ local settings = require("settings")
 -- the cpu load data, which is fired every 2.0 seconds.
 sbar.exec("killall cpu_load >/dev/null; $CONFIG_DIR/helpers/event_providers/cpu_load/bin/cpu_load cpu_update 1.0")
 
-local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 60, {
+local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 30, {
 	position = "right",
 	graph = {
 		color = colors.accent1,
