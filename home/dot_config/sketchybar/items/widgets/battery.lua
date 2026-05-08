@@ -9,12 +9,13 @@ local battery = sbar.add("item", "widgets.battery", {
 			style = settings.font.style_map["Regular"],
 			size = 14.0,
 		},
+		color = colors.frost1,
 		padding_left = 5, -- 枠内左余白 (cpu/memory と同値で統一)
 		padding_right = 0,
 	},
 	label = {
 		font = { family = settings.font.numbers },
-		color = colors.tn_orange,
+		color = colors.frost1,
 		padding_right = 5,  -- 枠内右余白 (member の padding_right=0 にしたため label 側で確保)
 	},
 	-- bracket span に乗らないよう padding_left=0, padding_right=0
@@ -23,7 +24,7 @@ local battery = sbar.add("item", "widgets.battery", {
 	update_freq = 1,
 	popup = {
 		align = "center",
-		background = { color = colors.tn_black3, border_color = colors.tn_orange, border_width = 2 },
+		background = { color = colors.tn_black3, border_color = colors.frost1, border_width = 2 },
 	},
 })
 
@@ -33,7 +34,7 @@ local remaining_time = sbar.add("item", {
 		padding_left = 0,
 		padding_right = 0,
 		string = "Charging:",
-		color = colors.tn_orange,
+		color = colors.frost1,
 		width = 55,
 		align = "left",
 		font = {
@@ -58,7 +59,6 @@ battery:subscribe({ "routine", "power_source_change", "system_woke" }, function(
 			label = charge .. "%"
 		end
 
-		local color = colors.tn_orange
 		local charging, _, _ = batt_info:find("AC Power")
 
 		if charging then
@@ -72,10 +72,8 @@ battery:subscribe({ "routine", "power_source_change", "system_woke" }, function(
 				icon = icons.battery._50
 			elseif found and charge > 20 then
 				icon = icons.battery._25
-				color = colors.orange
 			else
 				icon = icons.battery._0
-				color = colors.red
 			end
 		end
 
@@ -85,10 +83,7 @@ battery:subscribe({ "routine", "power_source_change", "system_woke" }, function(
 		end
 
 		battery:set({
-			icon = {
-				string = icon,
-				color = color,
-			},
+			icon = { string = icon },
 			label = { string = lead .. label },
 		})
 	end)
@@ -102,7 +97,7 @@ battery:subscribe("mouse.clicked", function(env)
 		sbar.exec("pmset -g batt", function(batt_info)
 			local found, _, remaining = batt_info:find(" (%d+:%d+) remaining")
 			local label = found and remaining .. "h" or "No estimate"
-			remaining_time:set({ label = { string = label, color = colors.tn_orange } })
+			remaining_time:set({ label = { string = label, color = colors.frost1 } })
 		end)
 	end
 end)
@@ -121,7 +116,7 @@ battery:subscribe("mouse.exited.global", function(env)
 end)
 
 sbar.add("bracket", "widgets.battery.bracket", { battery.name }, {
-	background = { color = colors.tn_black3, border_color = colors.tn_orange },
+	background = { color = colors.tn_black3, border_color = colors.frost1 },
 })
 
 -- sbar.add("item", "widgets.battery.padding", {

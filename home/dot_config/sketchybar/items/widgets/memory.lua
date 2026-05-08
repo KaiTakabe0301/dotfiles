@@ -11,8 +11,8 @@ sbar.exec(
 local memory_graph = sbar.add("graph", "widgets.memory.graph", 30, {
 	position = "right",
 	graph = {
-		color = colors.pure_green,
-		-- fill_color = colors.pure_green,
+		color = colors.frost3,
+		fill_color = colors.with_alpha(colors.frost3, 0.4),
 		line_width = 1.0,
 	},
 	background = { height = 22 },
@@ -33,12 +33,12 @@ local memory = sbar.add("item", "widgets.memory", {
 	icon = {
 		string = icons.memory,
 		font = { size = 17 },
-		color = colors.pure_green,
+		color = colors.frost3,
 		padding_left = 5,  -- 枠内左余白
 	},
 	label = {
 		string = "??%",
-		color = colors.pure_green,
+		color = colors.frost3,
 		font = {
 			family = settings.font.numbers,
 		},
@@ -50,45 +50,16 @@ local memory = sbar.add("item", "widgets.memory", {
 })
 
 -- Background around the memory item
-local bracket = sbar.add("bracket", "widgets.memory.bracket", { memory_graph.name, memory.name }, {
-	background = { color = colors.tn_black3, border_color = colors.pure_green },
+sbar.add("bracket", "widgets.memory.bracket", { memory_graph.name, memory.name }, {
+	background = { color = colors.tn_black3, border_color = colors.frost3 },
 })
 memory_graph:subscribe("memory_update", function(env)
-	-- Fetch the used memory percentage from the event provider
 	local used_percentage = tonumber(env.used_percentage)
 	-- chart_height = push × bar_height (44px)
 	-- bracket bg=26 用に divisor を比例拡大
 	-- divisor = 150 × (34 / 26) = 196
 	memory_graph:push({ used_percentage / 196.0 })
-
-	local alpha = 0.4
-	local color = colors.pure_green
-	local fill_color = colors.with_alpha(colors.pure_green, alpha)
-	if used_percentage > 30 then
-		if used_percentage < 60 then
-			color = colors.yellow
-			fill_color = colors.with_alpha(colors.yellow, alpha)
-		elseif used_percentage < 80 then
-			color = colors.orange
-			fill_color = colors.with_alpha(colors.orange, alpha)
-		else
-			color = colors.red
-			fill_color = colors.with_alpha(colors.red, alpha)
-		end
-	end
-
-	memory_graph:set({
-		graph = { color = color, fill_color = fill_color },
-	})
-	memory:set({
-		label = {
-			string = string.format("%d", math.floor(used_percentage)) .. "%",
-			color = color,
-		},
-
-		icon = { color = color },
-	})
-	bracket:set({ background = { border_color = color } })
+	memory:set({ label = { string = string.format("%d", math.floor(used_percentage)) .. "%" } })
 end)
 
 memory:subscribe("mouse.clicked", function(env)

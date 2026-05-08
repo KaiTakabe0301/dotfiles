@@ -8,7 +8,7 @@ local cal_clock = sbar.add("item", {
 		drawing = "off",
 	},
 	label = {
-		color = colors.tn_blue,
+		color = colors.ice_blue,
 		padding_right = 12,  -- 枠内右余白 (member の padding_right=0 にしたため label 側で確保)
 		align = "right",
 		font = { family = settings.font.numbers },
@@ -26,7 +26,7 @@ local cal_day_of_week = sbar.add("item", {
 		drawing = "off",
 	},
 	label = {
-		color = colors.tn_blue,
+		color = colors.ice_blue,
 		padding_right = 0,
 		align = "center",
 		font = { family = settings.font.numbers },
@@ -43,7 +43,7 @@ local cal_month = sbar.add("item", {
 		drawing = "off",
 	},
 	label = {
-		color = colors.tn_blue,
+		color = colors.ice_blue,
 		padding_right = 0,
 		align = "center",
 		font = { family = settings.font.numbers },
@@ -61,7 +61,7 @@ local cal_day = sbar.add("item", {
 		drawing = "off",
 	},
 	label = {
-		color = colors.tn_blue,
+		color = colors.ice_blue,
 		padding_left = 3,  -- 枠内左余白 (member の padding_left=0 にしたため label 側で確保)
 		padding_right = 0,
 		align = "center",
@@ -81,7 +81,7 @@ sbar.add("bracket", { cal_clock.name, cal_month.name, cal_day_of_week.name, cal_
 	background = {
 		color = colors.tn_black3,
 		height = 26,
-		border_color = colors.tn_blue,
+		border_color = colors.ice_blue,
 	},
 })
 

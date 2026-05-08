@@ -16,6 +16,7 @@ return {
 	frost2 = 0xff88c0d0, -- nord8 (borders と一致)
 	frost3 = 0xff81a1c1, -- nord9
 	frost4 = 0xff5e81ac, -- nord10
+	ice_blue = 0xffa3c0d9, -- frost 系の 5 色目 (Nord にはないが、frost3 より明るい muted sky blue)
 	red = 0xffbf616a, -- nord11
 	orange = 0xffd08770, -- nord12
 	yellow = 0xffebcb8b, -- nord13

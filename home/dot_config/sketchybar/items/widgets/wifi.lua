@@ -67,7 +67,7 @@ local graph_up = sbar.add("graph", "widgets.wifi1_graph", W_GRAPH, {
 	position = "right",
 	width = 0, -- bar slot 0、graph_down と x 同位置で overlay
 	align = "right",
-	graph = { color = colors.tn_red, fill_color = colors.tn_red, fill = true, line_width = 1 },
+	graph = { color = colors.frost2, fill_color = colors.frost2, fill = true, line_width = 1 },
 	background = {
 		height = 10,
 		padding_left = 0,
@@ -79,7 +79,7 @@ local graph_up = sbar.add("graph", "widgets.wifi1_graph", W_GRAPH, {
 local graph_down = sbar.add("graph", "widgets.wifi2_graph", W_GRAPH, {
 	position = "right",
 	align = "right",
-	graph = { color = colors.tn_cyan, fill_color = colors.tn_cyan, fill = true, line_width = 1 },
+	graph = { color = colors.frost2, fill_color = colors.frost2, fill = true, line_width = 1 },
 	background = {
 		height = 10,
 		padding_left = 0,
@@ -111,7 +111,7 @@ local text_up = sbar.add("item", "widgets.wifi1", {
 			style = settings.font.style_map["Bold"],
 			size = 8.0,
 		},
-		color = colors.tn_red,
+		color = colors.frost2,
 		string = "??? Bps",
 	},
 	y_offset = Y_TEXT_UP,
@@ -139,7 +139,7 @@ local text_down = sbar.add("item", "widgets.wifi2", {
 			style = settings.font.style_map["Bold"],
 			size = 8.0,
 		},
-		color = colors.tn_cyan,
+		color = colors.frost2,
 		string = "??? Bps",
 	},
 	y_offset = Y_TEXT_DOWN,
@@ -175,14 +175,14 @@ local wifi_bracket = sbar.add("bracket", "widgets.wifi.bracket", {
 }, {
 	background = {
 		color = colors.tn_black3,
-		border_color = colors.tn_magenta,
+		border_color = colors.frost2,
 		border_width = 2,
 		height = 26,
 	},
 	popup = {
 		align = "center",
 		height = 30,
-		background = { color = colors.tn_black3, border_color = colors.tn_magenta, border_width = 2 },
+		background = { color = colors.tn_black3, border_color = colors.frost2, border_width = 2 },
 	},
 })
 
@@ -192,35 +192,35 @@ local wifi_bracket = sbar.add("bracket", "widgets.wifi.bracket", {
 
 local ssid = sbar.add("item", {
 	position = "popup." .. wifi_bracket.name,
-	icon = { font = { size = 13.0, style = settings.font.style_map["Bold"] }, string = icons.wifi.router, color = colors.tn_magenta },
+	icon = { font = { size = 13.0, style = settings.font.style_map["Bold"] }, string = icons.wifi.router, color = colors.frost2 },
 	width = popup_width,
 	align = "center",
-	label = { font = { style = settings.font.style_map["Bold"] }, max_chars = 18, string = "????????????", color = colors.tn_magenta },
-	background = { height = 2, color = colors.grey, y_offset = -15, border_color = colors.tn_magenta },
+	label = { font = { style = settings.font.style_map["Bold"] }, max_chars = 18, string = "????????????", color = colors.frost2 },
+	background = { height = 2, color = colors.grey, y_offset = -15, border_color = colors.frost2 },
 })
 
 local hostname = sbar.add("item", {
 	position = "popup." .. wifi_bracket.name,
-	icon = { font = { size = 13.0 }, align = "left", string = "Hostname:", width = popup_width / 2, color = colors.tn_magenta },
-	label = { max_chars = 20, string = "????????????", width = popup_width / 2, align = "right", color = colors.tn_magenta },
+	icon = { font = { size = 13.0 }, align = "left", string = "Hostname:", width = popup_width / 2, color = colors.frost2 },
+	label = { max_chars = 20, string = "????????????", width = popup_width / 2, align = "right", color = colors.frost2 },
 })
 
 local ip = sbar.add("item", {
 	position = "popup." .. wifi_bracket.name,
-	icon = { font = { size = 13.0 }, align = "left", string = "IP:", width = popup_width / 2, color = colors.tn_magenta },
-	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.tn_magenta },
+	icon = { font = { size = 13.0 }, align = "left", string = "IP:", width = popup_width / 2, color = colors.frost2 },
+	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.frost2 },
 })
 
 local mask = sbar.add("item", {
 	position = "popup." .. wifi_bracket.name,
-	icon = { font = { size = 13.0 }, align = "left", string = "Subnet mask:", width = popup_width / 2, color = colors.tn_magenta },
-	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.tn_magenta },
+	icon = { font = { size = 13.0 }, align = "left", string = "Subnet mask:", width = popup_width / 2, color = colors.frost2 },
+	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.frost2 },
 })
 
 local router = sbar.add("item", {
 	position = "popup." .. wifi_bracket.name,
-	icon = { font = { size = 13.0 }, align = "left", string = "Router:", width = popup_width / 2, color = colors.tn_magenta },
-	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.tn_magenta },
+	icon = { font = { size = 13.0 }, align = "left", string = "Router:", width = popup_width / 2, color = colors.frost2 },
+	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.frost2 },
 })
 
 -- ============================================================================
@@ -242,8 +242,8 @@ text_up:subscribe("network_update", function(env)
 		download_value = download_value * unit_multiplier[download_unit]
 	end
 
-	local up_color = (upload_value == 0) and colors.tn_black1 or colors.tn_red
-	local down_color = (download_value == 0) and colors.tn_black1 or colors.tn_cyan
+	local up_color = (upload_value == 0) and colors.tn_black1 or colors.frost2
+	local down_color = (download_value == 0) and colors.tn_black1 or colors.frost2
 
 	graph_up:push({ upload_value / (2 * 100 * 1024 ^ 2) })
 	graph_down:push({ download_value / (2 * 100 * 1024 ^ 2) })
@@ -264,7 +264,7 @@ wifi:subscribe({ "wifi_change", "system_woke" }, function(env)
 		wifi:set({
 			icon = {
 				string = connected and icons.wifi.connected or icons.wifi.disconnected,
-				color = connected and colors.tn_magenta or colors.tn_black1,
+				color = connected and colors.frost2 or colors.tn_black1,
 			},
 		})
 	end)

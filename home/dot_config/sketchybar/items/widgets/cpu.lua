@@ -9,7 +9,8 @@ sbar.exec("killall cpu_load >/dev/null; $CONFIG_DIR/helpers/event_providers/cpu_
 local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 30, {
 	position = "right",
 	graph = {
-		color = colors.accent1,
+		color = colors.frost4,
+		fill_color = colors.with_alpha(colors.frost4, 0.4),
 		line_width = 1.0,
 	},
 	background = { height = 22 },
@@ -29,12 +30,12 @@ local cpu = sbar.add("item", "widgets.cpu", {
 	},
 	icon = {
 		string = icons.cpu,
-		color = colors.blue,
+		color = colors.frost4,
 		padding_left = 5,  -- 枠内左余白 (member の padding_left=0 にしたため icon 側で確保)
 	},
 	label = {
 		string = "??%",
-		color = colors.blue,
+		color = colors.frost4,
 		font = {
 			family = settings.font.numbers,
 		},
@@ -46,46 +47,16 @@ local cpu = sbar.add("item", "widgets.cpu", {
 })
 
 -- Background around the cpu item
-local bracket = sbar.add("bracket", "widgets.cpu.bracket", { cpu_graph.name, cpu.name }, {
-	background = { color = colors.tn_black3, border_color = colors.blue },
+sbar.add("bracket", "widgets.cpu.bracket", { cpu_graph.name, cpu.name }, {
+	background = { color = colors.tn_black3, border_color = colors.frost4 },
 })
 
 cpu_graph:subscribe("cpu_update", function(env)
-	-- Also available: env.user_load, env.sys_load
-	local load = tonumber(env.total_load)
 	-- chart_height = push × bar_height (44px)
 	-- bracket bg=26 用に divisor を比例拡大
 	-- divisor = 150 × (34 / 26) = 196
-	cpu_graph:push({ load / 196. })
-
-	local alpha = 0.4
-	local color = colors.tn_blue
-	local fill_color = colors.with_alpha(color, alpha)
-	if load > 30 then
-		if load < 60 then
-			color = colors.tn_yellow
-			fill_color = colors.with_alpha(color, alpha)
-		elseif load < 80 then
-			color = colors.tn_orange
-			fill_color = colors.with_alpha(color, alpha)
-		else
-			color = colors.tn_red
-			fill_color = colors.with_alpha(color, alpha)
-		end
-	end
-
-	cpu_graph:set({
-		graph = { color = color, fill_color = fill_color },
-	})
-
-	cpu:set({
-		label = {
-			string = env.total_load .. "%",
-			color = color,
-		},
-		icon = { color = color },
-	})
-	bracket:set({ background = { border_color = color } })
+	cpu_graph:push({ tonumber(env.total_load) / 196. })
+	cpu:set({ label = { string = env.total_load .. "%" } })
 end)
 
 cpu:subscribe("mouse.clicked", function(env)
