@@ -12,9 +12,14 @@ local battery = sbar.add("item", "widgets.battery", {
 		padding_left = 9,
 		padding_right = 0,
 	},
-	label = { font = { family = settings.font.numbers }, color = colors.tn_orange },
+	label = {
+		font = { family = settings.font.numbers },
+		color = colors.tn_orange,
+		padding_right = 5,  -- 枠内右余白 (member の padding_right=0 にしたため label 側で確保)
+	},
+	-- bracket span に乗らないよう padding_left=0, padding_right=0
 	padding_left = 0,
-	padding_right = 5,
+	padding_right = 0,
 	update_freq = 1,
 	popup = {
 		align = "center",
@@ -124,8 +129,10 @@ sbar.add("bracket", "widgets.battery.bracket", { battery.name }, {
 -- 	width = settings.group_paddings,
 -- })
 
--- add padding
+-- gap to next widget on the left (volume)
 sbar.add("item", {
 	position = "right",
-	width = 6,
+	width = settings.widget_gap,
+	padding_left = 0,
+	padding_right = 0,
 })

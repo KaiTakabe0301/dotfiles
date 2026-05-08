@@ -17,7 +17,8 @@ local memory_graph = sbar.add("graph", "widgets.memory.graph", 60, {
 	},
 	background = { height = 22 },
 	y_offset = 10,
-	padding_right = 2,
+	-- bracket span に乗らないよう padding_right=0
+	padding_right = 0,
 	padding_left = -5,
 })
 
@@ -33,18 +34,19 @@ local memory = sbar.add("item", "widgets.memory", {
 		string = icons.memory,
 		font = { size = 17 },
 		color = colors.pure_green,
+		padding_left = 5,  -- 枠内左余白
 	},
 	label = {
 		string = "??%",
 		color = colors.pure_green,
 		font = {
 			family = settings.font.numbers,
-			-- style = settings.font.style_map["Bold"],
 		},
 		align = "right",
 	},
 	padding_right = 0,
-	padding_left = 5,
+	-- bracket span に乗らないよう padding_left=0
+	padding_left = 0,
 })
 
 -- Background around the memory item
@@ -99,4 +101,4 @@ sbar.add("item", "widgets.memory.padding", {
 	width = settings.group_paddings,
 })
 
-sbar.add("item", { position = "right", width = 6 })
+sbar.add("item", { position = "right", width = settings.widget_gap, padding_left = 0, padding_right = 0 })

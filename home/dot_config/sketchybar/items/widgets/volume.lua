@@ -10,14 +10,19 @@ local volume_percent = sbar.add("item", "widgets.volume1", {
 	label = {
 		string = "??%",
 		padding_left = -1,
+		padding_right = 5,  -- 枠内右余白
 		font = { family = settings.font.numbers },
 		color = colors.tn_green,
 	},
+	-- bracket span に乗らないよう padding_right=0
+	padding_right = 0,
 })
 
 local volume_icon = sbar.add("item", "widgets.volume2", {
 	position = "right",
 	padding_right = -1,
+	-- bracket span に乗らないよう padding_left=0
+	padding_left = 0,
 	icon = {
 		string = icons.volume._100,
 		width = 0,
@@ -31,6 +36,7 @@ local volume_icon = sbar.add("item", "widgets.volume2", {
 		color = colors.green,
 		width = 25,
 		align = "left",
+		padding_left = 5,  -- 枠内左余白 (icon overlay と整合させるため label 側で調整)
 		font = {
 			style = settings.font.style_map["Regular"],
 			size = 14.0,
@@ -55,7 +61,7 @@ local volume_bracket = sbar.add("bracket", "widgets.volume.bracket", {
 -- })
 
 -- add width
-sbar.add("item", { position = "right", width = 6 })
+sbar.add("item", { position = "right", width = settings.widget_gap, padding_left = 0, padding_right = 0 })
 
 local volume_slider = sbar.add("slider", popup_width, {
 	position = "popup." .. volume_bracket.name,

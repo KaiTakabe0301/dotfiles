@@ -10,6 +10,21 @@ sbar.exec(
 
 local popup_width = 250
 
+-- 不可視固定幅 spacer: bracket span を text overlay 全幅まで強制的に広げるための member。
+-- position="right" で最初に追加するため、bracket の最右 member になる。
+-- bracket bg が wifi_up / wifi_down の text label "↑NNNNNbps" "↓NNNNNbps" の右端まで広がる。
+-- nested bracket は sketchybar 仕様で flatten されるため (group_add_member, src/group.c)、
+-- container 風の固定幅を実現するこの hack が公式 workaround。
+local wifi_text_spacer = sbar.add("item", "widgets.wifi.text_spacer", {
+	position = "right",
+	width = 40,
+	background = { drawing = false },
+	label = { drawing = false },
+	icon = { drawing = false },
+	padding_left = 0,
+	padding_right = 0,
+})
+
 local wifi_up_graph = sbar.add("graph", "widgets.wifi1_graph", 42, {
 	position = "right",
 	align = "right",
@@ -93,8 +108,10 @@ local wifi_down = sbar.add("item", "widgets.wifi2", {
 local wifi = sbar.add("item", "widgets.wifi.padding", {
 	position = "right",
 	label = { drawing = false },
+	icon = { padding_left = 4 },  -- 枠内左余白 (member の padding_left=0 にしたため icon 側で確保)
 	padding_right = 2,
-	padding_left = 4,
+	-- bracket span に乗らないよう padding_left=0
+	padding_left = 0,
 })
 
 -- Background around the item
@@ -104,6 +121,7 @@ local wifi_bracket = sbar.add("bracket", "widgets.wifi.bracket", {
 	wifi_up.name,
 	wifi_down_graph.name,
 	wifi_down.name,
+	wifi_text_spacer.name,  -- bracket 右端を text overlay 全幅まで広げる固定幅 member
 }, {
 	background = { color = colors.tn_black3, border_color = colors.tn_magenta, border_width = 2 },
 	popup = {
@@ -321,4 +339,4 @@ ip:subscribe("mouse.clicked", copy_label_to_clipboard)
 mask:subscribe("mouse.clicked", copy_label_to_clipboard)
 router:subscribe("mouse.clicked", copy_label_to_clipboard)
 
-sbar.add("item", { position = "right", width = 6 })
+sbar.add("item", { position = "right", width = settings.widget_gap, padding_left = 0, padding_right = 0 })

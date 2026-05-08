@@ -14,7 +14,8 @@ local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 60, {
 	},
 	background = { height = 22 },
 	y_offset = 10,
-	padding_right = 2,
+	-- bracket span に乗らないよう padding_right=0 (= bg.padding_right=0)。枠内右余白は graph 内部の見た目で許容
+	padding_right = 0,
 	padding_left = -5,
 })
 
@@ -29,19 +30,19 @@ local cpu = sbar.add("item", "widgets.cpu", {
 	icon = {
 		string = icons.cpu,
 		color = colors.blue,
+		padding_left = 5,  -- 枠内左余白 (member の padding_left=0 にしたため icon 側で確保)
 	},
 	label = {
 		string = "??%",
 		color = colors.blue,
 		font = {
 			family = settings.font.numbers,
-			-- style = settings.font.style_map["Bold"],
-			-- size = 9.0,
 		},
 		align = "right",
 	},
 	padding_right = 0,
-	padding_left = 5,
+	-- bracket span に乗らないよう padding_left=0
+	padding_left = 0,
 })
 
 -- Background around the cpu item

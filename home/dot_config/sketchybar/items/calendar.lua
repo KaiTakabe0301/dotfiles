@@ -9,7 +9,7 @@ local cal_clock = sbar.add("item", {
 	},
 	label = {
 		color = colors.tn_blue,
-		padding_right = 0,
+		padding_right = 12,  -- 枠内右余白 (member の padding_right=0 にしたため label 側で確保)
 		align = "right",
 		font = { family = settings.font.numbers },
 		y_offset = 6,
@@ -17,7 +17,8 @@ local cal_clock = sbar.add("item", {
 	position = "right",
 	update_freq = 1,
 	padding_left = -43,
-	padding_right = 12,
+	-- bracket span に乗らないよう padding_right=0
+	padding_right = 0,
 })
 
 local cal_day_of_week = sbar.add("item", {
@@ -61,6 +62,7 @@ local cal_day = sbar.add("item", {
 	},
 	label = {
 		color = colors.tn_blue,
+		padding_left = 3,  -- 枠内左余白 (member の padding_left=0 にしたため label 側で確保)
 		padding_right = 0,
 		align = "center",
 		font = { family = settings.font.numbers },
@@ -69,7 +71,8 @@ local cal_day = sbar.add("item", {
 	width = 32,
 	position = "right",
 	update_freq = 1,
-	padding_left = 3,
+	-- bracket span に乗らないよう padding_left=0
+	padding_left = 0,
 	padding_right = 0,
 })
 
@@ -81,9 +84,6 @@ sbar.add("bracket", { cal_clock.name, cal_month.name, cal_day_of_week.name, cal_
 		border_color = colors.tn_blue,
 	},
 })
-
--- Padding item required because of bracket
-sbar.add("item", { position = "right", width = settings.group_paddings })
 
 cal_clock:subscribe({ "forced", "routine", "system_woke" }, function(env)
 	cal_clock:set({ label = os.date("%H:%M") })
@@ -101,5 +101,5 @@ cal_day:subscribe({ "forced", "routine", "system_woke" }, function(env)
 	cal_day:set({ label = os.date("%d") })
 end)
 
--- add width
-sbar.add("item", { position = "right", width = 6 })
+-- gap to next widget on the left (battery)
+sbar.add("item", { position = "right", width = settings.widget_gap, padding_left = 0, padding_right = 0 })

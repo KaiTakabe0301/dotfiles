@@ -1,6 +1,7 @@
 return {
 	paddings = 3,
 	group_paddings = 2,
+	widget_gap = 8,
 
 	icons = "sf-symbols", -- alternatively available: NerdFont
 
