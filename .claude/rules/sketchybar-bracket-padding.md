@@ -86,3 +86,138 @@ sbar.default({
 
 - bracket 全体サイズを変えずに枠内余白だけ縮める指示が来たら、構造上不可能であることを説明する (盲目的にハックを試みない)
 - `bracket.background.padding` を負の値にして content を bracket 外に押し出す解決策は採用しない
+
+## widget 間 gap の独立制御 (CSS flexbox gap 思想)
+
+### sketchybar bracket span 計算の真実
+
+sketchybar 公式ソース (`src/group.c::group_get_length`) を読むと、bracket bg の **描画幅は最左/最右 member の `background.padding_left/right` から計算される**:
+
+```
+length = (last_member.x + last_member.width + last_member.background.padding_right)
+       - (first_member.x - first_member.background.padding_left)
+```
+
+加えて重要な事実:
+- `padding_left/right` (top-level) と `background.padding_left/right` は **同じフィールド** (`bar_item.background.padding_*`)。`--query` の `geometry.padding_left` も `background.padding_left` を表示している。
+- `default()` の `padding_left=6` は `bar_item_inherit_from_item` の memcpy で **新規 bracket / item にそのまま伝搬** する。
+- **bracket 自身の `background.padding_left/right` は span 計算に使われない**。bracket span は member 由来。
+- bracket の **border は bg rect の内側に描画** (`CGRectInset(region, line_width/2, line_width/2)`)。bg を外側に拡張しない。
+
+つまり **「bracket 自身に `padding=0` を設定する」のは無意味** (前回の試行はこれを誤解していた)。
+
+### 正しい設計原則
+
+CSS flexbox の `gap` のように widget サイズと gap を独立制御するには、**bracket の最左 member と最右 member の `padding_left/right` を 0 にする**:
+
+```lua
+local foo_first = sbar.add("item", "widgets.foo.first", {
+  position = "right",
+  icon = { padding_left = 5 },  -- 枠内左余白を icon 側で確保
+  -- ...
+  padding_left = 0,   -- ← bracket span に乗らないよう 0
+})
+
+local foo_last = sbar.add("item", "widgets.foo.last", {
+  position = "right",
+  label = { padding_right = 5 },  -- 枠内右余白を label 側で確保
+  -- ...
+  padding_right = 0,  -- ← bracket span に乗らないよう 0
+})
+
+sbar.add("bracket", "widgets.foo.bracket", { foo_last.name, foo_first.name }, {
+  background = { color = ..., border_color = ... },
+  -- bracket 自身に padding=0 を書く必要なし (span 計算には使われない)
+})
+```
+
+position="right" 系では addition 順 = 右→左 で並ぶので、**最初に追加した item が最右 = `padding_right=0` 対象**、**最後に追加した item が最左 = `padding_left=0` 対象**。
+
+これにより:
+- bracket bg は member 群の content にちょうど収まる
+- bracket 間の **視覚的 gap = spacer item の width** (border は bg 内側描画なので border_width も控除しない)
+- font size / icon padding / bracket bg.height を後から変えても gap は変動しない
+
+### 枠内余白の確保
+
+member.padding_left/right=0 にすると枠内の左右余白が消えるので、**member の `icon.padding_left` / `label.padding_right` で別途確保** する:
+
+| 元の表現 | 修正後の表現 |
+|---------|------------|
+| `cpu.padding_left = 5` | `cpu.icon.padding_left = 5` + `cpu.padding_left = 0` |
+| `battery.padding_right = 5` | `battery.label.padding_right = 5` + `battery.padding_right = 0` |
+
+### gap の集中管理
+
+各 widget 末尾の spacer は `width = settings.widget_gap, padding_left = 0, padding_right = 0` で固定:
+
+```lua
+sbar.add("item", { position = "right", width = settings.widget_gap, padding_left = 0, padding_right = 0 })
+```
+
+`settings.widget_gap` (現状 8) を変更すれば全 widget 間 gap が一括で変動する。spacer 自身の padding=0 を明示するのは、default 経由で `padding_left=6` が継承され spacer 横幅に乗ってしまうのを防ぐため。
+
+### 例外: spaces.lua の monitor bracket
+
+左側 (`group.builtin / ultragear / dell / dynamic`) は member (= space chip) 自身に `padding_left/right=GROUP_GAP` (= 4 の固定値) を入れて、bracket span に乗せる流儀になっている。これも結果として bracket bg を chip 群の左右に 4px ずつ拡張するが、用途 (chip の左右に色付き余白を出す) が widget bracket とは異なる。混在させない。
+
+### 例外: bar 端の余白
+
+bar の最右端 (battery 末尾の `width=6` spacer) は隣接 bracket がないため widget_gap とは別目的で維持。
+
+## text overlay 設計の widget で bracket bg が text 全幅を覆わない問題
+
+### 症状
+
+graph 上に text label を overlay する設計 (例: wifi.lua の `wifi_up_graph` 上に `wifi_up.label` を `padding_left=-64.5, width=0` で重ねる) では、**text label の物理 width が 0 で graph の width=42 よりも実描画 string の幅が大きい** とき、text が graph の右端を超えて bracket bg の外に **はみ出して描画される**。
+
+これは sketchybar の bracket span 計算が `member.x + member.width + member.padding_right` のみを見て、`label.string` の実描画幅を考慮しないため。
+
+### 根本対処: 不可視固定幅 spacer member
+
+**bracket member 配列に「不可視固定幅 spacer」を追加** して bracket 幅を強制的に伸ばす。これは sketchybar 公式 (felixkratz) が推奨する workaround で、`group_get_first/last_member` がこの spacer を最右 (or 最左) member として認識し、bracket span がその width まで広がる:
+
+```lua
+-- text overlay の右側 overhang を吸収する不可視 spacer
+local foo_text_spacer = sbar.add("item", "widgets.foo.text_spacer", {
+  position = "right",  -- addition 順で最初に追加 = 最右になる
+  width = N,           -- text overhang ぶんの px
+  background = { drawing = false },
+  label = { drawing = false },
+  icon = { drawing = false },
+  padding_left = 0,
+  padding_right = 0,
+})
+
+-- 続いて他の widget items
+-- ...
+
+-- bracket member 配列にこの spacer を含める
+sbar.add("bracket", "widgets.foo.bracket", {
+  -- 通常の members,
+  foo_text_spacer.name,  -- ← 必須
+}, { background = { ... } })
+```
+
+### nested bracket は使えない
+
+CSS の「container 内に container」のような nested bracket は **sketchybar 仕様で不可能**。
+
+`src/group.c::group_add_member` で「member が group head なら、その group の members[1..] を flatten して追加する」処理があるため、bracket を bracket の member にしても **平坦化** され、独立した nested 関係は作れない。
+
+```c
+// src/group.c
+if (item is group head) {
+  // add item->group->members[1..] instead of item itself
+}
+```
+
+そのため flexbox container 風の固定幅 frame を実現する唯一の sketchybar-native な方法が上記の「不可視固定幅 spacer member」パターンとなる。
+
+### 不可視 spacer の判定条件
+
+- `background.drawing = false` (bg 描画なし)
+- `label.drawing = false`, `icon.drawing = false` (text/icon 描画なし)
+- ただし item の **`drawing` 自体は default の "on"** を維持 (off にすると bracket span 計算で skip される可能性)
+- `padding_left = 0, padding_right = 0` で gap に乗らないようにする
+- `width` で固定幅を指定 (これが bracket span に直接乗る)
