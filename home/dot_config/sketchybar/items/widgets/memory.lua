@@ -95,10 +95,5 @@ memory:subscribe("mouse.clicked", function(env)
 	sbar.exec("open -a 'Activity Monitor'")
 end)
 
--- Padding around the memory item
-sbar.add("item", "widgets.memory.padding", {
-	position = "right",
-	width = settings.group_paddings,
-})
-
+-- 左隣 widget (cpu) との gap
 sbar.add("item", { position = "right", width = settings.widget_gap, padding_left = 0, padding_right = 0 })
