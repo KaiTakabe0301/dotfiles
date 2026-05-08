@@ -10,8 +10,10 @@ if ! command -v chezmoi &>/dev/null; then
   exit 2
 fi
 
+SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+
 if [ $# -eq 0 ]; then
-  chezmoi status 2>&1
+  chezmoi -S "$SOURCE_DIR" status 2>&1
 else
-  chezmoi status "$@" 2>&1
+  chezmoi -S "$SOURCE_DIR" status "$@" 2>&1
 fi
