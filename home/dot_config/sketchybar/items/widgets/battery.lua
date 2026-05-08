@@ -9,7 +9,7 @@ local battery = sbar.add("item", "widgets.battery", {
 			style = settings.font.style_map["Regular"],
 			size = 14.0,
 		},
-		padding_left = 9,
+		padding_left = 5, -- 枠内左余白 (cpu/memory と同値で統一)
 		padding_right = 0,
 	},
 	label = {
