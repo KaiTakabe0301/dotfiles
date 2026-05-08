@@ -129,7 +129,7 @@ sbar.add("bracket", "widgets.battery.bracket", { battery.name }, {
 -- 	width = settings.group_paddings,
 -- })
 
--- gap to next widget on the left (volume)
+-- gap to next widget on the left
 sbar.add("item", {
 	position = "right",
 	width = settings.widget_gap,
