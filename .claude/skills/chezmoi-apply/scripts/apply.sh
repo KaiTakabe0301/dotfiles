@@ -15,5 +15,7 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
-chezmoi apply "$@" 2>&1
-echo "chezmoi apply completed for: $*"
+SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+
+chezmoi -S "$SOURCE_DIR" apply "$@" 2>&1
+echo "chezmoi apply completed for: $* (source: $SOURCE_DIR)"
