@@ -8,7 +8,7 @@ sbar.exec(
 	"killall memory_load >/dev/null; $CONFIG_DIR/helpers/event_providers/memory_load/bin/memory_load memory_update 1.0"
 )
 
-local memory_graph = sbar.add("graph", "widgets.memory.graph", 60, {
+local memory_graph = sbar.add("graph", "widgets.memory.graph", 30, {
 	position = "right",
 	graph = {
 		color = colors.pure_green,
