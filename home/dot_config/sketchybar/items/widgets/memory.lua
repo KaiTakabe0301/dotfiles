@@ -11,8 +11,8 @@ sbar.exec(
 local memory_graph = sbar.add("graph", "widgets.memory.graph", 30, {
 	position = "right",
 	graph = {
-		color = colors.frost3,
-		fill_color = colors.with_alpha(colors.frost3, 0.4),
+		color = colors.frost2,
+		fill_color = colors.with_alpha(colors.frost2, 0.4),
 		line_width = 1.0,
 	},
 	background = { height = 22 },
@@ -33,12 +33,12 @@ local memory = sbar.add("item", "widgets.memory", {
 	icon = {
 		string = icons.memory,
 		font = { size = 17 },
-		color = colors.frost3,
+		color = colors.frost2,
 		padding_left = 5,  -- 枠内左余白
 	},
 	label = {
 		string = "??%",
-		color = colors.frost3,
+		color = colors.frost2,
 		font = {
 			family = settings.font.numbers,
 		},
@@ -51,7 +51,7 @@ local memory = sbar.add("item", "widgets.memory", {
 
 -- Background around the memory item
 sbar.add("bracket", "widgets.memory.bracket", { memory_graph.name, memory.name }, {
-	background = { color = colors.tn_black3, border_color = colors.frost3 },
+	background = { color = colors.tn_black3, border_color = colors.frost2 },
 })
 memory_graph:subscribe("memory_update", function(env)
 	local used_percentage = tonumber(env.used_percentage)

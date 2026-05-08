@@ -9,8 +9,8 @@ sbar.exec("killall cpu_load >/dev/null; $CONFIG_DIR/helpers/event_providers/cpu_
 local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 30, {
 	position = "right",
 	graph = {
-		color = colors.frost4,
-		fill_color = colors.with_alpha(colors.frost4, 0.4),
+		color = colors.frost3,
+		fill_color = colors.with_alpha(colors.frost3, 0.4),
 		line_width = 1.0,
 	},
 	background = { height = 22 },
@@ -30,12 +30,12 @@ local cpu = sbar.add("item", "widgets.cpu", {
 	},
 	icon = {
 		string = icons.cpu,
-		color = colors.frost4,
+		color = colors.frost3,
 		padding_left = 5,  -- 枠内左余白 (member の padding_left=0 にしたため icon 側で確保)
 	},
 	label = {
 		string = "??%",
-		color = colors.frost4,
+		color = colors.frost3,
 		font = {
 			family = settings.font.numbers,
 		},
@@ -48,7 +48,7 @@ local cpu = sbar.add("item", "widgets.cpu", {
 
 -- Background around the cpu item
 sbar.add("bracket", "widgets.cpu.bracket", { cpu_graph.name, cpu.name }, {
-	background = { color = colors.tn_black3, border_color = colors.frost4 },
+	background = { color = colors.tn_black3, border_color = colors.frost3 },
 })
 
 cpu_graph:subscribe("cpu_update", function(env)
@@ -63,8 +63,5 @@ cpu:subscribe("mouse.clicked", function(env)
 	sbar.exec("open -a 'Activity Monitor'")
 end)
 
--- Background around the cpu item
-sbar.add("item", "widgets.cpu.padding", {
-	position = "right",
-	width = settings.group_paddings,
-})
+-- 左隣 widget (memory) との gap
+sbar.add("item", { position = "right", width = settings.widget_gap, padding_left = 0, padding_right = 0 })

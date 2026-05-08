@@ -175,14 +175,14 @@ local wifi_bracket = sbar.add("bracket", "widgets.wifi.bracket", {
 }, {
 	background = {
 		color = colors.tn_black3,
-		border_color = colors.frost2,
+		border_color = colors.frost4,
 		border_width = 2,
 		height = 26,
 	},
 	popup = {
 		align = "center",
 		height = 30,
-		background = { color = colors.tn_black3, border_color = colors.frost2, border_width = 2 },
+		background = { color = colors.tn_black3, border_color = colors.frost4, border_width = 2 },
 	},
 })
 
@@ -192,35 +192,35 @@ local wifi_bracket = sbar.add("bracket", "widgets.wifi.bracket", {
 
 local ssid = sbar.add("item", {
 	position = "popup." .. wifi_bracket.name,
-	icon = { font = { size = 13.0, style = settings.font.style_map["Bold"] }, string = icons.wifi.router, color = colors.frost2 },
+	icon = { font = { size = 13.0, style = settings.font.style_map["Bold"] }, string = icons.wifi.router, color = colors.frost4 },
 	width = popup_width,
 	align = "center",
-	label = { font = { style = settings.font.style_map["Bold"] }, max_chars = 18, string = "????????????", color = colors.frost2 },
-	background = { height = 2, color = colors.grey, y_offset = -15, border_color = colors.frost2 },
+	label = { font = { style = settings.font.style_map["Bold"] }, max_chars = 18, string = "????????????", color = colors.frost4 },
+	background = { height = 2, color = colors.grey, y_offset = -15, border_color = colors.frost4 },
 })
 
 local hostname = sbar.add("item", {
 	position = "popup." .. wifi_bracket.name,
-	icon = { font = { size = 13.0 }, align = "left", string = "Hostname:", width = popup_width / 2, color = colors.frost2 },
-	label = { max_chars = 20, string = "????????????", width = popup_width / 2, align = "right", color = colors.frost2 },
+	icon = { font = { size = 13.0 }, align = "left", string = "Hostname:", width = popup_width / 2, color = colors.frost4 },
+	label = { max_chars = 20, string = "????????????", width = popup_width / 2, align = "right", color = colors.frost4 },
 })
 
 local ip = sbar.add("item", {
 	position = "popup." .. wifi_bracket.name,
-	icon = { font = { size = 13.0 }, align = "left", string = "IP:", width = popup_width / 2, color = colors.frost2 },
-	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.frost2 },
+	icon = { font = { size = 13.0 }, align = "left", string = "IP:", width = popup_width / 2, color = colors.frost4 },
+	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.frost4 },
 })
 
 local mask = sbar.add("item", {
 	position = "popup." .. wifi_bracket.name,
-	icon = { font = { size = 13.0 }, align = "left", string = "Subnet mask:", width = popup_width / 2, color = colors.frost2 },
-	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.frost2 },
+	icon = { font = { size = 13.0 }, align = "left", string = "Subnet mask:", width = popup_width / 2, color = colors.frost4 },
+	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.frost4 },
 })
 
 local router = sbar.add("item", {
 	position = "popup." .. wifi_bracket.name,
-	icon = { font = { size = 13.0 }, align = "left", string = "Router:", width = popup_width / 2, color = colors.frost2 },
-	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.frost2 },
+	icon = { font = { size = 13.0 }, align = "left", string = "Router:", width = popup_width / 2, color = colors.frost4 },
+	label = { string = "???.???.???.???", width = popup_width / 2, align = "right", color = colors.frost4 },
 })
 
 -- ============================================================================
@@ -264,7 +264,7 @@ wifi:subscribe({ "wifi_change", "system_woke" }, function(env)
 		wifi:set({
 			icon = {
 				string = connected and icons.wifi.connected or icons.wifi.disconnected,
-				color = connected and colors.frost2 or colors.tn_black1,
+				color = connected and colors.frost4 or colors.tn_black1,
 			},
 		})
 	end)
