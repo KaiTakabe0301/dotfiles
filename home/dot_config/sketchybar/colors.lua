@@ -17,6 +17,7 @@ return {
 	frost3 = 0xff81a1c1, -- nord9
 	frost4 = 0xff5e81ac, -- nord10
 	ice_blue = 0xffa3c0d9, -- frost 系の 5 色目 (Nord にはないが、frost3 より明るい muted sky blue)
+	dusk_blue = 0xff8a92b8, -- blue と purple の中間 (Nord にはない)。Frost と purple の馴染みのために
 	red = 0xffbf616a, -- nord11
 	orange = 0xffd08770, -- nord12
 	yellow = 0xffebcb8b, -- nord13

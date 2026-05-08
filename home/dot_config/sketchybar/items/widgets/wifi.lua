@@ -67,7 +67,7 @@ local graph_up = sbar.add("graph", "widgets.wifi1_graph", W_GRAPH, {
 	position = "right",
 	width = 0, -- bar slot 0、graph_down と x 同位置で overlay
 	align = "right",
-	graph = { color = colors.orange, fill_color = colors.orange, fill = true, line_width = 1 },
+	graph = { color = colors.purple, fill_color = colors.purple, fill = true, line_width = 1 },
 	background = {
 		height = 10,
 		padding_left = 0,
@@ -79,7 +79,7 @@ local graph_up = sbar.add("graph", "widgets.wifi1_graph", W_GRAPH, {
 local graph_down = sbar.add("graph", "widgets.wifi2_graph", W_GRAPH, {
 	position = "right",
 	align = "right",
-	graph = { color = colors.green, fill_color = colors.green, fill = true, line_width = 1 },
+	graph = { color = colors.dusk_blue, fill_color = colors.dusk_blue, fill = true, line_width = 1 },
 	background = {
 		height = 10,
 		padding_left = 0,
@@ -111,7 +111,7 @@ local text_up = sbar.add("item", "widgets.wifi1", {
 			style = settings.font.style_map["Bold"],
 			size = 8.0,
 		},
-		color = colors.orange,
+		color = colors.purple,
 		string = "??? Bps",
 	},
 	y_offset = Y_TEXT_UP,
@@ -139,7 +139,7 @@ local text_down = sbar.add("item", "widgets.wifi2", {
 			style = settings.font.style_map["Bold"],
 			size = 8.0,
 		},
-		color = colors.green,
+		color = colors.dusk_blue,
 		string = "??? Bps",
 	},
 	y_offset = Y_TEXT_DOWN,
@@ -242,8 +242,8 @@ text_up:subscribe("network_update", function(env)
 		download_value = download_value * unit_multiplier[download_unit]
 	end
 
-	local up_color = (upload_value == 0) and colors.tn_black1 or colors.orange
-	local down_color = (download_value == 0) and colors.tn_black1 or colors.green
+	local up_color = (upload_value == 0) and colors.tn_black1 or colors.purple
+	local down_color = (download_value == 0) and colors.tn_black1 or colors.dusk_blue
 
 	graph_up:push({ upload_value / (2 * 100 * 1024 ^ 2) })
 	graph_down:push({ download_value / (2 * 100 * 1024 ^ 2) })
