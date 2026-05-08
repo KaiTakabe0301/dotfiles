@@ -18,9 +18,14 @@ on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
 # JankyBorders: アクティブウィンドウに枠線を表示
 # https://github.com/FelixKratz/JankyBorders
-# 色は Catppuccin Mocha 系 (active: blue, inactive: surface1)
+# 色は Nord (active: frost2, inactive: nord3)
 after-startup-command = [
     'exec-and-forget borders'
+]
+
+# SketchyBar 連携: ワークスペース切替時にカスタムイベントを発火
+exec-on-workspace-change = ['/bin/bash', '-c',
+    '/opt/homebrew/bin/sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE'
 ]
 
 # デフォルトのレイアウト (ops モードの slash と同じ tiles + auto orientation)
