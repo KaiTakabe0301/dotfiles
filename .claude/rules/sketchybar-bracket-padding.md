@@ -221,3 +221,93 @@ if (item is group head) {
 - ただし item の **`drawing` 自体は default の "on"** を維持 (off にすると bracket span 計算で skip される可能性)
 - `padding_left = 0, padding_right = 0` で gap に乗らないようにする
 - `width` で固定幅を指定 (これが bracket span に直接乗る)
+
+## sketchybar API で**存在しない / 効かない** プロパティ (重要)
+
+設計を立てる前に、以下の **存在しない** プロパティを目的に使わないこと。これらに頼った responsive layout は不可能:
+
+| プロパティ | 状況 | 出典 |
+|----------|------|------|
+| `bar_item.x_offset` | **存在しない**。`y_offset` のみ | `bar_item.h` の struct |
+| `graph.padding_left/right` | **存在しない**。graph 線描画位置を内部で動かす手段なし | `graph.h` の struct (color/fill_color/line_width のみ) |
+| `graph.align` | **存在しない**。`rtl` フラグは bar の左右側面で自動判定される | `graph.h`、`bar.c` |
+| `background.x_offset` | 存在するが**安全でない**。shadow offsets 経由で window frame を変えるため bracket span に影響する | `bar_item_calculate_shadow_offsets`、`bar.c` |
+| `background.clip` | drawing をクリップするが**layout には影響しない**。bracket span 制御には使えない | `background_clip_bar`、`group_get_length` |
+
+### 連鎖の本質: `group_get_length` の式
+
+```c
+// src/group.c::group_get_length
+length = (last_window->origin.x + last_window->frame.size.width + last_item->background.padding_right)
+       - (first_window->origin.x - first_item->background.padding_left)
+```
+
+`first_window->origin.x` は bar 全体の addition 順から連鎖的に決まる。**内部 member の padding を変えると、その左にある全 item の x 位置がドミノで移動し、最左 member の `window.origin.x` が変わる** → bracket span が変動する。
+
+つまり **「内部 member の padding 変更が bracket span に影響しない」という分離は通常の addition 順 layout では実現できない**。
+
+## 責務分離の唯一の手段: 固定幅 sub-items 構造
+
+layout (bracket span) と visual (内部 item の x 位置) を独立に制御する唯一の方法は、**各 item に明示的な `width=N` を設定して内部 widths を固定する** こと。widths が固定なら内部の padding を変えても各 item の物理 width は不変、bracket span も不変。
+
+### パターン
+
+```lua
+-- bracket member の addition 順 (visual 右→左):
+-- [cap_right(width=0)] [item_A(width=W_A)] [item_B(width=W_B)] ... [cap_left(width=0)]
+
+local cap_right = sbar.add("item", "widgets.foo.cap_right", {
+  position = "right",
+  width = 0,
+  background = { drawing = false },
+  label = { drawing = false },
+  icon = { drawing = false },
+  padding_left = 0, padding_right = 0,
+})
+
+local item_A = sbar.add("graph", "widgets.foo.A", N_DATA_POINTS, {
+  position = "right",
+  width = W_A,  -- 明示固定幅
+  graph = { ... },
+  background = { ... },
+  padding_left = 0, padding_right = 0,
+})
+
+-- 上下 overlay する 2 item は同じ width で padding_left=-W で完全 overlap
+local item_B_overlay = sbar.add("graph", "widgets.foo.B", N_DATA_POINTS, {
+  position = "right",
+  width = W_A,
+  padding_left = -W_A,  -- item_A と縦 overlay (x 位置完全一致)
+  ...
+  y_offset = different,  -- y で上下分離
+})
+
+-- ... 他の固定幅 items
+local cap_left = sbar.add("item", "widgets.foo.cap_left", {
+  position = "right",
+  width = 0,
+  background = { drawing = false },
+  ...
+})
+
+sbar.add("bracket", "widgets.foo.bracket", {
+  cap_left.name,
+  -- 中間 items を左→右の visual 順で,
+  cap_right.name,
+}, { background = { ... } })
+```
+
+### このパターンが responsive な理由
+
+- 各 item の `width=N` が固定値 → bracket span = 全 widths の総和 (固定)
+- 内部の `padding_left/right` 変更や上下 overlay 用の `padding_left=-W` は、各 item の物理 width を変えない → span 不変
+- 内容 (label.string や graph data) が変わっても widths は不変 → span 不変
+
+### 適用判断
+
+| widget タイプ | 設計 |
+|------------|------|
+| 単純な icon + label (cpu/memory/volume/battery) | 通常の bracket member padding=0 設計で十分 |
+| graph + text の overlay 設計 (wifi) | **固定幅 sub-items 構造が必須** |
+| 複数 item を縦 overlay (上下 2 段) | 同じ width の item を `padding_left=-W` で重ねる |
+| widget 全体を固定 width にしたい | cap_left / cap_right (width=0 不可視 cap) で範囲を明示 |
