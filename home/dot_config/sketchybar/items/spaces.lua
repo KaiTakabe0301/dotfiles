@@ -321,20 +321,46 @@ end
 -- build_layout() を呼ぶ」ことで remove → add の順序を確実にする。
 -- aerospace の list-monitors は OS の screen change を受けて即座に追従するが、
 -- 念のため `sleep 0.3` を挟んで遅延を吸収する。
+--
+-- 重要: sketchybar の `display_change` は物理的なモニター抜き挿しだけでなく、
+-- focused display の変化 (例: aerospace の `mouse-follows-focus` で WS 切替時に
+-- マウスが別モニターへ飛ぶ) でも発火する。よって signature を比較し、本当に
+-- モニター構成が変わったときだけ rebuild する。
+
+-- "id:name|id:name|..." 形式のモニター signature
+local last_monitor_signature = ""
+
+local function compute_monitor_signature_async(callback)
+	-- aerospace の追従待ちを兼ねて sleep 0.3
+	sbar.exec(
+		"sleep 0.3 && aerospace list-monitors --format '%{monitor-id}:%{monitor-name}' | tr '\\n' '|'",
+		function(out)
+			callback((out or ""):gsub("%s+$", ""))
+		end
+	)
+end
 
 local function rebuild_layout()
-	if #managed_items == 0 then
-		build_layout()
-		refresh_state()
-		return
-	end
-	local cmd = "sleep 0.3 && sketchybar"
-	for _, name in ipairs(managed_items) do
-		cmd = cmd .. " --remove " .. name
-	end
-	sbar.exec(cmd, function(_)
-		build_layout()
-		refresh_state()
+	compute_monitor_signature_async(function(sig)
+		if sig == last_monitor_signature then
+			-- focused display 変化のみ。レイアウト不変なので何もしない。
+			return
+		end
+		last_monitor_signature = sig
+
+		if #managed_items == 0 then
+			build_layout()
+			refresh_state()
+			return
+		end
+		local cmd = "sketchybar"
+		for _, name in ipairs(managed_items) do
+			cmd = cmd .. " --remove " .. name
+		end
+		sbar.exec(cmd, function(_)
+			build_layout()
+			refresh_state()
+		end)
 	end)
 end
 
@@ -344,6 +370,10 @@ end
 
 build_layout()
 refresh_state()
+-- 初回 signature を保存 (これで起動直後の display_change が空打ちに)
+compute_monitor_signature_async(function(sig)
+	last_monitor_signature = sig
+end)
 
 -- display_change を購読するための非可視 watcher。
 -- width=0 + drawing=false で bar の layout には影響しない。
