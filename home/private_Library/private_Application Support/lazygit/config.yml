@@ -5,12 +5,12 @@ customCommands:
     context: "files"
     description: "Open file in nvim"
     command: 'nvim -- "{{.SelectedFile.Name}}"'
-    subprocess: true
+    output: terminal
   - key: "o"
     context: "commitFiles"
     description: "Open file in nvim"
     command: 'nvim -- "{{.SelectedCommitFile.Name}}"'
-    subprocess: true
+    output: terminal
 gui:
   nerdFontsVersion: "3"
   theme:
