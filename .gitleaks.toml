@@ -1,0 +1,16 @@
+# gitleaks 設定。デフォルトルールを継承しつつ、
+# chezmoi 管理 dotfiles で誤検知になりやすいパスを除外する。
+[extend]
+useDefault = true
+
+[allowlist]
+description = "global allowlist"
+paths = [
+  '''(^|/)\.gitleaks\.toml$''',
+  '''(^|/)lefthook\.yml$''',
+  # chezmoi の機微ファイル（private_* / encrypted_*）はコミット対象として
+  # ローカル運用しているため、ここではスキャン対象から外す。
+  '''(^|/)home/private_dot_ssh/''',
+  '''(^|/)home/private_Library/''',
+  '''(^|/)home/dot_claude/settings\.json\.tmpl$''',
+]
