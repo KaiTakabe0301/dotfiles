@@ -1,0 +1,46 @@
+# chezmoi はソースディレクトリ直下の .chezmoidata.{toml,yaml,json} を
+# テンプレートデータとして自動マージする。ホスト依存の差分はここに集約し、
+# .tmpl 側からは index .hosts .chezmoi.hostname で引く。
+# 未登録ホストは _default にフォールバック。
+
+# ───── _default（context-mode 有効ホスト） ─────
+[hosts._default]
+opus_model = "claude-opus-4-7"
+use_vertex = false
+enable_ccgate = true
+enable_pretool_hooks = false
+enable_posttool_hooks = false
+enable_context_mode = true
+
+[hosts._default.plugins]
+"example-skills@anthropic-agent-skills" = true
+"context-mode@context-mode" = true
+
+[hosts._default.marketplaces.anthropic-agent-skills.source]
+source = "github"
+repo = "anthropics/skills"
+
+[hosts._default.marketplaces.context-mode.source]
+source = "github"
+repo = "mksglu/context-mode"
+
+# ───── kai-caddi（Vertex / pretool・posttool フック有効、context-mode 無効） ─────
+[hosts.kai-caddi]
+opus_model = "claude-opus-4-6"
+use_vertex = true
+enable_ccgate = false
+enable_pretool_hooks = true
+enable_posttool_hooks = true
+enable_context_mode = false
+
+[hosts.kai-caddi.vertex_env]
+CLAUDE_CODE_USE_VERTEX = "true"
+CLOUD_ML_REGION = "us-east5"
+ANTHROPIC_VERTEX_PROJECT_ID = "caddi-ai-tools-dev"
+
+[hosts.kai-caddi.plugins]
+"example-skills@anthropic-agent-skills" = true
+
+[hosts.kai-caddi.marketplaces.anthropic-agent-skills.source]
+source = "github"
+repo = "anthropics/skills"
