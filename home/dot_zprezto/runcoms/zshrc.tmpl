@@ -11,7 +11,6 @@ export PATH="$HOME/.mycommand:$PATH"
 # ---------------------------------------------------------
 eval "$(starship init zsh)"
 
-
 # ---------------------------------------------------------
 # General
 # ---------------------------------------------------------
@@ -103,7 +102,6 @@ umask 022
 # core fileを作成しない（異常終了時のダンプファイルを出力しない)
 ulimit -c 0
 
-
 # ---------------------------------------------------------
 # Completion
 # ---------------------------------------------------------
@@ -128,7 +126,6 @@ setopt list_types
 # --prefix=/usr などの = 以降でも補完
 setopt magic_equal_subst
 
-
 # ---------------------------------------------------------
 # Homebrew でインストールしたコマンドの補完を有効化
 # @See https://lifehack.world/mac-zsh-comletion-%E3%82%84homebrew%E3%81%AB%E3%82%88%E3%81%A3%E3%81%A6%E7%AE%A1%E7%90%86%E3%81%95%E3%82%8C%E3%82%8B%E8%A3%9C%E5%AE%8C%E3%82%B9%E3%82%AF%E3%83%AA%E3%83%97%E3%83%88%E3%83%87%E3%82%A3/
@@ -139,7 +136,6 @@ if type brew &>/dev/null; then
   autoload -Uz compinit
   compinit
 fi
-
 
 # ---------------------------------------------------------
 # zsh-completions setting
@@ -159,13 +155,11 @@ fi
 eval "$(mise activate zsh)"
 export MISE_NODE_COREPACK=true
 
-
 # ---------------------------------------------------------
 # python setting
 # ---------------------------------------------------------
 # pipenvのvenvをproject配下に作成するように変更
 export PIPENV_VENV_IN_PROJECT=true
-
 
 # ---------------------------------------------------------
 # rust setting
@@ -173,7 +167,6 @@ export PIPENV_VENV_IN_PROJECT=true
 # cargoのパスを設定
 [ -s "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 export PATH="$HOME/.cargo/bin:$PATH"
-
 
 # ---------------------------------------------------------
 # lsd Setting
@@ -184,24 +177,20 @@ alias la='ls -a'
 alias lla='ls -al'
 alias lt='ls --tree'
 
-
 # ---------------------------------------------------------
 # ripgrep Setting
 # ---------------------------------------------------------
 alias grep='rg'
-
 
 # ---------------------------------------------------------
 # dust Setting
 # ---------------------------------------------------------
 alias du='dust'
 
-
 # ---------------------------------------------------------
 # procs Setting
 # ---------------------------------------------------------
 alias ps='procs'
-
 
 # ---------------------------------------------------------
 # fzf setting
@@ -218,7 +207,8 @@ export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS'
 local find_ignore="find ./ -type d \( -name '.git' -o -name 'node_modules' \) -prune -o -type"
 
 # fzfのデフォルトで反映するオプションを設定する
-export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS$(cat <<EOF
+export FZF_DEFAULT_OPTS=$FZF_DEFAULT_OPTS$(
+  cat <<EOF
 --multi
 --height=60%
 --select-1
@@ -233,7 +223,8 @@ export FZF_DEFAULT_COMMAND='fd --type f --follow --hidden --exclude .git'
 export FZF_CTRL_T_COMMAND='fd --type f'
 
 # ディレクトリ検索のコマンド
-export FZF_ALT_C_COMMAND=$(cat <<EOF
+export FZF_ALT_C_COMMAND=$(
+  cat <<EOF
 ( (type fd > /dev/null) &&
   fd --type d \
     --strip-cwd-prefix \
@@ -266,9 +257,9 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#bbbbbb,bold,underline"
 fbr() {
   local branches branch
   branches=$(git branch --all | grep -v HEAD) &&
-  branch=$(echo "$branches" |
-           fzf-tmux -d $(( 2 + $(wc -l <<< "$branches") )) +m) &&
-  git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
+    branch=$(echo "$branches" |
+      fzf-tmux -d $((2 + $(wc -l <<<"$branches"))) +m) &&
+    git checkout $(echo "$branch" | sed "s/.* //" | sed "s#remotes/[^/]*/##")
 }
 
 # git commit をfzfで選択
@@ -282,12 +273,11 @@ alias bd='git branch -d $(git branch -a | fzf --prompt "DELETE BRANCH>")'
 
 # cdrの設定
 autoload -Uz is-at-least
-if is-at-least 4.3.11
-then
+if is-at-least 4.3.11; then
   autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
   add-zsh-hook chpwd chpwd_recent_dirs
-  zstyle ':chpwd:*'      recent-dirs-max 500
-  zstyle ':chpwd:*'      recent-dirs-default yes
+  zstyle ':chpwd:*' recent-dirs-max 500
+  zstyle ':chpwd:*' recent-dirs-default yes
   zstyle ':completion:*' recent-dirs-insert both
 fi
 
@@ -355,18 +345,38 @@ alias dcrrb='docker-compose run --rm bash'
 alias dcea='docker-compose exec app'
 alias dceab='docker-compose exec app bash'
 
-
 # ---------------------------------------------------------
 # navi setting
 # ---------------------------------------------------------
 export NAVI_PATH='~/.local/share/navi'
 export NAVI_CONFIG='~/.config/navi/config.yaml'
 
-# 業務で有効化する設定
+# ---------------------------------------------------------
+# worktrunk setting
+# ---------------------------------------------------------
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
+
+{{- if ne .chezmoi.hostname "kai-caddi" }}
+# ---------------------------------------------------------
+# Setting for Private 
+# ---------------------------------------------------------
+
+# ---------------------------------------------------------
+# uv setting
+# ---------------------------------------------------------
+# enable uv
+. "$HOME/.local/bin/env"
+
+# ---------------------------------------------------------
+# 1password setting
+# ---------------------------------------------------------
+source ~/.config/op/plugins.sh
+{{- end }}
+
 {{- if eq .chezmoi.hostname "kai-caddi" }}
-# enable volta
-export VOLTA_HOME="$HOME/.volta"
-export PATH="$VOLTA_HOME/bin:$PATH"
+# ---------------------------------------------------------
+# Setting for Caddi
+# ---------------------------------------------------------
 
 # The next line updates PATH for the Google Cloud SDK.
 if [ -f '/Users/kai_takabe/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/kai_takabe/google-cloud-sdk/path.zsh.inc'; fi
@@ -380,5 +390,3 @@ export LDFLAGS="-L/opt/homebrew/opt/libpq/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/libpq/include"
 {{- end }}
 
-# Settings for Worktrunk
-if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
