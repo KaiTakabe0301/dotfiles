@@ -1,116 +1,69 @@
-# 必須対応
+# 基本方針
 
-## 1. 日本語で対応すること
+## 言語
+- ユーザーとのやり取りはすべて日本語で行う
+- コード内のコメント・識別子は英語を基本とし、ドキュメント類は日本語
 
-プロンプトのやり取りは、全て日本語で行うこと
+## 回答スタイル
+- 結論を先に述べ、根拠・補足は後置する
+- コード変更を提示する前に「何を、なぜ変えるか」を 1〜2 行で説明する
+- 不確実な事実は推測で埋めず「分からない」「未確認」と明示する
+- 過剰な賛同・前置き（"Great question!" 等）や不要な要約は省く
 
-## 2. 「Stream idle timeout - partial response received」を回避するための対応
+# 編集・実装の作法
 
-- ファイルへの書き込みは複数回に分割し、1回あたり最大150行までにする
-- grep や find の出力が大量になる場合は head で件数を絞る
-- 各タスクは1つずつ完結させてから次へ進む（複数の大きな操作を同時に行わない）
+## ファイル編集
+- 編集前に対象ファイルを読み、既存のスタイル（インデント・命名・import 順）に合わせる
+- 既存の依存関係を勝手に追加・更新しない（必要なら提案にとどめる）
+- 大きな変更は差分や計画を提示してから適用する
+- 依頼と関係のない修正を同じ変更にまとめない
+
+## 検証
+- 変更後はビルド／型チェック／関連テストを実行し、結果を提示する
+- 失敗するテストを書き換えて通すのではなく、根本原因を修正する
+- 修正範囲外への副作用がないかを意識する
+
+## 出力の節度
+- ファイルへの書き込みは 1 回あたり最大 150 行を目安に分割する
+- `grep` / `find` / `cat` の出力が大量になる場合は `head` や範囲指定で絞る
+- 一度に複数の大きな操作を並走させない（1 タスクずつ完結させる）
 - セッションが長くなったら `/compact` でコンテキストを圧縮する
 
-# Project Rules for Claude AI
+# 破壊的操作のガードレール
 
-## 1. プロジェクト全体のルール
+## 事前に必ず明示確認を取る
+- `git push --force` / `--force-with-lease`、ブランチ削除、履歴書き換え
+  （`rebase` / `reset --hard` / 公開済みコミットへの `amend`）
+- `rm -rf`、ファイルの一括削除、外部ストレージへの破壊的操作
+- 本番環境・共有 DB・本番ブランチへの直接書き込み
 
-以下のルールは、frontend、backend、infra など、プロジェクト全体で適用される基本的なルールです。
+## 絶対に行わない
+- `.env` や認証情報・秘密鍵を含むファイルの出力・コミット・ログ表示
+- ユーザーの明示許可なしのアカウント作成や決済操作
 
-### 1-1. 技術スタック
+# 環境前提
 
-- **パッケージマネージャー**: pnpm
-- **プロジェクト構成**: monorepo
-- **ビルドシステム**: Turborepo
-- **言語**: TypeScript
-- **linter**: ESLint
-- **formatting**: Prettier
-- **CI/CD**: GitHub Actions
+- OS: macOS（zsh）
+- Node.js: [mise](https://mise.jdx.dev/) で管理、パッケージマネージャは pnpm
+- Python: [uv](https://docs.astral.sh/uv/) で管理（ランタイム・依存・仮想環境すべて）
+- 文字コード: UTF-8 / 改行: LF
 
-## 2. Frontend Project Rules for Claude AI
+# Git
 
-このファイルは、Claude AI が Frontend のコードを生成・修正する際に従うべきルールを定義します。
+## コミットメッセージ
+[Conventional Commits](https://www.conventionalcommits.org/) に従う。
 
-### 2-1. 基本原則
-
-Frontend を実装する際は、すべてのコード生成において、以下のルールを厳守してください。
-
-### 2-2. 技術スタック
-
-- **フレームワーク**: React 19
-- **テストフレームワーク**: Vitest, React Testing Library
-- **API Mocking**: MSW (Mock Service Worker)
-
-### 2-3. プロジェクト構造の推奨事項
-
-#### 2-3-1. フォルダ構成
-
-利用するフレームワークによって異なる場合がありますが、以下のような構成を推奨します。
-
+形式:
 ```
-src/
-├── components/                 # コンポーネントのルートディレクトリ
-│   ├── ui/                    # 汎用的なUIコンポーネント
-│   │   ├── Button/
-│   │   │   ├── Button.tsx
-│   │   │   ├── Button.stories.tsx
-│   │   │   ├── Button.test.tsx
-│   │   │   ├── Button.module.css
-│   │   │   ├── useButton.ts
-│   │   │   └── useButton.test.ts
-│   │   ├── Card/
-│   │   ├── Modal/
-│   │   └── Input/
-│   └── domains/              # ドメインに紐づくコンポーネント
-│       ├── UserProfile/
-│       │   ├── UserProfile.tsx
-│       │   ├── UserProfile.stories.tsx
-│       │   ├── UserProfile.test.tsx
-│       │   ├── useUserProfile.ts
-│       │   └── useUserProfile.test.ts
-│       ├── ProductCard/
-│       └── OrderSummary/
-├── hooks/                    # 汎用的なカスタムフック
-│   ├── useDebounce/
-│   │   ├── useDebounce.ts
-│   │   └── useDebounce.test.ts
-│   └── useLocalStorage/
-├── types/                    # TypeScript型定義
-├── utils/                    # ユーティリティ関数
-└── lib/                      # 外部ライブラリの設定
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
 ```
 
-**判断基準：**
-
-- そのファイルが特定のコンポーネントに関連する → コンポーネントと同じディレクトリ
-- 複数のコンポーネントで共有される → 適切な共有ディレクトリ（`hooks/`, `utils/` など）
-
-### 2-5. ファイル命名規則
-
-- コンポーネント: PascalCase (例: `UserCard.tsx`)
-- カスタムフック: camelCase with 'use' prefix (例: `useUserData.ts`)
-- ユーティリティ: camelCase (例: `formatDate.ts`)
-- 型定義: PascalCase (例: `User.ts`)
-- テストファイル: `*.test.ts` または `*.test.tsx` (例: `Button.test.tsx`, `useButton.test.ts`)
-
-### 2-6. コード生成時の注意事項
-
-1. **型安全性を最優先**
-   - 明示的な型定義を行う
-   - unknown や any の使用を避ける
-   - 型推論が効く場合でも、複雑な型は明示的に定義する
-
-2. **パフォーマンスを考慮**
-   - 不要な再レンダリングを防ぐ
-   - 適切なメモ化を行う
-   - 依存配列を正確に指定する
-
-3. **可読性とメンテナンス性**
-   - 単一責任の原則に従う
-   - 適切な名前付けを行う
-   - コメントは必要最小限に留める（コードで意図を表現）
-
-### 2-7. 補足事項
-
-- このルールはプロジェクト全体で、Frontend 開発の一貫性を保つためのものです
-- 例外的なケースが発生した場合は、その理由をコメントで明記してください
+- 主要な type: `feat` / `fix` / `docs` / `style` / `refactor` / `perf` / `test` / `build` / `ci` / `chore` / `revert`
+- 破壊的変更は type の直後に `!` を付ける（例: `feat!:`）か、フッターに `BREAKING CHANGE: ...` を記載する
+- subject は命令形・小文字始まり・末尾ピリオドなし、72 文字以内を目安
+- 1 コミットにつき 1 つの論点。無関係な変更は別コミットに分ける
+- 明示の指示がない限り、勝手に複数の変更をひとつのコミットにまとめない
