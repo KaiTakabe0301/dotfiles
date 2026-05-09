@@ -1,15 +1,5 @@
 {{- /* ホスト固有設定を home/.chezmoidata.toml から取得（未登録時は _default） */ -}}
 {{- $host := default .hosts._default (index .hosts .chezmoi.hostname) -}}
-{{- /* enabledPlugins: 共通エントリ + ホスト固有の追加 */ -}}
-{{- $plugins := dict "example-skills@anthropic-agent-skills" true -}}
-{{- if $host.enable_context_mode -}}
-{{- $_ := set $plugins "context-mode@context-mode" true -}}
-{{- end -}}
-{{- /* extraKnownMarketplaces: 共通エントリ + ホスト固有の追加 */ -}}
-{{- $marketplaces := dict "anthropic-agent-skills" (dict "source" (dict "source" "github" "repo" "anthropics/skills")) -}}
-{{- if $host.enable_context_mode -}}
-{{- $_ := set $marketplaces "context-mode" (dict "source" (dict "source" "github" "repo" "mksglu/context-mode")) -}}
-{{- end -}}
 {
   "env": {
 {{- if $host.use_vertex }}
@@ -192,8 +182,8 @@
     "command": "bunx -y ccstatusline@latest",
     "padding": 0
   },
-  "enabledPlugins": {{ $plugins | toPrettyJson | nindent 2 | trim }},
-  "extraKnownMarketplaces": {{ $marketplaces | toPrettyJson | nindent 2 | trim }},
+  "enabledPlugins": {{ $host.plugins | toPrettyJson | nindent 2 | trim }},
+  "extraKnownMarketplaces": {{ $host.marketplaces | toPrettyJson | nindent 2 | trim }},
   "alwaysThinkingEnabled": true,
   "autoUpdatesChannel": "stable",
   "theme": "dark-daltonized",
