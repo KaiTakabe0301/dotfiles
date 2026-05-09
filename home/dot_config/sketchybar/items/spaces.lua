@@ -137,6 +137,13 @@ local function build_groups()
 		})
 	end
 
+	-- aerospace list-monitors はモニターの物理配置順 (右→左) を返す場合があり、
+	-- そのまま使うと bar のグループも逆順になる。
+	-- WS 番号の昇順を保つため、各グループの最小メンバー番号で並べ替える。
+	table.sort(groups, function(a, b)
+		return a.members[1] < b.members[1]
+	end)
+
 	return groups
 end
 
