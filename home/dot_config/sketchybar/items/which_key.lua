@@ -76,11 +76,30 @@ for i, row in ipairs(rows) do
 	table.insert(row_items, { item = item, mode = row.mode })
 end
 
-anchor:subscribe("aerospace_mode_change", function(env)
-	local mode = env.MODE
-	local show = mode == "ops" or mode == "resize"
+-- 現在 mode を lua 側に保持。aerospace_workspace_change 時に popup を
+-- 出し直すために必要 (sketchybar の popup は focused display が変わると
+-- content が空のまま表示されるため、drawing を off→on で強制再描画する)。
+local current_mode = "main"
+
+local function show_popup_for(mode)
 	for _, r in ipairs(row_items) do
 		r.item:set({ drawing = r.mode == mode })
 	end
+	local show = mode == "ops" or mode == "resize"
 	anchor:set({ popup = { drawing = show } })
+end
+
+anchor:subscribe("aerospace_mode_change", function(env)
+	current_mode = env.MODE
+	show_popup_for(current_mode)
+end)
+
+-- workspace 切替で focused display が変わると popup 中身が消えるので、
+-- popup 表示中なら off → on で再描画する。
+anchor:subscribe("aerospace_workspace_change", function(_)
+	if current_mode ~= "ops" and current_mode ~= "resize" then
+		return
+	end
+	anchor:set({ popup = { drawing = false } })
+	show_popup_for(current_mode)
 end)
