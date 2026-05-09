@@ -1,0 +1,13 @@
+{
+  "name": "dotfiles",
+  "version": "0.0.0",
+  "private": true,
+  "description": "chezmoi 管理 dotfiles のリポジトリ用 dev ツール",
+  "scripts": {
+    "prepare": "lefthook install"
+  },
+  "devDependencies": {
+    "lefthook": "^2.1.6"
+  },
+  "packageManager": "pnpm@9.15.1"
+}

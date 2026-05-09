@@ -1,0 +1,10 @@
+pre-commit:
+  parallel: true
+  commands:
+    gitleaks:
+      run: gitleaks git --staged --redact --no-banner --config .gitleaks.toml .
+
+pre-push:
+  commands:
+    gitleaks:
+      run: gitleaks git --redact --no-banner --config .gitleaks.toml .
