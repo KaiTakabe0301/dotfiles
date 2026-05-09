@@ -357,6 +357,7 @@ export NAVI_CONFIG='~/.config/navi/config.yaml'
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 
 {{- if ne .chezmoi.hostname "kai-caddi" }}
+
 # ---------------------------------------------------------
 # Setting for Private 
 # ---------------------------------------------------------
@@ -374,6 +375,7 @@ source ~/.config/op/plugins.sh
 {{- end }}
 
 {{- if eq .chezmoi.hostname "kai-caddi" }}
+
 # ---------------------------------------------------------
 # Setting for Caddi
 # ---------------------------------------------------------
