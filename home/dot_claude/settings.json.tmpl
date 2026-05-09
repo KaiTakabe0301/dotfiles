@@ -1,20 +1,24 @@
+{{- /* ホスト固有設定を home/.chezmoidata.toml から取得（未登録時は _default） */ -}}
+{{- $host := default .hosts._default (index .hosts .chezmoi.hostname) -}}
+{{- /* enabledPlugins: 共通エントリ + ホスト固有の追加 */ -}}
+{{- $plugins := dict "example-skills@anthropic-agent-skills" true -}}
+{{- if $host.enable_context_mode -}}
+{{- $_ := set $plugins "context-mode@context-mode" true -}}
+{{- end -}}
+{{- /* extraKnownMarketplaces: 共通エントリ + ホスト固有の追加 */ -}}
+{{- $marketplaces := dict "anthropic-agent-skills" (dict "source" (dict "source" "github" "repo" "anthropics/skills")) -}}
+{{- if $host.enable_context_mode -}}
+{{- $_ := set $marketplaces "context-mode" (dict "source" (dict "source" "github" "repo" "mksglu/context-mode")) -}}
+{{- end -}}
 {
-  "alwaysThinkingEnabled": true,
-  "autoUpdatesChannel": "stable",
   "env": {
-{{- if eq .chezmoi.hostname "kai-caddi" }}
-    "CLAUDE_CODE_USE_VERTEX": "true",
-    "CLOUD_ML_REGION": "us-east5",
-    "ANTHROPIC_VERTEX_PROJECT_ID": "caddi-ai-tools-dev",
+{{- if $host.use_vertex }}
+{{- range $k, $v := $host.vertex_env }}
+    "{{ $k }}": "{{ $v }}",
 {{- end }}
-{{- if eq .chezmoi.hostname "kai-caddi" }}
-    "ANTHROPIC_MODEL": "claude-opus-4-6",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-6",
 {{- end }}
-{{- if ne .chezmoi.hostname "kai-caddi" }}
-    "ANTHROPIC_MODEL": "claude-opus-4-7",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-7",
-{{- end }}
+    "ANTHROPIC_MODEL": "{{ $host.opus_model }}",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "{{ $host.opus_model }}",
     "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-6",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-5@20251001",
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
@@ -112,14 +116,9 @@
       "Bash(sudo:*)"
     ]
   },
-  "defaultMode": "default",
-  "editorMode": "vim",
-  "enabledPlugins": {
-    "example-skills@anthropic-agent-skills": true
-  },
   "hooks": {
     "PermissionRequest": [
-{{- if ne .chezmoi.hostname "kai-caddi" }}
+{{- if $host.enable_ccgate }}
       {
         "matcher": "",
         "hooks": [
@@ -132,7 +131,7 @@
 {{- end }}
     ],
     "PreToolUse": [
-{{- if eq .chezmoi.hostname "kai-caddi" }}
+{{- if $host.enable_pretool_hooks }}
       {
         "matcher": "Bash",
         "hooks": [
@@ -154,7 +153,7 @@
 {{- end }}
     ],
     "PostToolUse": [
-{{- if eq .chezmoi.hostname "kai-caddi" }}
+{{- if $host.enable_posttool_hooks }}
       {
         "matcher": "Edit",
         "hooks": [
@@ -174,6 +173,18 @@
         ]
       }
 {{- end }}
+    ],
+    "SessionStart": [
+{{- if $host.enable_context_mode }}
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"{{ .chezmoi.homeDir }}/.claude/hooks/context-mode-cache-heal.mjs\""
+          }
+        ]
+      }
+{{- end }}
     ]
   },
   "statusLine": {
@@ -181,6 +192,13 @@
     "command": "bunx -y ccstatusline@latest",
     "padding": 0
   },
+  "enabledPlugins": {{ $plugins | toPrettyJson | nindent 2 | trim }},
+  "extraKnownMarketplaces": {{ $marketplaces | toPrettyJson | nindent 2 | trim }},
+  "alwaysThinkingEnabled": true,
+  "autoUpdatesChannel": "stable",
   "theme": "dark-daltonized",
-  "useAutoModeDuringPlan": true
+  "editorMode": "vim",
+  "skipAutoPermissionPrompt": true,
+  "useAutoModeDuringPlan": true,
+  "defaultMode": "default"
 }
