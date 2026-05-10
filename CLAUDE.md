@@ -74,6 +74,7 @@ Lua ベースの構成（[sbarlua](https://github.com/FelixKratz/SbarLua) ラン
   - `sketchybar-bar.md` / `sketchybar-item-anatomy.md` / `sketchybar-item-properties.md`
   - `sketchybar-bracket-padding.md` / `sketchybar-overlay.md` / `sketchybar-y-offset.md`
   - `sketchybar-graph-divisor-cpu.md` / `sketchybar-graph-divisor-memory.md`
+  - `sketchybar-popup-height.md`
 - フォーマッタは StyLua（`.stylua.toml`、120 桁 / 2 spaces / `AutoPreferDouble`）。
 
 ## Brewfile (`home/dot_config/homebrew/Brewfile.tmpl`)
