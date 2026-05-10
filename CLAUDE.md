@@ -97,6 +97,6 @@ CLI/cask/font の中央管理。編集後は `chezmoi-apply` で `~/.config/home
 
 ## ローカル運用上の注意
 
-- chezmoi の sourceDir はホストの `~/.local/share/chezmoi`（= **main worktree 固定**）。`chezmoi apply` で動作確認するタスクは worktree を切らず main で作業すること。`home/` のソース編集だけで完結する純粋な編集タスクは worktree でも可。
+- chezmoi の sourceDir はホスト固定で `~/.local/share/chezmoi`（main worktree のパス）。`chezmoi-apply` スキルは別 worktree からでもこの sourceDir を解決して動くので、`home/` の編集も `chezmoi apply` での動作確認も **worktree を切って作業する**こと（main 直編集はしない）。
 - 大きな変更はディレクトリ単位で段階的に `apply.sh` する（`SKILL.md` の推奨）。
 - リポジトリには README / lint タスク / CI（GitHub Actions）は存在しない。検証は実機での `chezmoi diff` → `apply` → 各ツール再起動（sketchybar / aerospace / yabai 等）で行う。
