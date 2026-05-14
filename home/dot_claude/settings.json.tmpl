@@ -9,14 +9,14 @@
 {{- end }}
     "ANTHROPIC_MODEL": "{{ $host.opus_model }}",
     "ANTHROPIC_DEFAULT_OPUS_MODEL": "{{ $host.opus_model }}",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-6",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-6[1m]",
     "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-5@20251001",
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_ENABLE_STREAM_WATCHDOG": "1",
     "MCP_CONNECTION_NONBLOCKING": "true",
-    "API_TIMEOUT_MS": "180000",
-    "CLAUDE_STREAM_IDLE_TIMEOUT_MS": "120000",
-    "CLAUDE_CODE_MAX_RETRIES": "5"
+    "API_TIMEOUT_MS": "{{ $host.api_timeout_ms }}",
+    "CLAUDE_STREAM_IDLE_TIMEOUT_MS": "{{ $host.stream_idle_timeout_ms }}",
+    "CLAUDE_CODE_MAX_RETRIES": "{{ $host.max_retries }}"
   },
   "permissions": {
     "allow": [
@@ -121,8 +121,9 @@
 {{- end }}
     ],
     "PreToolUse": [
-{{- if $host.enable_pretool_hooks }}
-      {
+{{- $preParts := list -}}
+{{- if $host.enable_skills_auto_allow -}}
+  {{- $preParts = append $preParts `{
         "matcher": "Bash",
         "hooks": [
           {
@@ -130,8 +131,10 @@
             "command": "jq -r '.tool_input.command' | { read -r cmd; (echo \"$cmd\" | command grep -qE \"^($HOME|~)/.claude/skills/\") && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"allow\",\"permissionDecisionReason\":\"Skills script auto-allowed\"}}' || true; }"
           }
         ]
-      },
-      {
+      }` -}}
+{{- end -}}
+{{- if $host.enable_mkdir_cp_auto_allow -}}
+  {{- $preParts = append $preParts `{
         "matcher": "Bash",
         "hooks": [
           {
@@ -139,12 +142,16 @@
             "command": "jq -r '.tool_input.command' | { read -r cmd; (echo \"$cmd\" | command grep -qE '\\b(mkdir|cp)\\b') && ! (echo \"$cmd\" | command grep -qE '\\b(rm|sudo|dd|mkfs|fdisk)\\b') && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"allow\",\"permissionDecisionReason\":\"mkdir/cp auto-allowed (no dangerous commands)\"}}' || true; }"
           }
         ]
-      }
+      }` -}}
+{{- end -}}
+{{- if $preParts }}
+      {{ join ",\n      " $preParts }}
 {{- end }}
     ],
     "PostToolUse": [
-{{- if $host.enable_posttool_hooks }}
-      {
+{{- $postParts := list -}}
+{{- if $host.enable_check_useeffect -}}
+  {{- $postParts = append $postParts `{
         "matcher": "Edit",
         "hooks": [
           {
@@ -152,8 +159,8 @@
             "command": "bash ~/.claude/hooks/check-useeffect.sh"
           }
         ]
-      },
-      {
+      }` -}}
+  {{- $postParts = append $postParts `{
         "matcher": "Write",
         "hooks": [
           {
@@ -161,7 +168,21 @@
             "command": "bash ~/.claude/hooks/check-useeffect.sh"
           }
         ]
-      }
+      }` -}}
+{{- end -}}
+{{- if $host.enable_retry_agent_timeout -}}
+  {{- $postParts = append $postParts `{
+        "matcher": "Agent",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/retry-agent-timeout.sh"
+          }
+        ]
+      }` -}}
+{{- end -}}
+{{- if $postParts }}
+      {{ join ",\n      " $postParts }}
 {{- end }}
     ],
     "SessionStart": [
