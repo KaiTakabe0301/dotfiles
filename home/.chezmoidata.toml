@@ -5,12 +5,17 @@
 
 # ───── _default（context-mode 有効ホスト） ─────
 [hosts._default]
-opus_model = "claude-opus-4-7"
+opus_model = "claude-opus-4-7[1m]"
 use_vertex = false
 enable_ccgate = true
-enable_pretool_hooks = false
-enable_posttool_hooks = false
+enable_skills_auto_allow = false
+enable_mkdir_cp_auto_allow = false
+enable_check_useeffect = false
+enable_retry_agent_timeout = false
 enable_context_mode = true
+api_timeout_ms = "180000"
+stream_idle_timeout_ms = "120000"
+max_retries = "5"
 
 [hosts._default.plugins]
 "example-skills@anthropic-agent-skills" = true
@@ -26,12 +31,17 @@ repo = "mksglu/context-mode"
 
 # ───── kai-caddi（Vertex / pretool・posttool フック有効、context-mode 無効） ─────
 [hosts.kai-caddi]
-opus_model = "claude-opus-4-6"
+opus_model = "claude-opus-4-6[1m]"
 use_vertex = true
 enable_ccgate = false
-enable_pretool_hooks = true
-enable_posttool_hooks = true
+enable_skills_auto_allow = true
+enable_mkdir_cp_auto_allow = true
+enable_check_useeffect = true
+enable_retry_agent_timeout = true
 enable_context_mode = false
+api_timeout_ms = "60000"
+stream_idle_timeout_ms = "90000"
+max_retries = "1"
 
 [hosts.kai-caddi.vertex_env]
 CLAUDE_CODE_USE_VERTEX = "true"
@@ -40,6 +50,7 @@ ANTHROPIC_VERTEX_PROJECT_ID = "caddi-ai-tools-dev"
 
 [hosts.kai-caddi.plugins]
 "example-skills@anthropic-agent-skills" = true
+"slack@claude-plugins-official" = true
 
 [hosts.kai-caddi.marketplaces.anthropic-agent-skills.source]
 source = "github"
