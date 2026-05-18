@@ -202,7 +202,7 @@ local BRACKET_GAP = 8
 
 local function add_bracket_gap(name)
 	sbar.add("item", name, {
-		position = "left",
+		position = "center",
 		width = BRACKET_GAP,
 		label = { drawing = false },
 		icon = { drawing = false },
@@ -226,7 +226,7 @@ local function build_layout()
 
 			local item_name = "space." .. ws_id
 			local space = sbar.add("item", item_name, {
-				position = "left",
+				position = "center",
 				icon = {
 					font = { family = "Hack Nerd Font", style = "Bold", size = 13.0 },
 					string = tostring(ws_id),
@@ -379,7 +379,7 @@ end)
 -- width=0 + drawing=false で bar の layout には影響しない。
 -- watcher 自身は managed_items に入れず、永続させる。
 local watcher = sbar.add("item", "spaces.watcher", {
-	position = "left",
+	position = "center",
 	width = 0,
 	drawing = false,
 	label = { drawing = false },

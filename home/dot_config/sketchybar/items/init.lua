@@ -1,7 +1,4 @@
-require("items.apple")
 require("items.spaces")
-require("items.calendar")
 require("items.widgets")
 require("items.media")
-require("items.menu_apps")
 require("items.which_key")
