@@ -68,9 +68,9 @@ run = 'move-node-to-workspace 7'
     outer.left       = 10
     outer.right      = 10
     outer.top        = 10
-    # sketchybar が画面下部に浮いた状態で配置されているため、その分を加算
-    # (bar.margin 10 + bar.height 32 + bar とウィンドウ間 gap 10 = 52)
-    outer.bottom     = 52
+    # sketchybar が画面下部 32px を占有するため、その分を加算
+    # (bar.height 32 + bar とウィンドウ間 gap 10 = 42)
+    outer.bottom     = 42
 
 [mode.main.binding]
     # 操作モードへ (tmux prefix のような感覚)

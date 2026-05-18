@@ -9,7 +9,8 @@ sbar.bar({
 	-- 中身ぴったりに見えるようにする (sketchybar には bar.width / 内容 auto-fit がないため)
 	color = 0x00000000,
 	margin = 0,
-	y_offset = 0,
+	-- bar 全体を 2px 上にシフト (positive = UP)
+	y_offset = 2,
 	padding_right = 8,
 	padding_left = 8,
 })
