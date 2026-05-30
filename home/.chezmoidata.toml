@@ -5,7 +5,7 @@
 
 # ───── _default（context-mode 有効ホスト） ─────
 [hosts._default]
-opus_model = "claude-opus-4-7[1m]"
+opus_model = "claude-opus-4-8[1m]"
 use_vertex = false
 enable_ccgate = true
 enable_skills_auto_allow = false
@@ -31,7 +31,7 @@ repo = "mksglu/context-mode"
 
 # ───── kai-caddi（Vertex / pretool・posttool フック有効、context-mode 無効） ─────
 [hosts.kai-caddi]
-opus_model = "claude-opus-4-6[1m]"
+opus_model = "claude-opus-4-8[1m]"
 use_vertex = true
 enable_ccgate = false
 enable_skills_auto_allow = true
