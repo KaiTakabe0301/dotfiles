@@ -6,10 +6,10 @@ local settings = require("settings")
 -- the cpu load data, which is fired every 2.0 seconds.
 sbar.exec("killall cpu_load >/dev/null; $CONFIG_DIR/helpers/event_providers/cpu_load/bin/cpu_load cpu_update 1.0")
 
--- 左隣 (spaces) との gap (default.lua の padding=6 を継承して spaces.lua の add_bracket_gap と同じ visible gap を作る)
-sbar.add("item", { position = "center", width = settings.widget_gap })
+-- 左隣 (WorkSpace 10 / spaces 末尾) との gap
+sbar.add("item", { position = "center", width = settings.widget_gap, padding_left = 0, padding_right = 0 })
 
--- visual order (center, addition 順 = 左→右): [icon][label] [graph]
+-- visual order (center, addition 順 = 左→右): [icon][label][graph]
 local cpu = sbar.add("item", "widgets.cpu", {
 	position = "center",
 	background = {
@@ -44,7 +44,6 @@ local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 30, {
 		line_width = 1.0,
 	},
 	background = { height = 22 },
-	-- bar.height 32, bracket bg=26 で bracket 下端 (= 29) より 1px 上に graph 下端を置く
 	y_offset = 4,
 	-- bracket span に乗らないよう padding_right=0 (最右 member)
 	padding_right = 0,
@@ -57,15 +56,13 @@ sbar.add("bracket", "widgets.cpu.bracket", { cpu.name, cpu_graph.name }, {
 })
 
 cpu_graph:subscribe("cpu_update", function(env)
-	-- chart_height = push × bar_height (32px)
-	-- bracket bg=26 用: divisor = 100 × bar.height / bracket.bg.height = 100 × 32 / 26 ≈ 123
-	cpu_graph:push({ tonumber(env.total_load) / 123. })
+	-- chart_height = push × bar.height (32px)
+	-- 100% で graph 自身の background.height(=22) に収める
+	-- divisor = 100 × bar.height / graph背景height = 100 × 32 / 22 ≈ 145
+	cpu_graph:push({ tonumber(env.total_load) / 145. })
 	cpu:set({ label = { string = env.total_load .. "%" } })
 end)
 
 cpu:subscribe("mouse.clicked", function(env)
 	sbar.exec("open -a 'Activity Monitor'")
 end)
-
--- widget 間 gap (default.lua の padding=6 を継承して spaces.lua の add_bracket_gap と同じ visible gap を作る)
-sbar.add("item", { position = "center", width = settings.widget_gap })

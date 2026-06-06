@@ -8,7 +8,10 @@ sbar.exec(
 	"killall memory_load >/dev/null; $CONFIG_DIR/helpers/event_providers/memory_load/bin/memory_load memory_update 1.0"
 )
 
--- visual order (center, addition 順 = 左→右): [icon][label] [graph]
+-- 左隣 (cpu widget) との gap
+sbar.add("item", { position = "center", width = settings.widget_gap, padding_left = 0, padding_right = 0 })
+
+-- visual order (center, addition 順 = 左→右): [icon][label][graph]
 local memory = sbar.add("item", "widgets.memory", {
 	position = "center",
 	background = {
@@ -44,7 +47,6 @@ local memory_graph = sbar.add("graph", "widgets.memory.graph", 30, {
 		line_width = 1.0,
 	},
 	background = { height = 22 },
-	-- bar.height 32, bracket bg=26 で bracket 下端 (= 29) より 1px 上に graph 下端を置く
 	y_offset = 4,
 	-- bracket span に乗らないよう padding_right=0 (最右 member)
 	padding_right = 0,
@@ -55,17 +57,16 @@ local memory_graph = sbar.add("graph", "widgets.memory.graph", 30, {
 sbar.add("bracket", "widgets.memory.bracket", { memory.name, memory_graph.name }, {
 	background = { color = colors.tn_black3, border_color = colors.frost2 },
 })
+
 memory_graph:subscribe("memory_update", function(env)
 	local used_percentage = tonumber(env.used_percentage)
-	-- chart_height = push × bar_height (32px)
-	-- bracket bg=26 用: divisor = 100 × bar.height / bracket.bg.height = 100 × 32 / 26 ≈ 123
-	memory_graph:push({ used_percentage / 123.0 })
+	-- chart_height = push × bar.height (32px)
+	-- 100% で graph 自身の background.height(=22) に収める
+	-- divisor = 100 × bar.height / graph背景height = 100 × 32 / 22 ≈ 145
+	memory_graph:push({ used_percentage / 145.0 })
 	memory:set({ label = { string = string.format("%d", math.floor(used_percentage)) .. "%" } })
 end)
 
 memory:subscribe("mouse.clicked", function(env)
 	sbar.exec("open -a 'Activity Monitor'")
 end)
-
--- widget 間 gap
-sbar.add("item", { position = "center", width = settings.widget_gap, padding_left = 0, padding_right = 0 })
