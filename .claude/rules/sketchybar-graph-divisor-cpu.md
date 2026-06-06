@@ -18,31 +18,27 @@ chart_height = push_value × bar_height
              = (load / divisor) × bar_height
 ```
 
-ここで `bar_height` は `bar.lua` の `height` (現状 44px)。
-graph item の `background.height` は描画範囲の上限ではなく、**chart 描画は bar 全体を基準にスケーリングされる**。
+ここで `bar_height` は `bar.lua` の `height` (現状 32px)。
+chart 描画は **bar 全体の高さ** を基準にスケーリングされる。
 
 ## divisor の決め方
 
-「100% 入力時に chart top が bracket の上端ぴったりに到達する」ことを目標とすると:
+「100% 入力時に chart top が graph 自身の背景上端ぴったりに収まる」ことを目標とする。
+**分母は bracket の bg.height ではなく、graph item 自身の `background.height` (現状 22)** を使う
+(bracket には `background.height` を設定していない = デフォルト bar.height のため、分母に使うと過大になり graph が枠からはみ出す):
 
 ```
-chart_at_100% = bracket.bg.height
-(100 / divisor) × bar_height = bracket.bg.height
-divisor = 100 × bar_height / bracket.bg.height
+chart_at_100% = graph.background.height
+(100 / divisor) × bar_height = graph.background.height
+divisor = 100 × bar_height / graph.background.height
+        = 100 × 32 / 22 ≈ 145
 ```
 
-### 比例縮小での再計算 (bracket サイズが変わったとき)
+### 再計算 (bar.height か graph.background.height が変わったとき)
 
-リファレンスの初期値 `divisor = 150` は **bracket bg = 34 用** に調整されている。
-`bracket.bg.height` を変更したら、divisor も比例調整する:
-
+どちらかを変えたら上式で再計算する。比例で書くと:
 ```
-divisor_new = divisor_old × (bracket_old / bracket_new)
-```
-
-例: bracket を 34 → 30 に縮めた場合:
-```
-divisor = 150 × (34 / 30) = 170
+divisor_new = divisor_old × (bar_new / bar_old) × (graph_bg_old / graph_bg_new)
 ```
 
 ## 適用例
@@ -50,11 +46,10 @@ divisor = 150 × (34 / 30) = 170
 `home/dot_config/sketchybar/items/widgets/cpu.lua`:
 ```lua
 cpu_graph:subscribe("cpu_update", function(env)
-  local load = tonumber(env.total_load)
-  -- chart_height = push × bar_height (44px)
-  -- リファレンス /150 は bracket=34 用なので、bracket=30 へ縮めた分だけ divisor を拡大
-  -- divisor = 150 × (34 / 30) = 170
-  cpu_graph:push({ load / 170. })
+  -- chart_height = push × bar.height (32px)
+  -- 100% で graph 自身の background.height(=22) に収める
+  -- divisor = 100 × bar.height / graph背景height = 100 × 32 / 22 ≈ 145
+  cpu_graph:push({ tonumber(env.total_load) / 145. })
   ...
 end)
 ```
@@ -62,8 +57,8 @@ end)
 ## 禁止事項
 
 - 「とりあえず /200 にしておけば収まるだろう」など経験則で divisor を決めない
-- bracket サイズを変更したら **必ず** 上記の式で再計算する
-- リファレンス値 /150 をそのまま流用しない (bracket サイズが違えば破綻する)
+- **分母に bracket の bg.height を使わない** (bracket に background.height 未設定なら bar.height 扱いになり過大になる)
+- bar.height / graph.background.height を変更したら **必ず** 上式で再計算する
 
 ## graph item の水平 padding の扱い
 
