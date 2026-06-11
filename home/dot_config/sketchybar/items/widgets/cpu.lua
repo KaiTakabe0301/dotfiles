@@ -20,12 +20,12 @@ local cpu = sbar.add("item", "widgets.cpu", {
 	},
 	icon = {
 		string = icons.cpu,
-		color = colors.frost3,
+		color = colors.frost1,
 		padding_left = 5, -- 枠内左余白 (member の padding_left=0 にしたため icon 側で確保)
 	},
 	label = {
 		string = "??%",
-		color = colors.frost3,
+		color = colors.frost1,
 		font = {
 			family = settings.font.numbers,
 		},
@@ -39,8 +39,8 @@ local cpu = sbar.add("item", "widgets.cpu", {
 local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 30, {
 	position = "center",
 	graph = {
-		color = colors.frost3,
-		fill_color = colors.with_alpha(colors.frost3, 0.4),
+		color = colors.frost1,
+		fill_color = colors.with_alpha(colors.frost1, 0.4),
 		line_width = 1.0,
 	},
 	background = { height = 22 },
@@ -52,7 +52,7 @@ local cpu_graph = sbar.add("graph", "widgets.cpu.graph", 30, {
 
 -- Background around the cpu item
 sbar.add("bracket", "widgets.cpu.bracket", { cpu.name, cpu_graph.name }, {
-	background = { color = colors.tn_black3, border_color = colors.frost3 },
+	background = { color = colors.tn_black3, border_color = colors.frost1 },
 })
 
 cpu_graph:subscribe("cpu_update", function(env)
