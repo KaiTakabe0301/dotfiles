@@ -1,0 +1,7 @@
+{{- /* claude_usage widget は rate_limits 非対応ホスト (Vertex) では読み込まない */ -}}
+{{- $host := default .hosts._default (index .hosts .chezmoi.hostname) -}}
+require("items.widgets.cpu")
+require("items.widgets.memory")
+{{ if $host.enable_claude_usage -}}
+require("items.widgets.claude_usage")
+{{ end -}}

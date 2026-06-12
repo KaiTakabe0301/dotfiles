@@ -200,7 +200,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "~/.claude/statusline.sh",
+    "command": {{ if $host.enable_claude_usage }}"~/.claude/statusline.sh"{{ else }}"bunx -y ccstatusline@latest"{{ end }},
     "padding": 0
   },
   "enabledPlugins": {{ $host.plugins | toPrettyJson | nindent 2 | trim }},
