@@ -1,3 +1,4 @@
+{{- $host := default .hosts._default (index .hosts .chezmoi.hostname) -}}
 tap "felixkratz/formulae"
 tap "hashicorp/tap"
 tap "homebrew/bundle"
@@ -44,6 +45,11 @@ cask "brave-browser"
 cask "chatgpt"
 cask "docker-desktop"
 cask "font-hack-nerd-font"
+{{ if $host.enable_claude_usage -}}
+# Simple Icons webfont (sketchybar の Claude/Claude Code アイコン用)。
+# 注意: glyph の codepoint は版依存。上げたら claude_usage.lua の U+EC10/EC11 を再確認すること。
+cask "font-simple-icons"
+{{ end -}}
 # Apple SF フォントは brew install では sudo を要求するため、
 # .chezmoiscripts/run_onchange_after_install-apple-fonts.sh で
 # DMG を展開して per-user (~/Library/Fonts/) にインストールする

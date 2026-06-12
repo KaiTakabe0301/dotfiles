@@ -13,6 +13,7 @@ enable_mkdir_cp_auto_allow = false
 enable_check_useeffect = false
 enable_retry_agent_timeout = false
 enable_context_mode = true
+enable_claude_usage = true
 api_timeout_ms = "180000"
 stream_idle_timeout_ms = "120000"
 max_retries = "5"
@@ -39,6 +40,8 @@ enable_mkdir_cp_auto_allow = true
 enable_check_useeffect = true
 enable_retry_agent_timeout = true
 enable_context_mode = false
+# Vertex AI 利用ホストは Claude Max の rate_limits が無いため usage widget を無効化
+enable_claude_usage = false
 api_timeout_ms = "60000"
 stream_idle_timeout_ms = "90000"
 max_retries = "1"
