@@ -1,0 +1,4 @@
+{{ $host := default .hosts._default (index .hosts .chezmoi.hostname) -}}
+{{ if not $host.enable_context_mode }}
+.claude/hooks/context-mode-abi-heal.mjs
+{{ end }}
