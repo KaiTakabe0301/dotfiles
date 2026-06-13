@@ -340,6 +340,23 @@ local function compute_monitor_signature_async(callback)
 	)
 end
 
+-- spaces を widget クラスタの左へ固定するためのアンカー。
+-- display_change rebuild で space.* を remove→再 add すると center group の
+-- 追加順末尾に積まれ、cpu/memory/claude より右へ回る (= widget が WS の左に出る)。
+-- 再 add 後にこのアンカー (cpu widget 先頭の gap) の手前へ戻して表示順を固定する。
+local WIDGET_ANCHOR = "widgets.cpu.gap" -- widgets/cpu.lua で命名している
+
+local function reorder_spaces_before_widgets()
+	if #managed_items == 0 then
+		return
+	end
+	local cmd = "sketchybar"
+	for _, name in ipairs(managed_items) do
+		cmd = cmd .. " --move " .. name .. " before " .. WIDGET_ANCHOR
+	end
+	sbar.exec(cmd)
+end
+
 local function rebuild_layout()
 	compute_monitor_signature_async(function(sig)
 		if sig == last_monitor_signature then
@@ -350,6 +367,7 @@ local function rebuild_layout()
 
 		if #managed_items == 0 then
 			build_layout()
+			reorder_spaces_before_widgets()
 			refresh_state()
 			return
 		end
@@ -359,6 +377,7 @@ local function rebuild_layout()
 		end
 		sbar.exec(cmd, function(_)
 			build_layout()
+			reorder_spaces_before_widgets()
 			refresh_state()
 		end)
 	end)

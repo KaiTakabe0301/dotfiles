@@ -7,7 +7,13 @@ local settings = require("settings")
 sbar.exec("killall cpu_load >/dev/null; $CONFIG_DIR/helpers/event_providers/cpu_load/bin/cpu_load cpu_update 1.0")
 
 -- 左隣 (WorkSpace 10 / spaces 末尾) との gap
-sbar.add("item", { position = "center", width = settings.widget_gap, padding_left = 0, padding_right = 0 })
+-- 命名済み: spaces.lua が display_change rebuild 後に space 群をこの gap の
+-- 手前へ --move で戻すためのアンカー (center 追加順末尾に積まれる崩れを是正する)。
+sbar.add(
+	"item",
+	"widgets.cpu.gap",
+	{ position = "center", width = settings.widget_gap, padding_left = 0, padding_right = 0 }
+)
 
 -- visual order (center, addition 順 = 左→右): [icon][label][graph]
 local cpu = sbar.add("item", "widgets.cpu", {
