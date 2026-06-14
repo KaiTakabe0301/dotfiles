@@ -20,8 +20,8 @@ vim.schedule(function()
 end)
 
 -- どこか早めに読み込まれる init.lua / custom/init.lua などに
-if vim.highlight and vim.highlight.priorities then
-  local p = vim.highlight.priorities
+if vim.hl and vim.hl.priorities then
+  local p = vim.hl.priorities
   -- semantic_tokens を Treesitter より上に
   p.semantic_tokens = math.max((p.treesitter or 100) + 1, p.semantic_tokens or 95)
 end

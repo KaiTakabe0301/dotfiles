@@ -47,9 +47,10 @@ return {
           end,
         })
 
-        -- semantic tokens を有効化・リフレッシュ
+        -- semantic tokens は 0.12 では既定でグローバル有効、LspAttach 後に
+        -- 自動アタッチされるため明示的な enable は不要（bufnr と client_id は
+        -- 排他で両指定は不可）。初回アタッチ直後に再取得してハイライトを反映する。
         if client.server_capabilities.semanticTokensProvider then
-          vim.lsp.semantic_tokens.start(bufnr, client.id)
           vim.defer_fn(function()
             pcall(vim.lsp.semantic_tokens.refresh, bufnr)
           end, 50)
