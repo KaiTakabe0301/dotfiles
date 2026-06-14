@@ -14,6 +14,8 @@ enable_check_useeffect = false
 enable_retry_agent_timeout = false
 enable_context_mode = true
 enable_claude_usage = true
+# 私用機は起動時から ultracode（xhigh + dynamic workflow orchestration）を既定にする
+default_ultracode = true
 api_timeout_ms = "180000"
 stream_idle_timeout_ms = "120000"
 max_retries = "5"
@@ -42,6 +44,8 @@ enable_retry_agent_timeout = true
 enable_context_mode = false
 # Vertex AI 利用ホストは Claude Max の rate_limits が無いため usage widget を無効化
 enable_claude_usage = false
+# 業務機は通常 effort（ultracode はプロンプトでの明示トリガー時のみ）
+default_ultracode = false
 api_timeout_ms = "60000"
 stream_idle_timeout_ms = "90000"
 max_retries = "1"

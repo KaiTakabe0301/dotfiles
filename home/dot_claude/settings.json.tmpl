@@ -210,6 +210,10 @@
   "enabledPlugins": {{ $host.plugins | toPrettyJson | nindent 2 | trim }},
   "extraKnownMarketplaces": {{ $host.marketplaces | toPrettyJson | nindent 2 | trim }},
   "alwaysThinkingEnabled": true,
+{{- if $host.default_ultracode }}
+  "enableWorkflows": true,
+  "ultracode": true,
+{{- end }}
   "autoUpdatesChannel": "stable",
   "theme": "dark-daltonized",
   "editorMode": "vim",
