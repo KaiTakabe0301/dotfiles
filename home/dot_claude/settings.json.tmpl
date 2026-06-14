@@ -210,9 +210,11 @@
   "enabledPlugins": {{ $host.plugins | toPrettyJson | nindent 2 | trim }},
   "extraKnownMarketplaces": {{ $host.marketplaces | toPrettyJson | nindent 2 | trim }},
   "alwaysThinkingEnabled": true,
-{{- if $host.default_ultracode }}
+{{- if eq (default "" $host.effort) "ultracode" }}
   "enableWorkflows": true,
   "ultracode": true,
+{{- else if $host.effort }}
+  "effortLevel": "{{ $host.effort }}",
 {{- end }}
   "autoUpdatesChannel": "stable",
   "theme": "dark-daltonized",
