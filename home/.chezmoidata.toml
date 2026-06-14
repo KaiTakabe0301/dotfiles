@@ -6,6 +6,9 @@
 # ───── _default（context-mode 有効ホスト） ─────
 [hosts._default]
 opus_model = "claude-opus-4-8[1m]"
+# このアカウントの標準 effort。"ultracode" = xhigh + dynamic workflow orchestration。
+# 他に "low"/"medium"/"high"/"xhigh"。未設定ならランタイム既定のまま（source 非管理）。
+effort = "ultracode"
 use_vertex = false
 enable_ccgate = true
 enable_skills_auto_allow = false
@@ -42,6 +45,7 @@ enable_retry_agent_timeout = true
 enable_context_mode = false
 # Vertex AI 利用ホストは Claude Max の rate_limits が無いため usage widget を無効化
 enable_claude_usage = false
+# effort 未設定 = ランタイム既定のまま（ultracode はプロンプトでの明示トリガー時のみ）
 api_timeout_ms = "60000"
 stream_idle_timeout_ms = "90000"
 max_retries = "1"
