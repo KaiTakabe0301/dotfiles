@@ -112,3 +112,7 @@ if [ -z "${OPENAI_API_KEY:-}" ]; then
     unset _key
   fi
 fi
+
+# >>> Codex installer >>>
+export PATH="/Users/kai_takabe/.local/bin:$PATH"
+# <<< Codex installer <<<
