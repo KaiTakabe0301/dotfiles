@@ -6,10 +6,18 @@ fi
 # 自作関数のパスを設定
 export PATH="$HOME/.mycommand:$PATH"
 
+# ユーザー固有の実行可能ファイルのパスを設定
+export PATH="$HOME/.local/bin:$PATH"
+
 # ---------------------------------------------------------
 # starship setting
 # ---------------------------------------------------------
 eval "$(starship init zsh)"
+
+# ---------------------------------------------------------
+# direnv setting
+# ---------------------------------------------------------
+eval "$(direnv hook zsh)"
 
 # ---------------------------------------------------------
 # General
@@ -153,7 +161,7 @@ fi
 # mise setting
 # ---------------------------------------------------------
 eval "$(mise activate zsh)"
-export MISE_NODE_COREPACK=true
+# export MISE_NODE_COREPACK=true  # node26 は corepack 非同梱・pnpm は mise 管理のため不要（毎回の "Reshiming mise 26.4.0" 抑止）
 
 # ---------------------------------------------------------
 # python setting
@@ -356,6 +364,13 @@ export NAVI_CONFIG='~/.config/navi/config.yaml'
 # ---------------------------------------------------------
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 
+# ---------------------------------------------------------
+# agmsg setting
+# ---------------------------------------------------------
+codex() {
+  /Users/kai_takabe/.agents/skills/agmsg/scripts/drivers/types/codex/codex-shim.sh "$@"
+}
+
 {{- if ne .chezmoi.hostname "kai-caddi" }}
 
 # ---------------------------------------------------------
@@ -390,5 +405,17 @@ if [ -f '/Users/kai_takabe/google-cloud-sdk/completion.zsh.inc' ]; then . '/User
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 export LDFLAGS="-L/opt/homebrew/opt/libpq/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/libpq/include"
+
+# enable netskope cert
+export NODE_EXTRA_CA_CERTS=${HOME}/.local/share/netskope/nscacert_combined.pem
+
+# enable python requests cert
+## netskope経由でuvを使用する際に必要
+export UV_SYSTEM_CERTS=1
+## netskope経由で、poertyなどのrequestsベースのツールを使用する際に必要
+export REQUESTS_CA_BUNDLE=${HOME}/.local/share/netskope/nscacert_combined.pem
+## netskope経由で、awscliなどのrequestsベースのツールを使用する際に必要
+export AWS_CA_BUNDLE=${HOME}/.local/share/netskope/nscacert_combined.pem
+
 {{- end }}
 
