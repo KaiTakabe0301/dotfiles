@@ -5,7 +5,7 @@
 
 # ───── _default（context-mode 有効ホスト） ─────
 [hosts._default]
-opus_model = "claude-opus-4-8[1m]"
+opus_model = "claude-opus-5[1m]"
 # このアカウントの標準 effort。"ultracode" = xhigh + dynamic workflow orchestration。
 # 他に "low"/"medium"/"high"/"xhigh"。未設定ならランタイム既定のまま（source 非管理）。
 effort = "ultracode"
@@ -35,7 +35,7 @@ repo = "mksglu/context-mode"
 
 # ───── kai-caddi（Vertex / pretool・posttool フック有効、context-mode 無効） ─────
 [hosts.kai-caddi]
-opus_model = "claude-opus-4-8[1m]"
+opus_model = "claude-opus-5[1m]"
 use_vertex = true
 enable_ccgate = false
 enable_skills_auto_allow = true
