@@ -45,7 +45,11 @@ enable_retry_agent_timeout = true
 enable_context_mode = false
 # Vertex AI 利用ホストは Claude Max の rate_limits が無いため usage widget を無効化
 enable_claude_usage = false
-# effort 未設定 = ランタイム既定のまま（ultracode はプロンプトでの明示トリガー時のみ）
+# 空文字 = effort 系キーを出力せずランタイム既定に委ねる。
+# ultracode はプロンプトでの明示トリガー時のみ。
+# キーの省略は不可。chezmoi は missingkey=error でテンプレートを評価するため、
+# .tmpl 側の `default "" $host.effort` に到達する前にキー参照で失敗する。
+effort = ""
 api_timeout_ms = "60000"
 stream_idle_timeout_ms = "90000"
 max_retries = "1"
