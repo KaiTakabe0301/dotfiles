@@ -53,3 +53,17 @@
 
 [commit]
   gpgsign = true
+{{- if eq .chezmoi.hostname "kai-caddi" }}
+[http]
+	sslCAInfo = {{ .chezmoi.homeDir }}/.local/share/netskope/nscacert_combined.pem
+[credential "https://github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[url "https://github.com/"]
+	insteadOf = git@github.com:
+[url "ssh://git@github.com/"]
+	insteadOf = https://github.com/
+{{- end }}
