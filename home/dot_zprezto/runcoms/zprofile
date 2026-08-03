@@ -82,36 +82,58 @@ fi
 
 # ---------------------------------------------------------
 # OpenAI API key
-# 解決順: shell env -> tmux global env -> op read。
-# tmux 内では取得値を tmux global env にも書き戻し、以降の新規 pane が
-# Touch ID 無しで継承できるようにする。tmux-continuum による boot 時自動起動で
-# server が外部 shell より先に立ち上がるケースをカバーする目的。
+# 解決順: shell env -> tmux global env -> launchd user env -> op read。
+# op read だけが Touch ID を要求するので、対話 tty のログインシェルに限定する。
+# Claude Desktop のように GUI から起動されたプロセスは非 tty のログインシェルを
+# 何度も spawn するため、無条件に op read すると 1Password の認証ダイアログが
+# 際限なく出続ける。
+# 取得値は tmux global env と launchd user env の両方に書き戻し、以降の新規 pane と
+# GUI アプリが Touch ID 無しで継承できるようにする。tmux-continuum による boot 時
+# 自動起動で server が外部 shell より先に立ち上がるケースもこれでカバーする。
 # ---------------------------------------------------------
-if [ -z "${OPENAI_API_KEY:-}" ]; then
-  # 1. tmux global env から拾えれば Touch ID 不要
+_load_openai_api_key() {
+  [ -n "${OPENAI_API_KEY:-}" ] && return 0
+
+  local _key=''
+  local _in_tmux=''
   if [ -n "${TMUX:-}" ] && command -v tmux >/dev/null 2>&1; then
+    _in_tmux=1
+  fi
+
+  # 1. tmux global env から拾えれば Touch ID 不要
+  if [ -n "$_in_tmux" ]; then
     _key="$(tmux show-environment -g OPENAI_API_KEY 2>/dev/null | sed -n 's/^OPENAI_API_KEY=//p')"
     case "$_key" in
       ''|-*) _key='' ;;  # 未設定 (-OPENAI_API_KEY) は空扱い
     esac
-    if [ -n "$_key" ]; then
-      export OPENAI_API_KEY="$_key"
-    fi
-    unset _key
   fi
 
-  # 2. それでも無ければ op で取得（ここで初回のみ Touch ID）
-  if [ -z "${OPENAI_API_KEY:-}" ] && command -v op >/dev/null 2>&1; then
-    if _key="$(op read 'op://dlyln4vmwr2j4p5q4j4b7rhaha/x6i6qmr6yf2e7m5fpfazurs4bm/ru757byotu6tsgi6qibv52owzq' 2>/dev/null)"; then
-      export OPENAI_API_KEY="$_key"
-      # tmux 内なら server に登録して兄弟 pane に共有する
-      if [ -n "${TMUX:-}" ] && command -v tmux >/dev/null 2>&1; then
-        tmux setenv -g OPENAI_API_KEY "$_key" 2>/dev/null
-      fi
-    fi
-    unset _key
+  # 2. launchd user env から拾えれば Touch ID 不要（GUI 起動プロセスもここを見る）
+  if [ -z "$_key" ] && command -v launchctl >/dev/null 2>&1; then
+    _key="$(launchctl getenv OPENAI_API_KEY 2>/dev/null)"
   fi
-fi
+
+  # 3. それでも無ければ op で取得（ここだけ Touch ID。対話 tty のみ）
+  if [ -z "$_key" ] && [[ -o interactive ]] && [ -t 1 ] && command -v op >/dev/null 2>&1; then
+    _key="$(op read 'op://dlyln4vmwr2j4p5q4j4b7rhaha/x6i6qmr6yf2e7m5fpfazurs4bm/ru757byotu6tsgi6qibv52owzq' 2>/dev/null)" || _key=''
+  fi
+
+  [ -z "$_key" ] && return 1
+
+  export OPENAI_API_KEY="$_key"
+
+  # 兄弟 pane と GUI アプリへ共有し、次回以降の Touch ID を省く
+  if [ -n "$_in_tmux" ]; then
+    tmux setenv -g OPENAI_API_KEY "$_key" 2>/dev/null
+  fi
+  if command -v launchctl >/dev/null 2>&1 \
+    && [ -z "$(launchctl getenv OPENAI_API_KEY 2>/dev/null)" ]; then
+    launchctl setenv OPENAI_API_KEY "$_key" 2>/dev/null
+  fi
+}
+
+_load_openai_api_key
+unset -f _load_openai_api_key
 
 # >>> Codex installer >>>
 export PATH="/Users/kai_takabe/.local/bin:$PATH"
