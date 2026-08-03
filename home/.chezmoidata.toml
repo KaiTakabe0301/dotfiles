@@ -2,26 +2,50 @@
 # テンプレートデータとして自動マージする。ホスト依存の差分はここに集約し、
 # .tmpl 側からは index .hosts .chezmoi.hostname で引く。
 # 未登録ホストは _default にフォールバック。
+#
+# 構造:
+#   hosts.<name>            … ホスト共通のフラグ / env / deny / skillOverrides
+#   hosts.<name>.backends.* … 認証バックエンド別の差分（env / plugins）
+#   claude_backend で使うバックエンドを選ぶ。切替は該当行の書き換え + apply。
 
-# ───── _default（context-mode 有効ホスト） ─────
+# ───── _default（個人アカウント / context-mode 有効ホスト） ─────
 [hosts._default]
-opus_model = "claude-opus-5[1m]"
+claude_backend = "personal"
 # このアカウントの標準 effort。"ultracode" = xhigh + dynamic workflow orchestration。
-# 他に "low"/"medium"/"high"/"xhigh"。未設定ならランタイム既定のまま（source 非管理）。
+# 他に "low"/"medium"/"high"/"xhigh"。空文字ならランタイム既定のまま（source 非管理）。
 effort = "ultracode"
-use_vertex = false
 enable_ccgate = true
 enable_skills_auto_allow = false
 enable_mkdir_cp_auto_allow = false
 enable_check_useeffect = false
 enable_retry_agent_timeout = false
+enable_cbm_hooks = false
+enable_obsidian_write_guard = false
 enable_context_mode = true
 enable_claude_usage = true
-api_timeout_ms = "180000"
-stream_idle_timeout_ms = "120000"
-max_retries = "5"
+# 空文字 = そのキーを出力しない（ランタイム既定に委ねる）
+model = ""
+tui = ""
+deny = ["Bash(sudo:*)"]
+skill_overrides = {}
 
-[hosts._default.plugins]
+[hosts._default.env]
+ANTHROPIC_MODEL = "claude-opus-5[1m]"
+ANTHROPIC_DEFAULT_OPUS_MODEL = "claude-opus-5[1m]"
+ANTHROPIC_DEFAULT_SONNET_MODEL = "claude-sonnet-4-6[1m]"
+ANTHROPIC_DEFAULT_HAIKU_MODEL = "claude-haiku-4-5@20251001"
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1"
+CLAUDE_ENABLE_STREAM_WATCHDOG = "1"
+MCP_CONNECTION_NONBLOCKING = "true"
+API_TIMEOUT_MS = "180000"
+CLAUDE_STREAM_IDLE_TIMEOUT_MS = "120000"
+CLAUDE_CODE_MAX_RETRIES = "5"
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = "45"
+
+[hosts._default.backends.personal]
+env = {}
+
+[hosts._default.backends.personal.plugins]
 "example-skills@anthropic-agent-skills" = true
 "context-mode@context-mode" = true
 
@@ -33,36 +57,127 @@ repo = "anthropics/skills"
 source = "github"
 repo = "mksglu/context-mode"
 
-# ───── kai-caddi（Vertex / pretool・posttool フック有効、context-mode 無効） ─────
+# ───── kai-caddi（社内 PC / Claude Enterprise または Vertex AI） ─────
+# claude_backend = "enterprise" … Claude Enterprise プランを利用
+# claude_backend = "vertex"     … Vertex AI 経由で利用
 [hosts.kai-caddi]
-opus_model = "claude-opus-5[1m]"
-use_vertex = true
+claude_backend = "enterprise"
+effort = "medium"
 enable_ccgate = false
 enable_skills_auto_allow = true
 enable_mkdir_cp_auto_allow = true
 enable_check_useeffect = true
 enable_retry_agent_timeout = true
+enable_cbm_hooks = true
+enable_obsidian_write_guard = true
 enable_context_mode = false
-# Vertex AI 利用ホストは Claude Max の rate_limits が無いため usage widget を無効化
+# Vertex / Enterprise いずれも Claude Max の rate_limits が無いため usage widget を無効化
 enable_claude_usage = false
-# 空文字 = effort 系キーを出力せずランタイム既定に委ねる。
-# ultracode はプロンプトでの明示トリガー時のみ。
-# キーの省略は不可。chezmoi は missingkey=error でテンプレートを評価するため、
-# .tmpl 側の `default "" $host.effort` に到達する前にキー参照で失敗する。
-effort = ""
-api_timeout_ms = "60000"
-stream_idle_timeout_ms = "90000"
-max_retries = "1"
+model = "sonnet"
+tui = "fullscreen"
+deny = [
+  "Bash(sudo:*)",
+  "mcp__miro__board_create",
+  "mcp__miro__diagram_create",
+  "mcp__miro__table_create",
+  "mcp__miro__table_sync_rows",
+  "mcp__miro__table_update_view",
+  "mcp__miro__doc_create",
+  "mcp__miro__doc_update",
+  "mcp__miro__image_get_upload_url",
+  "mcp__miro__image_create",
+  "mcp__miro__comment_create",
+  "mcp__miro__layout_create",
+  "mcp__miro__layout_update",
+  "mcp__miro__code_widget_create",
+  "mcp__miro__code_widget_update",
+  "mcp__miro__code_widget_delete",
+  "mcp__miro__prototype_get_upload_url",
+  "mcp__miro__prototype_create",
+]
 
-[hosts.kai-caddi.vertex_env]
+[hosts.kai-caddi.skill_overrides]
+"storybook-figma-capture" = "off"
+"figma-design-analyzer" = "off"
+"fe-impact-analyzer" = "off"
+"fe-task-decomposer-orig" = "off"
+"prisma-fabbrica" = "off"
+"argument-gap-edit" = "off"
+"spec-tree-extractor" = "off"
+"graphql-api-test" = "off"
+"find-skills" = "off"
+"code-diagram" = "off"
+"create-mutation-stub" = "off"
+"create-query-stub" = "off"
+"commit-human-changes" = "off"
+"knowledge-miner" = "off"
+"gen-eval-loop" = "off"
+"graphql-schema-context" = "off"
+"database-inspector" = "off"
+
+# バックエンド共通の env
+[hosts.kai-caddi.env]
+ANTHROPIC_MODEL = "claude-opus-5[1m]"
+ANTHROPIC_DEFAULT_OPUS_MODEL = "claude-opus-5[1m]"
+ANTHROPIC_DEFAULT_SONNET_MODEL = "claude-sonnet-5[1m]"
+CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1"
+CLAUDE_ENABLE_STREAM_WATCHDOG = "0"
+MCP_CONNECTION_BLOCKING = "true"
+CLAUDE_CODE_ENABLE_AUTO_MODE = "1"
+CLAUDE_AUTOCOMPACT_PCT_OVERRIDE = "45"
+
+# ── Claude Enterprise ──
+# Haiku は Vertex 形式 (@) ではなくハイフン形式の model id を使う
+[hosts.kai-caddi.backends.enterprise.env]
+ANTHROPIC_DEFAULT_HAIKU_MODEL = "claude-haiku-4-5-20251001"
+
+[hosts.kai-caddi.backends.enterprise.plugins]
+"example-skills@anthropic-agent-skills" = false
+"slack@claude-plugins-official" = true
+"usage-collector@awesome-claude-marketplace" = true
+"devcraft@awesome-claude-marketplace" = false
+"codex@openai-codex" = true
+"yaml-to-html@yaml-to-html-skill" = false
+"helix@caddi-ai-tooling" = true
+
+# ── Vertex AI ──
+# API_TIMEOUT_MS / STREAM_IDLE_TIMEOUT_MS / MAX_RETRIES は Vertex のみ意図的に設定
+[hosts.kai-caddi.backends.vertex.env]
 CLAUDE_CODE_USE_VERTEX = "true"
-CLOUD_ML_REGION = "us-east5"
 ANTHROPIC_VERTEX_PROJECT_ID = "caddi-ai-tools-dev"
+CLOUD_ML_REGION = "us"
+ANTHROPIC_DEFAULT_HAIKU_MODEL = "claude-haiku-4-5@20251001"
+VERTEX_REGION_CLAUDE_4_6_SONNET = "us-east5"
+VERTEX_REGION_CLAUDE_HAIKU_4_5 = "us-east5"
+API_TIMEOUT_MS = "120000"
+CLAUDE_STREAM_IDLE_TIMEOUT_MS = "120000"
+CLAUDE_CODE_MAX_RETRIES = "1"
 
-[hosts.kai-caddi.plugins]
+[hosts.kai-caddi.backends.vertex.plugins]
 "example-skills@anthropic-agent-skills" = true
 "slack@claude-plugins-official" = true
+"usage-collector@awesome-claude-marketplace" = true
+"devcraft@awesome-claude-marketplace" = true
+"codex@openai-codex" = true
+"yaml-to-html@yaml-to-html-skill" = true
+"helix@caddi-ai-tooling" = true
 
 [hosts.kai-caddi.marketplaces.anthropic-agent-skills.source]
 source = "github"
 repo = "anthropics/skills"
+
+[hosts.kai-caddi.marketplaces.awesome-claude-marketplace.source]
+source = "git"
+url = "git@github.com:caddi-sandbox/awesome-claude-marketplace.git"
+
+[hosts.kai-caddi.marketplaces.openai-codex.source]
+source = "github"
+repo = "openai/codex-plugin-cc"
+
+[hosts.kai-caddi.marketplaces.yaml-to-html-skill.source]
+source = "github"
+repo = "hirokita117/yaml-to-html-skill"
+
+[hosts.kai-caddi.marketplaces.caddi-ai-tooling.source]
+source = "git"
+url = "git@github.com:caddi-sandbox/ai-tooling.git"

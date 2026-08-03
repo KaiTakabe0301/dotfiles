@@ -1,22 +1,16 @@
 {{- /* ホスト固有設定を home/.chezmoidata.toml から取得（未登録時は _default） */ -}}
 {{- $host := default .hosts._default (index .hosts .chezmoi.hostname) -}}
+{{- /* 認証バックエンド（personal / enterprise / vertex）別の差分を選択 */ -}}
+{{- $backend := index $host.backends $host.claude_backend -}}
+{{- /* env はホスト共通 → バックエンド固有で上書きマージ */ -}}
+{{- $env := mergeOverwrite (deepCopy $host.env) $backend.env -}}
+{{- $envLines := list -}}
+{{- range $k, $v := $env -}}
+  {{- $envLines = append $envLines (printf `"%s": "%s"` $k $v) -}}
+{{- end -}}
 {
   "env": {
-{{- if $host.use_vertex }}
-{{- range $k, $v := $host.vertex_env }}
-    "{{ $k }}": "{{ $v }}",
-{{- end }}
-{{- end }}
-    "ANTHROPIC_MODEL": "{{ $host.opus_model }}",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "{{ $host.opus_model }}",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-6[1m]",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-5@20251001",
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
-    "CLAUDE_ENABLE_STREAM_WATCHDOG": "1",
-    "MCP_CONNECTION_NONBLOCKING": "true",
-    "API_TIMEOUT_MS": "{{ $host.api_timeout_ms }}",
-    "CLAUDE_STREAM_IDLE_TIMEOUT_MS": "{{ $host.stream_idle_timeout_ms }}",
-    "CLAUDE_CODE_MAX_RETRIES": "{{ $host.max_retries }}"
+    {{ join ",\n    " $envLines }}
   },
   "permissions": {
     "allow": [
@@ -102,10 +96,14 @@
       "mcp__storybook-supplier-shared__get-storybook-story-instructions",
       "mcp__storybook-supplier-shared__preview-stories"
     ],
-    "deny": [
-      "Bash(sudo:*)"
-    ]
+    "deny": {{ $host.deny | toPrettyJson | nindent 4 | trim }}
   },
+{{- if $host.model }}
+  "model": "{{ $host.model }}",
+{{- end }}
+{{- if $host.skill_overrides }}
+  "skillOverrides": {{ $host.skill_overrides | toPrettyJson | nindent 2 | trim }},
+{{- end }}
   "hooks": {
     "PermissionRequest": [
 {{- if $host.enable_ccgate }}
@@ -140,6 +138,29 @@
           {
             "type": "command",
             "command": "jq -r '.tool_input.command' | { read -r cmd; (echo \"$cmd\" | command grep -qE '\\b(mkdir|cp)\\b') && ! (echo \"$cmd\" | command grep -qE '\\b(rm|sudo|dd|mkfs|fdisk)\\b') && echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"allow\",\"permissionDecisionReason\":\"mkdir/cp auto-allowed (no dangerous commands)\"}}' || true; }"
+          }
+        ]
+      }` -}}
+{{- end -}}
+{{- if $host.enable_cbm_hooks -}}
+  {{- $preParts = append $preParts `{
+        "matcher": "Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-code-discovery-gate",
+            "timeout": 5
+          }
+        ]
+      }` -}}
+{{- end -}}
+{{- if $host.enable_obsidian_write_guard -}}
+  {{- $preParts = append $preParts `{
+        "matcher": "mcp__obsidian__(delete-note|move-note|edit-note)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash ~/.claude/hooks/obsidian-write-guard.sh"
           }
         ]
       }` -}}
@@ -186,16 +207,55 @@
 {{- end }}
     ],
     "SessionStart": [
-{{- if $host.enable_context_mode }}
-      {
+{{- $sessionParts := list -}}
+{{- if $host.enable_context_mode -}}
+  {{- $sessionParts = append $sessionParts (printf `{
         "hooks": [
           {
             "type": "command",
-            "command": "\"{{ .chezmoi.homeDir }}/.claude/hooks/context-mode-cache-heal.mjs\""
+            "command": "\"%s/.claude/hooks/context-mode-cache-heal.mjs\""
           },
           {
             "type": "command",
-            "command": "\"{{ .chezmoi.homeDir }}/.claude/hooks/context-mode-abi-heal.mjs\""
+            "command": "\"%s/.claude/hooks/context-mode-abi-heal.mjs\""
+          }
+        ]
+      }` .chezmoi.homeDir .chezmoi.homeDir) -}}
+{{- end -}}
+{{- if $host.enable_cbm_hooks -}}
+  {{- range $m := list "startup" "resume" "clear" "compact" -}}
+    {{- $sessionParts = append $sessionParts (printf `{
+        "matcher": "%s",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-session-reminder"
+          }
+        ]
+      }` $m) -}}
+  {{- end -}}
+  {{- $sessionParts = append $sessionParts `{
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-prune-stale-indexes"
+          }
+        ]
+      }` -}}
+{{- end -}}
+{{- if $sessionParts }}
+      {{ join ",\n      " $sessionParts }}
+{{- end }}
+    ],
+    "SubagentStart": [
+{{- if $host.enable_cbm_hooks }}
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/cbm-subagent-reminder"
           }
         ]
       }
@@ -204,10 +264,10 @@
   },
   "statusLine": {
     "type": "command",
-    "command": {{ if $host.enable_claude_usage }}"~/.claude/statusline.sh"{{ else }}"bunx -y ccstatusline@latest"{{ end }},
+    "command": {{ if $host.enable_claude_usage }}"~/.claude/statusline.sh"{{ else }}"{{ .chezmoi.homeDir }}/.bun/bin/ccstatusline"{{ end }},
     "padding": 0
   },
-  "enabledPlugins": {{ $host.plugins | toPrettyJson | nindent 2 | trim }},
+  "enabledPlugins": {{ $backend.plugins | toPrettyJson | nindent 2 | trim }},
   "extraKnownMarketplaces": {{ $host.marketplaces | toPrettyJson | nindent 2 | trim }},
   "alwaysThinkingEnabled": true,
 {{- if eq (default "" $host.effort) "ultracode" }}
@@ -217,6 +277,9 @@
   "effortLevel": "{{ $host.effort }}",
 {{- end }}
   "autoUpdatesChannel": "stable",
+{{- if $host.tui }}
+  "tui": "{{ $host.tui }}",
+{{- end }}
   "theme": "dark-daltonized",
   "editorMode": "vim",
   "skipAutoPermissionPrompt": true,
