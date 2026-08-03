@@ -7,6 +7,12 @@ local nomap = vim.keymap.del
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jj", "<ESC>")
 
+-- 削除した内容を無名レジスタへ入れない
+map({ "n", "v" }, "d", '"_d', { desc = "Delete without yanking" })
+map({ "n", "v" }, "x", '"_x', { desc = "Delete character without yanking" })
+map("n", "D", '"_D', { desc = "Delete to end without yanking" })
+map("n", "X", '"_X', { desc = "Delete character backward without yanking" })
+
 -- 1. デフォルトの <leader>b (新規バッファ作成) を無効化
 -- NvChadのデフォルトマッピングを即座に上書き（遅延削除だとタイミング問題が発生するため）
 map("n", "<leader>b", "<Nop>", { desc = "Buffers prefix" })
